@@ -14,6 +14,9 @@ import WeatherFoodSuggestion from "@/components/WeatherFoodSuggestion";
 import GamesHub from "@/components/GamesHub";
 import ComicStories from "@/components/ComicStories";
 import StoryMode from "@/components/StoryMode";
+import FoodKingdomMap from "@/components/FoodKingdomMap";
+import AnimeCutscenes from "@/components/AnimeCutscenes";
+import MangaPanels from "@/components/MangaPanels";
 import { AnimeThemeSelector } from "@/components/AnimeThemeSelector";
 import { CharacterSelector } from "@/components/CharacterSelector";
 import { VoiceControlButton } from "@/components/VoiceControlButton";
@@ -35,6 +38,9 @@ const Index = () => {
   const [showThemeSelector, setShowThemeSelector] = useState(false);
   const [showCharacterSelector, setShowCharacterSelector] = useState(false);
   const [showStoryMode, setShowStoryMode] = useState(false);
+  const [showFoodKingdomMap, setShowFoodKingdomMap] = useState(false);
+  const [showAnimeCutscenes, setShowAnimeCutscenes] = useState(false);
+  const [showMangaPanels, setShowMangaPanels] = useState(false);
   const { transcript, isListening } = useVoiceRecognition();
 
   useEffect(() => {
@@ -60,12 +66,21 @@ const Index = () => {
       setShowCharacterSelector(true);
     } else if (lower.includes("story") || lower.includes("chapter") || lower.includes("learn")) {
       setShowStoryMode(true);
+    } else if (lower.includes("map") || lower.includes("kingdom") || lower.includes("explore")) {
+      setShowFoodKingdomMap(true);
+    } else if (lower.includes("cutscene") || lower.includes("animation") || lower.includes("anime")) {
+      setShowAnimeCutscenes(true);
+    } else if (lower.includes("manga") || lower.includes("comic") || lower.includes("panel")) {
+      setShowMangaPanels(true);
     } else if (lower.includes("home") || lower.includes("back")) {
       setShowGames(false);
       setShowComics(false);
       setShowThemeSelector(false);
       setShowCharacterSelector(false);
       setShowStoryMode(false);
+      setShowFoodKingdomMap(false);
+      setShowAnimeCutscenes(false);
+      setShowMangaPanels(false);
     }
   }, [transcript]);
 
@@ -230,6 +245,33 @@ const Index = () => {
     );
   }
 
+  if (showFoodKingdomMap) {
+    return (
+      <FoodKingdomMap
+        completedChapters={user?.completedStoryChapters || []}
+        onBack={() => setShowFoodKingdomMap(false)}
+      />
+    );
+  }
+
+  if (showAnimeCutscenes) {
+    return (
+      <AnimeCutscenes
+        completedChapters={user?.completedStoryChapters || []}
+        onBack={() => setShowAnimeCutscenes(false)}
+      />
+    );
+  }
+
+  if (showMangaPanels) {
+    return (
+      <MangaPanels
+        completedChapters={user?.completedStoryChapters || []}
+        onBack={() => setShowMangaPanels(false)}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
@@ -293,7 +335,7 @@ const Index = () => {
               {/* Weather-based Food Suggestions */}
               <WeatherFoodSuggestion />
 
-              {/* Quick Actions - Games, Comics & Story */}
+              {/* Quick Actions - Games, Comics, Story, Map, Cutscenes, Manga */}
               <div className="grid grid-cols-3 gap-3">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -329,6 +371,42 @@ const Index = () => {
                   <BookOpen className="w-6 h-6 text-primary-foreground mb-1" />
                   <p className="font-display font-bold text-xs text-primary-foreground">Read Comics</p>
                   <p className="text-xs text-primary-foreground/80">Fun food stories!</p>
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowFoodKingdomMap(true)}
+                  className="bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl p-3 text-left relative overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 w-12 h-12 bg-white/20 rounded-full blur-xl" />
+                  <span className="text-2xl mb-1 inline-block">🗺️</span>
+                  <p className="font-display font-bold text-xs text-primary-foreground">Food Map</p>
+                  <p className="text-xs text-primary-foreground/80">Explore regions!</p>
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowAnimeCutscenes(true)}
+                  className="bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl p-3 text-left relative overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 w-12 h-12 bg-white/20 rounded-full blur-xl" />
+                  <span className="text-2xl mb-1 inline-block">🎬</span>
+                  <p className="font-display font-bold text-xs text-primary-foreground">Cutscenes</p>
+                  <p className="text-xs text-primary-foreground/80">Watch anime!</p>
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowMangaPanels(true)}
+                  className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-3 text-left relative overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 w-12 h-12 bg-white/20 rounded-full blur-xl" />
+                  <span className="text-2xl mb-1 inline-block">📖</span>
+                  <p className="font-display font-bold text-xs text-primary-foreground">Manga</p>
+                  <p className="text-xs text-primary-foreground/80">Comic strips!</p>
                 </motion.button>
               </div>
 
