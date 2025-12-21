@@ -1,0 +1,292 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka:wght@400;500;600;700&display=swap');
+
+  :root {
+    --background: 35 100% 98%;
+    --foreground: 25 30% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 25 30% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 25 30% 20%;
+
+    --primary: 15 90% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 160 50% 55%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 35 30% 92%;
+    --muted-foreground: 25 20% 45%;
+
+    --accent: 340 75% 65%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 35 30% 88%;
+    --input: 35 30% 88%;
+    --ring: 15 90% 60%;
+
+    --radius: 1rem;
+
+    /* Custom tokens */
+    --kawaii-yellow: 45 100% 70%;
+    --kawaii-pink: 340 80% 75%;
+    --kawaii-blue: 200 80% 70%;
+    --kawaii-purple: 270 60% 70%;
+    --kawaii-mint: 160 60% 75%;
+
+    --gradient-sunny: linear-gradient(135deg, hsl(45, 100%, 70%) 0%, hsl(15, 90%, 60%) 100%);
+    --gradient-fresh: linear-gradient(135deg, hsl(160, 60%, 75%) 0%, hsl(160, 50%, 55%) 100%);
+    --gradient-candy: linear-gradient(135deg, hsl(340, 80%, 75%) 0%, hsl(270, 60%, 70%) 100%);
+    --gradient-sky: linear-gradient(135deg, hsl(200, 80%, 70%) 0%, hsl(270, 60%, 70%) 100%);
+
+    --shadow-kawaii: 0 8px 30px -5px hsl(15 90% 60% / 0.25);
+    --shadow-card: 0 4px 20px -2px hsl(25 30% 20% / 0.08);
+    --shadow-float: 0 12px 40px -8px hsl(25 30% 20% / 0.15);
+
+    /* Anime theme dynamic variables */
+    --gradient-main: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+    --gradient-accent: linear-gradient(135deg, #004E89 0%, #0081CF 100%);
+    --shadow-theme: 0 8px 30px -5px rgba(255, 107, 53, 0.3);
+
+    --font-display: 'Fredoka', sans-serif;
+    --font-body: 'Nunito', sans-serif;
+
+    /* Transition for smooth theme changes */
+    transition: --primary 0.3s ease, --secondary 0.3s ease, --accent 0.3s ease, --gradient-main 0.3s ease, --gradient-accent 0.3s ease, --shadow-theme 0.3s ease;
+  }
+
+  .dark {
+    --background: 25 25% 10%;
+    --foreground: 35 30% 95%;
+
+    --card: 25 20% 15%;
+    --card-foreground: 35 30% 95%;
+
+    --popover: 25 20% 15%;
+    --popover-foreground: 35 30% 95%;
+
+    --primary: 15 85% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 160 45% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 25 15% 20%;
+    --muted-foreground: 35 20% 65%;
+
+    --accent: 340 70% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --border: 25 15% 25%;
+    --input: 25 15% 25%;
+    --ring: 15 85% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer components {
+  .bubble-text {
+    @apply relative inline-block;
+    text-shadow: 2px 2px 0 hsl(var(--primary) / 0.2);
+  }
+
+  .kawaii-bounce {
+    animation: kawaii-bounce 2s ease-in-out infinite;
+  }
+
+  .kawaii-float {
+    animation: kawaii-float 3s ease-in-out infinite;
+  }
+
+  .kawaii-wiggle {
+    animation: kawaii-wiggle 0.5s ease-in-out;
+  }
+
+  .kawaii-pulse {
+    animation: kawaii-pulse 2s ease-in-out infinite;
+  }
+
+  /* Anime-specific theme utilities */
+  .theme-glow {
+    position: relative;
+  }
+
+  .theme-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, var(--gradient-accent) 0%, transparent 70%);
+    opacity: 0.1;
+    pointer-events: none;
+    border-radius: inherit;
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  .theme-glitch {
+    position: relative;
+    animation: glitch 0.3s ease-in-out infinite;
+  }
+
+  .theme-glitch::before,
+  .theme-glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    opacity: 0.8;
+  }
+
+  .theme-glitch::before {
+    animation: glitch-before 0.3s ease-in-out infinite;
+    color: hsl(var(--primary));
+    left: -2px;
+  }
+
+  .theme-glitch::after {
+    animation: glitch-after 0.3s ease-in-out infinite;
+    color: hsl(var(--secondary));
+    right: -2px;
+  }
+
+  .theme-blur {
+    animation: blur-effect 2s ease-in-out infinite;
+  }
+
+  .anime-border-rounded {
+    border-radius: 1.5rem;
+    border: 2px solid hsl(var(--primary));
+  }
+
+  .anime-border-sharp {
+    border-radius: 0.25rem;
+    border: 2px solid hsl(var(--primary));
+  }
+
+  .anime-border-dashed {
+    border-radius: 1rem;
+    border: 2px dashed hsl(var(--primary));
+  }
+
+  .anime-border-double {
+    border-radius: 1rem;
+    border: 3px double hsl(var(--primary));
+  }
+
+  .anime-text-shadow {
+    text-shadow: 2px 2px 4px hsl(var(--primary) / 0.3), -1px -1px 2px hsl(var(--secondary) / 0.2);
+  }
+
+  .anime-text-outline {
+    -webkit-text-stroke: 1px hsl(var(--primary));
+    color: hsl(var(--background));
+    text-shadow: 2px 2px 4px hsl(var(--primary) / 0.5);
+  }
+
+  /* Theme pattern backgrounds */
+  .theme-pattern {
+    background-image: var(--pattern-background, none);
+    background-size: 100% 100%;
+    position: relative;
+  }
+
+  .theme-pattern::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--pattern-overlay, none);
+    pointer-events: none;
+  }
+}
+
+@keyframes kawaii-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes kawaii-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+@keyframes kawaii-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+@keyframes kawaii-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes glitch {
+  0% { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); }
+  20% { clip-path: polygon(0% 20%, 100% 0%, 100% 80%, 0% 100%); }
+  40% { clip-path: polygon(0% 40%, 100% 20%, 100% 60%, 0% 80%); }
+  60% { clip-path: polygon(0% 60%, 100% 40%, 100% 40%, 0% 60%); }
+  80% { clip-path: polygon(0% 80%, 100% 60%, 100% 20%, 0% 40%); }
+  100% { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); }
+}
+
+@keyframes glitch-before {
+  0% { clip-path: polygon(0% 0%, 100% 0%, 100% 20%, 0% 100%); }
+  50% { clip-path: polygon(0% 60%, 100% 40%, 100% 80%, 0% 0%); }
+  100% { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); }
+}
+
+@keyframes glitch-after {
+  0% { clip-path: polygon(0% 100%, 100% 80%, 100% 100%, 0% 0%); }
+  50% { clip-path: polygon(0% 0%, 100% 100%, 100% 20%, 0% 60%); }
+  100% { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); }
+}
+
+@keyframes blur-effect {
+  0%, 100% { filter: blur(0px); }
+  50% { filter: blur(1px); }
+}
+
+@keyframes kawaii-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes kawaii-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+@keyframes kawaii-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+@keyframes kawaii-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
