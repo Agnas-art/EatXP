@@ -74,5 +74,83 @@
     "manga_desc": "Crea historias temáticas de comida",
     "real_missions": "Misiones de la Vida Real",
     "missions_desc": "Completa tareas para potenciar tu personaje"
+  },
+  "food_categories": {
+    "fruits": "Frutas",
+    "veggies": "Verduras",
+    "proteins": "Proteínas",
+    "grains": "Granos",
+    "dairy": "Lácteos",
+    "snacks": "Aperitivos"
+  },
+  "foods": {
+    "banana": "Plátano",
+    "carrot": "Zanahoria",
+    "apple": "Manzana",
+    "cheese": "Queso",
+    "avocado": "Aguacate",
+    "broccoli": "Brócoli",
+    "spinach": "Espinaca",
+    "salmon": "Salmón",
+    "chicken": "Pollo"
+  },
+  "recipes": {
+    "rainbow_fruit_kabobs": "Pinchos de Frutas Arcoíris",
+    "funny_face_sandwich": "Sándwich de Cara Divertida",
+    "apple_donuts": "Donuts de Manzana",
+    "veggie_quesadilla": "Quesadilla de Verduras",
+    "stir_fry_noodles": "Fideos Salteados",
+    "homemade_pizza": "Pizza Casera",
+    "buddha_bowl": "Cuenco Buddha",
+    "smoothie_bowl": "Cuenco de Batido"
+  },
+  "voice_responses": {
+    "apple": "¡Las manzanas están llenas de fibra y vitamina C! Te ayudan a mantener los dientes saludables y te dan energía.",
+    "banana": "¡Los plátanos tienen potasio que ayuda tus músculos y corazón! ¡También son geniales para la energía!",
+    "carrot": "¡Las zanahorias tienen beta-caroteno que es excelente para tus ojos! ¡Las verduras naranjas son súper saludables!",
+    "broccoli": "¡El brócoli está lleno de vitaminas y minerales! ¡Ayuda a que tus huesos crezcan fuertes!",
+    "spinach": "¡La espinaca está llena de hierro y vitaminas! ¡Te hace fuerte como Popeye!",
+    "milk": "¡La leche tiene calcio que construye huesos y dientes fuertes! ¡Excelente para niños en crecimiento!",
+    "egg": "¡Los huevos tienen proteína y colina que ayudan al crecimiento del cerebro! ¡Perfecto para el desayuno!",
+    "fish": "¡El pescado tiene omega-3 que es excelente para tu cerebro! ¡Te ayuda a pensar mejor!",
+    "water": "¡El agua es súper importante! ¡Te mantiene fresco y ayuda a que todo funcione bien!",
+    "salad": "¡Las ensaladas tienen muchas verduras con vitaminas y minerales! ¡Comer comida colorida es saludable!",
+    "recipe": "¡Puedo enseñarte recetas deliciosas! ¡Pregúntame sobre pizza, pasta, galletas o cualquier comida que te guste!",
+    "cook": "¡Cocinar es divertido y te ayuda a aprender! ¿Qué comida te gustaría cocinar?",
+    "healthy": "¡Comer saludable significa muchas frutas, verduras, granos integrales y agua! ¡Ayuda a que tu cuerpo crezca fuerte!",
+    "exercise": "¡El ejercicio es divertido y mantiene tu cuerpo saludable! ¡Puedes correr, bailar, nadar o jugar!",
+    "food": "¡La comida da energía a tu cuerpo y te ayuda a crecer! ¡Come muchos colores - verduras, frutas, proteínas!",
+    "sugar": "¡El azúcar da energía rápida pero mucho no es bueno para los dientes! ¡Come dulces en pequeñas cantidades!",
+    "chocolate": "¡El chocolate tiene cosas buenas pero también azúcar! ¡Tenlo como un regalo, no todos los días!",
+    "pizza": "¡La pizza puede ser saludable! ¡Usa masa integral y muchos aderezos de verduras!"
+  },
+  "buttons": {
+    "back": "← Atrás",
+    "next": "Siguiente",
+    "start": "Comenzar",
+    "finish": "Finalizar",
+    "play": "Jugar",
+    "stop": "Detener",
+    "skip": "Saltar"
+  },
+  "food_info": {
+    "banana_benefit_1": "Aumento de energía",
+    "banana_benefit_2": "Vientre feliz",
+    "banana_fact": "¡Los plátanos pueden flotar en agua!",
+    "carrot_benefit_1": "Ojos súper",
+    "carrot_benefit_2": "Diversión crujiente",
+    "carrot_fact": "¡Las zanahorias fueron primero púrpuras, no naranjas!"
+  },
+  "story": {
+    "chapter_1_title": "La Aventura Culinaria Comienza",
+    "chapter_1_narrative": "¡Bienvenido a la Academia Anime Eats! Tu viaje de comida comienza aquí. ¡Aprende cómo diferentes alimentos dan superpoderes a tu cuerpo!",
+    "lesson_nutrition": "Conceptos Básicos de Nutrición",
+    "lesson_content": "¡Cada alimento tiene poderes especiales! Las proteínas construyen músculos 💪, Los carbohidratos dan energía ⚡, Las grasas ayudan tu cerebro 🧠, ¡Las vitaminas te mantienen saludable 🌟"
+  },
+  "games": {
+    "food_quiz": "Quiz de Comida",
+    "food_match": "Juego de Emparejar Comida",
+    "cooking_catch": "Juego de Atrapar Cocina",
+    "complete_challenge": "Completar Desafío"
   }
 }

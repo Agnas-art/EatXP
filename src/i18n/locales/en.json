@@ -123,6 +123,38 @@
     "sugar": "Sugar gives quick energy but too much isn't good for teeth! Eat sweets in small amounts.",
     "chocolate": "Chocolate has some good stuff but also sugar! Have it as a treat, not every day.",
     "pizza": "Pizza can be healthy! Use whole wheat crust and lots of veggie toppings!"
+  },
+  "buttons": {
+    "back": "← Back",
+    "next": "Next",
+    "start": "Start",
+    "finish": "Finish",
+    "play": "Play",
+    "stop": "Stop",
+    "skip": "Skip"
+  },
+  "food_info": {
+    "banana_benefit_1": "Energy boost",
+    "banana_benefit_2": "Happy tummy",
+    "banana_fact": "Bananas can float in water!",
+    "carrot_benefit_1": "Super eyes",
+    "carrot_benefit_2": "Crunchy fun",
+    "carrot_fact": "Carrots were first purple, not orange!",
+    "apple_benefit_1": "Strong teeth",
+    "apple_benefit_2": "Yummy snack",
+    "apple_fact": "Apples are part of the rose family!"
+  },
+  "story": {
+    "chapter_1_title": "The Culinary Adventure Begins",
+    "chapter_1_narrative": "Welcome to Anime Eats Academy! Your food journey starts here. Learn how different foods give your body superpowers!",
+    "lesson_nutrition": "Nutrition Basics",
+    "lesson_content": "Every food has special powers! Proteins build muscles 💪, Carbs give energy ⚡, Fats help your brain 🧠, Vitamins keep you healthy 🌟"
+  },
+  "games": {
+    "food_quiz": "Food Quiz",
+    "food_match": "Food Match Game",
+    "cooking_catch": "Cooking Catch Game",
+    "complete_challenge": "Complete Challenge"
   }
 }
 
