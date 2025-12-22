@@ -72,7 +72,7 @@ const App = () => {
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
+            <BrowserRouter basename={import.meta.env.PROD ? "/EatXP" : "/"}>
               <AppContent />
             </BrowserRouter>
           </TooltipProvider>
