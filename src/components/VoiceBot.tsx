@@ -95,10 +95,11 @@ export function VoiceBot() {
     // Try using HuggingFace's free inference API with zero authentication
     // Using a pre-built space that doesn't require API key
     try {
+      const hfToken = import.meta.env.VITE_HF_TOKEN;
       const response = await fetch(
         "https://api-inference.huggingface.co/models/google/flan-t5-base",
         {
-          headers: { Authorization: `Bearer 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` },
+          headers: hfToken ? { Authorization: `Bearer ${hfToken}` } : {},
           method: "POST",
           body: JSON.stringify({ 
             inputs: `Answer briefly about food education for children: ${question}`,
