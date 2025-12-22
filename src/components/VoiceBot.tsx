@@ -34,10 +34,8 @@ export function VoiceBot() {
                         i18n.language === "fr" ? "fr-FR" :
                         i18n.language === "ja" ? "ja-JP" :
                         i18n.language === "hi" ? "hi-IN" :
-                        i18n.language === "bn" ? "bn-IN" :
                         i18n.language === "ta" ? "ta-IN" :
-                        i18n.language === "te" ? "te-IN" :
-                        i18n.language === "mr" ? "mr-IN" : "en-US";
+                        i18n.language === "te" ? "te-IN" : "en-US";
 
       recognition.onstart = () => {
         setIsListening(true);
@@ -169,10 +167,8 @@ export function VoiceBot() {
                      i18n.language === "fr" ? "fr-FR" :
                      i18n.language === "ja" ? "ja-JP" :
                      i18n.language === "hi" ? "hi-IN" :
-                     i18n.language === "bn" ? "bn-IN" :
                      i18n.language === "ta" ? "ta-IN" :
-                     i18n.language === "te" ? "te-IN" :
-                     i18n.language === "mr" ? "mr-IN" : "en-US";
+                     i18n.language === "te" ? "te-IN" : "en-US";
     utterance.rate = 1;
 
     window.speechSynthesis.cancel();

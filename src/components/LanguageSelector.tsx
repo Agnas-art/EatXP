@@ -19,10 +19,8 @@ export function LanguageSelector() {
     { code: "ja", name: "日本語", flag: "🇯🇵" },
     // Indian Languages
     { code: "hi", name: "हिंदी", flag: "🇮🇳" },
-    { code: "bn", name: "বাংলা", flag: "🇮🇳" },
     { code: "ta", name: "தமிழ்", flag: "🇮🇳" },
     { code: "te", name: "తెలుగు", flag: "🇮🇳" },
-    { code: "mr", name: "मराठी", flag: "🇮🇳" },
   ];
 
   const handleLanguageChange = (newLanguage: string) => {

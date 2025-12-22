@@ -14,10 +14,8 @@
     "french": "Français",
     "japanese": "日本語",
     "hindi": "हिन्दी",
-    "bengali": "বাংলা",
     "tamil": "தமிழ்",
     "telugu": "తెలుగు",
-    "marathi": "मराठी",
     "voice_bot": "Voice Bot",
     "logout": "Logout",
     "login": "Login",
@@ -76,6 +74,55 @@
     "manga_desc": "Create food-themed stories",
     "real_missions": "Real-Life Missions",
     "missions_desc": "Complete tasks to power up your character"
+  },
+  "food_categories": {
+    "fruits": "Fruits",
+    "veggies": "Veggies",
+    "proteins": "Proteins",
+    "grains": "Grains",
+    "dairy": "Dairy",
+    "snacks": "Snacks"
+  },
+  "foods": {
+    "banana": "Banana",
+    "carrot": "Carrot",
+    "apple": "Apple",
+    "cheese": "Cheese",
+    "avocado": "Avocado",
+    "broccoli": "Broccoli",
+    "spinach": "Spinach",
+    "salmon": "Salmon",
+    "chicken": "Chicken"
+  },
+  "recipes": {
+    "rainbow_fruit_kabobs": "Rainbow Fruit Kabobs",
+    "funny_face_sandwich": "Funny Face Sandwich",
+    "apple_donuts": "Apple Donuts",
+    "veggie_quesadilla": "Veggie Quesadilla",
+    "stir_fry_noodles": "Stir-Fry Noodles",
+    "homemade_pizza": "Homemade Pizza",
+    "buddha_bowl": "Buddha Bowl",
+    "smoothie_bowl": "Smoothie Bowl"
+  },
+  "voice_responses": {
+    "apple": "Apples are full of fiber and vitamin C! They help keep your teeth healthy and give you energy.",
+    "banana": "Bananas have potassium which helps your muscles and heart! They're also great for energy.",
+    "carrot": "Carrots have beta-carotene which is great for your eyes! Orange veggies are super healthy.",
+    "broccoli": "Broccoli is full of vitamins and minerals! It helps your bones grow strong.",
+    "spinach": "Spinach is packed with iron and vitamins! It makes you strong like Popeye!",
+    "milk": "Milk has calcium which builds strong bones and teeth! Great for growing kids.",
+    "egg": "Eggs have protein and choline which help your brain grow! Perfect for breakfast.",
+    "fish": "Fish has omega-3s which are great for your brain! It helps you think better.",
+    "water": "Water is super important! It keeps your body cool and helps everything work right.",
+    "salad": "Salads have lots of veggies with vitamins and minerals! Eating colorful food is healthy.",
+    "recipe": "I can teach you delicious recipes! Ask me about pizza, pasta, cookies, or any food you like!",
+    "cook": "Cooking is fun and helps you learn! What food would you like to cook?",
+    "healthy": "Eating healthy means lots of fruits, veggies, whole grains, and water! It helps your body grow strong.",
+    "exercise": "Exercise is fun and keeps your body healthy! You can run, dance, swim, or play!",
+    "food": "Food gives your body energy and helps you grow! Eat lots of colors - veggies, fruits, proteins!",
+    "sugar": "Sugar gives quick energy but too much isn't good for teeth! Eat sweets in small amounts.",
+    "chocolate": "Chocolate has some good stuff but also sugar! Have it as a treat, not every day.",
+    "pizza": "Pizza can be healthy! Use whole wheat crust and lots of veggie toppings!"
   }
 }
 
