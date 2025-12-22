@@ -9,20 +9,20 @@ import {
 } from "@/components/ui/select";
 
 export function LanguageSelector() {
-  const { i18n, t } = useTranslation();
+  const { i18n } = useTranslation();
 
   const languages = [
     // International Languages
-    { code: "en", name: t("common.english"), flag: "🇺🇸" },
-    { code: "es", name: t("common.spanish"), flag: "🇪🇸" },
-    { code: "fr", name: t("common.french"), flag: "🇫🇷" },
-    { code: "ja", name: t("common.japanese"), flag: "🇯🇵" },
+    { code: "en", name: "English", flag: "🇺🇸" },
+    { code: "es", name: "Español", flag: "🇪🇸" },
+    { code: "fr", name: "Français", flag: "🇫🇷" },
+    { code: "ja", name: "日本語", flag: "🇯🇵" },
     // Indian Languages
-    { code: "hi", name: t("common.hindi"), flag: "🇮🇳" },
-    { code: "bn", name: t("common.bengali"), flag: "🇮🇳" },
-    { code: "ta", name: t("common.tamil"), flag: "🇮🇳" },
-    { code: "te", name: t("common.telugu"), flag: "🇮🇳" },
-    { code: "mr", name: t("common.marathi"), flag: "🇮🇳" },
+    { code: "hi", name: "हिंदी", flag: "🇮🇳" },
+    { code: "bn", name: "বাংলা", flag: "🇮🇳" },
+    { code: "ta", name: "தமிழ்", flag: "🇮🇳" },
+    { code: "te", name: "తెలుగు", flag: "🇮🇳" },
+    { code: "mr", name: "मराठी", flag: "🇮🇳" },
   ];
 
   const handleLanguageChange = (newLanguage: string) => {
