@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/EatXP/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EatXP - Learn About Food & Nutrition with Anime</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/EatXP/src/main.tsx"></script>
+    <script>
+      // Redirect 404s to the index for SPA routing
+      if (window.location.pathname !== '/EatXP/') {
+        sessionStorage.redirect = window.location.pathname;
+        window.location.pathname = '/EatXP/';
+      }
+    </script>
+  </body>
+</html>
