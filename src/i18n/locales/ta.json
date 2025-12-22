@@ -1,0 +1,48 @@
+{
+  "app_name": "EatXP",
+  "nav": {
+    "home": "வீடு",
+    "recipes": "சமையல் குறிப்புகள்",
+    "games": "விளையாட்டுகள்",
+    "profile": "சுயவிவரம்",
+    "settings": "அமைப்புகள்"
+  },
+  "common": {
+    "language": "மொழி",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "japanese": "日本語",
+    "hindi": "हिंदी",
+    "bengali": "বাংলা",
+    "tamil": "தமிழ்",
+    "telugu": "తెలుగు",
+    "marathi": "मराठी",
+    "voice_bot": "குரல் தூதர்",
+    "logout": "வெளியேறு",
+    "login": "உள்நுழைக",
+    "register": "பதிவு செய்க"
+  },
+  "home": {
+    "welcome": "EatXP க்கு வரவேற்கிறோம்",
+    "subtitle": "재미있게 உணவு பற்றி கற்க!",
+    "start_learning": "கற்றல் தொடங்க"
+  },
+  "voice_bot": {
+    "title": "EatXP குரல் உதவியாளர்",
+    "listen": "கேட்டுக் கொண்டிருக்கிறேன்...",
+    "speak": "பேச க்লிக் செய்க",
+    "processing": "செயல்பாட்டில்...",
+    "help_text": "உணவு, சமையல் குறிப்புகள் அல்லது ஊட்டச்சத்து பற்றி எனக்கு கேளுங்கள்!"  },
+  "teen_features": {
+    "shokuiku_saga": "சோகுஇகு சாகா ஆरpஜி",
+    "shokuiku_desc": "உணவு இராச்சியத்தில் பாத்திர வகிப்பு சாகசம்",
+    "boss_battles": "முதலை போரிடல்",
+    "boss_desc": "வாரிக அニமे முதலை போர்",
+    "meal_mastery": "உணவு தேர்ச்சி",
+    "meal_desc": "சீரான உணவு திட்டம் ডिজाইன செய்க",
+    "manga_builder": "மாங்கா பिरामिड",
+    "manga_desc": "உணவு-தीம கதை உ உ",
+    "real_missions": "உண்மையான நaมों",
+    "missions_desc": "உங்கள் குணத்தை வலिमयुक்त செய்ய பணிகளை பूర्तி செய்க"  }
+}

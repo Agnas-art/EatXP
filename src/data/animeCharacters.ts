@@ -1,4 +1,4 @@
-// Anime character data with 3D model references
+// Anime character data with real character images
 export interface AnimeCharacter {
   id: string;
   name: string;
@@ -7,6 +7,7 @@ export interface AnimeCharacter {
   personality: string;
   color: string;
   emoji: string;
+  imageUrl?: string; // Real anime character image
   modelUrl?: string;
   position?: { x: number; y: number; z: number };
 }
@@ -20,6 +21,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Determined, Cheerful, Optimistic",
     color: "#FF6B35",
     emoji: "🧡",
+    imageUrl: "https://cdn.myanimelist.net/images/characters/9/131317.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   tanjiro: {
@@ -30,6 +32,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Compassionate, Strong-willed, Brave",
     color: "#C41E3A",
     emoji: "❤️",
+    imageUrl: "https://cdn.myanimelist.net/images/characters/1/322991.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   deku: {
@@ -40,6 +43,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Determined, Kind, Analytical",
     color: "#D81828",
     emoji: "💪",
+    imageUrl: "https://cdn.myanimelist.net/images/characters/5/287837.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   eren: {
@@ -50,6 +54,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Strategic, Brave, Determined",
     color: "#2D5016",
     emoji: "⚔️",
+    imageUrl: "https://cdn.myanimelist.net/images/characters/7/290436.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   yuji: {
@@ -60,6 +65,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Confident, Powerful, Determined",
     color: "#8B3A8B",
     emoji: "✨",
+    imageUrl: "https://cdn.myanimelist.net/images/characters/5/441011.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   goku: {
@@ -70,6 +76,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Adventurous, Strong, Playful",
     color: "#FF6600",
     emoji: "⚡",
+    imageUrl: "https://cdn.myanimelist.net/images/characters/9/131406.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   luffy: {
@@ -80,6 +87,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Adventurous, Loyal, Courageous",
     color: "#FF0000",
     emoji: "🏴‍☠️",
+    imageUrl: "https://cdn.myanimelist.net/images/characters/5/131261.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   kaneki: {
@@ -90,6 +98,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Strong, Mysterious, Determined",
     color: "#660000",
     emoji: "🌙",
+    imageUrl: "https://cdn.myanimelist.net/images/characters/5/227819.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
 };

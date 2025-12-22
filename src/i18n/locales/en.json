@@ -1,0 +1,81 @@
+{
+  "app_name": "EatXP",
+  "nav": {
+    "home": "Home",
+    "recipes": "Recipes",
+    "games": "Games",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "common": {
+    "language": "Language",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "japanese": "日本語",
+    "hindi": "हिन्दी",
+    "bengali": "বাংলা",
+    "tamil": "தமிழ்",
+    "telugu": "తెలుగు",
+    "marathi": "मराठी",
+    "voice_bot": "Voice Bot",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register",
+    "back_to_home": "← Back to Home",
+    "hello": "Hello",
+    "choose_character": "Choose Character",
+    "story_mode": "Story Mode",
+    "change_theme": "Change Theme",
+    "change_age": "Change Age",
+    "anime_themes": "Anime Themes"
+  },
+  "home": {
+    "welcome": "Welcome to EatXP",
+    "subtitle": "Learn about food while having fun!",
+    "start_learning": "Start Learning",
+    "story_mode": "Story Mode",
+    "story_desc": "Learn nutrition!",
+    "play_games": "Play Games",
+    "games_desc": "Learn & have fun!",
+    "read_comics": "Read Comics",
+    "comics_desc": "Fun food stories!",
+    "food_map": "Food Map",
+    "food_map_desc": "Explore regions!",
+    "cutscenes": "Cutscenes",
+    "cutscenes_desc": "Watch anime!",
+    "manga": "Manga",
+    "manga_desc": "Comic strips!",
+    "daily_challenge": "Daily Challenge",
+    "challenge_desc": "Try a new veggie today! 🥦",
+    "challenge_text": "Earn 10 points by trying a vegetable you've never had before!",
+    "accept_challenge": "Accept Challenge",
+    "quick_recipes": "Quick Recipes"
+  },
+  "age_groups": {
+    "kids": "Little Chef",
+    "tweens": "Junior Cook",
+    "teens": "Teen Chef",
+    "default": "Chef"
+  },
+  "voice_bot": {
+    "title": "EatXP Voice Assistant",
+    "listen": "Listening...",
+    "speak": "Click to speak",
+    "processing": "Processing...",
+    "help_text": "Ask me anything about food, recipes, or nutrition!"
+  },
+  "teen_features": {
+    "shokuiku_saga": "Shokuiku Saga RPG",
+    "shokuiku_desc": "Role-playing adventure in Food Kingdom",
+    "boss_battles": "Boss Battles",
+    "boss_desc": "Weekly anime boss fights",
+    "meal_mastery": "Meal Mastery",
+    "meal_desc": "Design balanced meal plans",
+    "manga_builder": "Manga Builder",
+    "manga_desc": "Create food-themed stories",
+    "real_missions": "Real-Life Missions",
+    "missions_desc": "Complete tasks to power up your character"
+  }
+}
+

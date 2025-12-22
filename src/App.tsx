@@ -9,7 +9,11 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
+import FeaturesDemo from "./pages/FeaturesDemo";
 import { initializeTheme } from "@/hooks/useThemeStore";
+import "@/i18n/config";
+import { I18nextProvider } from "react-i18next";
+import i18n from "@/i18n/config";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +49,7 @@ const AppContent = () => {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/features-demo" element={<FeaturesDemo />} />
       <Route
         path="/"
         element={
@@ -61,17 +66,19 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </AuthProvider>
+    <I18nextProvider i18n={i18n}>
+      <AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </AuthProvider>
+    </I18nextProvider>
   );
 };
 

@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Sparkles, Gamepad2, BookOpen, Palette, Users, BookMarked } from "lucide-react";
 import FoodMascot from "@/components/FoodMascot";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import AgeSelector from "@/components/AgeSelector";
 import BottomNav from "@/components/BottomNav";
 import CategoryPill from "@/components/CategoryPill";
@@ -21,11 +23,18 @@ import { AnimeThemeSelector } from "@/components/AnimeThemeSelector";
 import { CharacterSelector } from "@/components/CharacterSelector";
 import { VoiceControlButton } from "@/components/VoiceControlButton";
 import { UserProfile } from "@/components/UserProfile";
+import { VoiceBot } from "@/components/VoiceBot";
+import { ShokuikuSagaRPG } from "@/components/teen/ShokuikuSagaRPG";
+import { BossBattleChallenges } from "@/components/teen/BossBattleChallenges";
+import { MealMasterySimulator } from "@/components/teen/MealMasterySimulator";
+import { AnimeMangaBuilder } from "@/components/teen/AnimeMangaBuilder";
+import { RealLifeMissions } from "@/components/teen/RealLifeMissions";
 import { useAuth } from "@/hooks/useAuth";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import { foodCategories, healthyFoods, recipes, foodFacts, achievements } from "@/data/foodData";
 
 const Index = () => {
+  const { t } = useTranslation();
   const { user, completeStoryChapter } = useAuth();
   const [selectedAge, setSelectedAge] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("home");
@@ -41,6 +50,12 @@ const Index = () => {
   const [showFoodKingdomMap, setShowFoodKingdomMap] = useState(false);
   const [showAnimeCutscenes, setShowAnimeCutscenes] = useState(false);
   const [showMangaPanels, setShowMangaPanels] = useState(false);
+  const [showVoiceBot, setShowVoiceBot] = useState(false);
+  const [showShokuikuSaga, setShowShokuikuSaga] = useState(false);
+  const [showBossBattles, setShowBossBattles] = useState(false);
+  const [showMealMastery, setShowMealMastery] = useState(false);
+  const [showMangaBuilder, setShowMangaBuilder] = useState(false);
+  const [showRealMissions, setShowRealMissions] = useState(false);
   const { transcript, isListening } = useVoiceRecognition();
 
   useEffect(() => {
@@ -93,16 +108,21 @@ const Index = () => {
 
   const getAgeLabel = () => {
     switch (selectedAge) {
-      case "kids": return "Little Chef";
-      case "tweens": return "Junior Cook";
-      case "teens": return "Teen Chef";
-      default: return "Chef";
+      case "kids": return t("age_groups.kids");
+      case "tweens": return t("age_groups.tweens");
+      case "teens": return t("age_groups.teens");
+      default: return t("age_groups.default");
     }
   };
 
   if (showWelcome && !selectedAge) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+        {/* Language Selector in top right */}
+        <div className="absolute top-6 right-6">
+          <LanguageSelector />
+        </div>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -115,12 +135,11 @@ const Index = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <h1 className="font-display text-3xl font-bold text-foreground">
-              Welcome to <span className="text-primary">Yummy</span>
-              <span className="text-secondary">Learn!</span>
+            <h1 className="font-display text-4xl font-bold text-foreground">
+              {t("app_name")} 🍽️
             </h1>
             <p className="text-muted-foreground mt-2">
-              Your fun food adventure starts here! 🎉
+              {t("home.subtitle")}
             </p>
           </motion.div>
 
@@ -173,11 +192,11 @@ const Index = () => {
             onClick={() => setShowThemeSelector(false)}
             className="text-muted-foreground hover:text-foreground transition-colors font-semibold"
           >
-            ← Back to Home
+            {t("common.back_to_home")}
           </button>
           <div className="flex items-center gap-2">
             <Palette className="w-5 h-5 text-primary" />
-            <span className="font-display font-bold">Anime Themes</span>
+            <span className="font-display font-bold">{t("common.anime_themes")}</span>
           </div>
         </header>
         <main className="px-4 py-6">
@@ -195,11 +214,11 @@ const Index = () => {
             onClick={() => setShowCharacterSelector(false)}
             className="text-muted-foreground hover:text-foreground transition-colors font-semibold"
           >
-            ← Back to Home
+            {t("common.back_to_home")}
           </button>
           <div className="flex items-center gap-2">
             <Users className="w-5 h-5 text-primary" />
-            <span className="font-display font-bold">Choose Character</span>
+            <span className="font-display font-bold">{t("common.choose_character")}</span>
           </div>
         </header>
         <main className="px-4 py-6">
@@ -217,7 +236,7 @@ const Index = () => {
             onClick={() => setShowGames(false)}
             className="text-muted-foreground hover:text-foreground transition-colors font-semibold"
           >
-            ← Back to Home
+            {t("common.back_to_home")}
           </button>
         </header>
         <main className="px-4 py-4">
@@ -235,7 +254,7 @@ const Index = () => {
             onClick={() => setShowComics(false)}
             className="text-muted-foreground hover:text-foreground transition-colors font-semibold"
           >
-            ← Back to Home
+            {t("common.back_to_home")}
           </button>
         </header>
         <main className="px-4 py-4">
@@ -272,6 +291,74 @@ const Index = () => {
     );
   }
 
+  if (showVoiceBot) {
+    return (
+      <div className="min-h-screen bg-background pb-8">
+        <header className="sticky top-0 bg-background/95 backdrop-blur-lg z-40 px-4 py-3 border-b border-border">
+          <button
+            onClick={() => setShowVoiceBot(false)}
+            className="text-muted-foreground hover:text-foreground transition-colors font-semibold"
+          >
+            {t("common.back_to_home")}
+          </button>
+        </header>
+        <main className="px-4 py-4 flex items-center justify-center">
+          <VoiceBot />
+        </main>
+      </div>
+    );
+  }
+
+  if (showShokuikuSaga) {
+    return (
+      <div className="min-h-screen bg-background pb-8">
+        <main className="px-4 py-4">
+          <ShokuikuSagaRPG onBack={() => setShowShokuikuSaga(false)} />
+        </main>
+      </div>
+    );
+  }
+
+  if (showBossBattles) {
+    return (
+      <div className="min-h-screen bg-background pb-8">
+        <main className="px-4 py-4">
+          <BossBattleChallenges onBack={() => setShowBossBattles(false)} />
+        </main>
+      </div>
+    );
+  }
+
+  if (showMealMastery) {
+    return (
+      <div className="min-h-screen bg-background pb-8">
+        <main className="px-4 py-4">
+          <MealMasterySimulator onBack={() => setShowMealMastery(false)} />
+        </main>
+      </div>
+    );
+  }
+
+  if (showMangaBuilder) {
+    return (
+      <div className="min-h-screen bg-background pb-8">
+        <main className="px-4 py-4">
+          <AnimeMangaBuilder onBack={() => setShowMangaBuilder(false)} />
+        </main>
+      </div>
+    );
+  }
+
+  if (showRealMissions) {
+    return (
+      <div className="min-h-screen bg-background pb-8">
+        <main className="px-4 py-4">
+          <RealLifeMissions onBack={() => setShowRealMissions(false)} />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
@@ -280,16 +367,17 @@ const Index = () => {
           <div className="flex items-center gap-3">
             <FoodMascot mood="happy" size="sm" />
             <div>
-              <p className="text-xs text-muted-foreground">Hello, {getAgeLabel()}!</p>
-              <h2 className="font-display font-bold text-foreground">YummyLearn</h2>
+              <p className="text-xs text-muted-foreground">{t("common.hello")}, {getAgeLabel()}!</p>
+              <h2 className="font-display font-bold text-foreground">{t("app_name")}</h2>
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <LanguageSelector />
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowCharacterSelector(true)}
               className="bg-primary/10 text-primary hover:bg-primary/20 p-2 rounded-full transition-all"
-              title="Choose Character"
+              title={t("common.choose_character")}
             >
               <Users className="w-5 h-5" />
             </motion.button>
@@ -297,7 +385,7 @@ const Index = () => {
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowStoryMode(true)}
               className="bg-secondary/10 text-secondary hover:bg-secondary/20 p-2 rounded-full transition-all"
-              title="Story Mode"
+              title={t("common.story_mode")}
             >
               <BookMarked className="w-5 h-5" />
             </motion.button>
@@ -305,7 +393,7 @@ const Index = () => {
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowThemeSelector(true)}
               className="bg-accent/10 text-accent hover:bg-accent/20 p-2 rounded-full transition-all"
-              title="Change Theme"
+              title={t("common.change_theme")}
             >
               <Palette className="w-5 h-5" />
             </motion.button>
@@ -315,7 +403,7 @@ const Index = () => {
               onClick={() => setShowWelcome(true)}
               className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-semibold"
             >
-              Change Age
+              {t("common.change_age")}
             </motion.button>
             <UserProfile />
           </div>
@@ -343,10 +431,9 @@ const Index = () => {
                   onClick={() => setShowStoryMode(true)}
                   className="bg-gradient-to-br from-kawaii-blue to-secondary rounded-2xl p-3 text-left relative overflow-hidden"
                 >
-                  <div className="absolute top-0 right-0 w-12 h-12 bg-white/20 rounded-full blur-xl" />
                   <BookMarked className="w-6 h-6 text-primary-foreground mb-1" />
-                  <p className="font-display font-bold text-xs text-primary-foreground">Story Mode</p>
-                  <p className="text-xs text-primary-foreground/80">Learn nutrition!</p>
+                  <p className="font-display font-bold text-xs text-primary-foreground">{t("home.story_mode")}</p>
+                  <p className="text-xs text-primary-foreground/80">{t("home.story_desc")}</p>
                 </motion.button>
 
                 <motion.button
@@ -355,10 +442,9 @@ const Index = () => {
                   onClick={() => setShowGames(true)}
                   className="bg-gradient-to-br from-kawaii-pink to-accent rounded-2xl p-3 text-left relative overflow-hidden"
                 >
-                  <div className="absolute top-0 right-0 w-12 h-12 bg-white/20 rounded-full blur-xl" />
                   <Gamepad2 className="w-6 h-6 text-primary-foreground mb-1" />
-                  <p className="font-display font-bold text-xs text-primary-foreground">Play Games</p>
-                  <p className="text-xs text-primary-foreground/80">Learn & have fun!</p>
+                  <p className="font-display font-bold text-xs text-primary-foreground">{t("home.play_games")}</p>
+                  <p className="text-xs text-primary-foreground/80">{t("home.games_desc")}</p>
                 </motion.button>
                 
                 <motion.button
@@ -367,10 +453,9 @@ const Index = () => {
                   onClick={() => setShowComics(true)}
                   className="bg-gradient-to-br from-kawaii-yellow to-primary rounded-2xl p-3 text-left relative overflow-hidden"
                 >
-                  <div className="absolute top-0 right-0 w-12 h-12 bg-white/20 rounded-full blur-xl" />
                   <BookOpen className="w-6 h-6 text-primary-foreground mb-1" />
-                  <p className="font-display font-bold text-xs text-primary-foreground">Read Comics</p>
-                  <p className="text-xs text-primary-foreground/80">Fun food stories!</p>
+                  <p className="font-display font-bold text-xs text-primary-foreground">{t("home.read_comics")}</p>
+                  <p className="text-xs text-primary-foreground/80">{t("home.comics_desc")}</p>
                 </motion.button>
 
                 <motion.button
@@ -379,10 +464,9 @@ const Index = () => {
                   onClick={() => setShowFoodKingdomMap(true)}
                   className="bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl p-3 text-left relative overflow-hidden"
                 >
-                  <div className="absolute top-0 right-0 w-12 h-12 bg-white/20 rounded-full blur-xl" />
                   <span className="text-2xl mb-1 inline-block">🗺️</span>
-                  <p className="font-display font-bold text-xs text-primary-foreground">Food Map</p>
-                  <p className="text-xs text-primary-foreground/80">Explore regions!</p>
+                  <p className="font-display font-bold text-xs text-primary-foreground">{t("home.food_map")}</p>
+                  <p className="text-xs text-primary-foreground/80">{t("home.food_map_desc")}</p>
                 </motion.button>
 
                 <motion.button
@@ -391,10 +475,9 @@ const Index = () => {
                   onClick={() => setShowAnimeCutscenes(true)}
                   className="bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl p-3 text-left relative overflow-hidden"
                 >
-                  <div className="absolute top-0 right-0 w-12 h-12 bg-white/20 rounded-full blur-xl" />
                   <span className="text-2xl mb-1 inline-block">🎬</span>
-                  <p className="font-display font-bold text-xs text-primary-foreground">Cutscenes</p>
-                  <p className="text-xs text-primary-foreground/80">Watch anime!</p>
+                  <p className="font-display font-bold text-xs text-primary-foreground">{t("home.cutscenes")}</p>
+                  <p className="text-xs text-primary-foreground/80">{t("home.cutscenes_desc")}</p>
                 </motion.button>
 
                 <motion.button
@@ -403,12 +486,90 @@ const Index = () => {
                   onClick={() => setShowMangaPanels(true)}
                   className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-3 text-left relative overflow-hidden"
                 >
-                  <div className="absolute top-0 right-0 w-12 h-12 bg-white/20 rounded-full blur-xl" />
                   <span className="text-2xl mb-1 inline-block">📖</span>
-                  <p className="font-display font-bold text-xs text-primary-foreground">Manga</p>
-                  <p className="text-xs text-primary-foreground/80">Comic strips!</p>
+                  <p className="font-display font-bold text-xs text-primary-foreground">{t("home.manga")}</p>
+                  <p className="text-xs text-primary-foreground/80">{t("home.manga_desc")}</p>
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowVoiceBot(true)}
+                  className="bg-gradient-to-br from-blue-400 to-cyan-500 rounded-2xl p-3 text-left relative overflow-hidden"
+                >
+                  <span className="text-2xl mb-1 inline-block">🎤</span>
+                  <p className="font-display font-bold text-xs text-primary-foreground">{t("common.voice_bot")}</p>
+                  <p className="text-xs text-primary-foreground/80">Talk & Learn</p>
                 </motion.button>
               </div>
+
+              {/* Teen Features - Only show for ages 13+ */}
+              {(selectedAge === "teens" || !selectedAge) && (
+                <>
+                  <div className="border-t-2 border-purple-300 pt-4 mt-4">
+                    <h3 className="font-display text-lg font-bold text-purple-600 mb-3 flex items-center gap-2">
+                      🎮 {t("teen_features.shokuiku_saga", "Teen Challenges")}
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowShokuikuSaga(true)}
+                      className="bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl p-3 text-left relative overflow-hidden"
+                    >
+                      <span className="text-2xl mb-1 inline-block">⚔️</span>
+                      <p className="font-display font-bold text-xs text-white">Shokuiku Saga</p>
+                      <p className="text-xs text-white/80">RPG Quest</p>
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowBossBattles(true)}
+                      className="bg-gradient-to-br from-red-500 to-red-700 rounded-2xl p-3 text-left relative overflow-hidden"
+                    >
+                      <span className="text-2xl mb-1 inline-block">⚡</span>
+                      <p className="font-display font-bold text-xs text-white">Boss Battles</p>
+                      <p className="text-xs text-white/80">Weekly Fight</p>
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowMealMastery(true)}
+                      className="bg-gradient-to-br from-orange-500 to-orange-700 rounded-2xl p-3 text-left relative overflow-hidden"
+                    >
+                      <span className="text-2xl mb-1 inline-block">🍽️</span>
+                      <p className="font-display font-bold text-xs text-white">Meal Master</p>
+                      <p className="text-xs text-white/80">Design Plan</p>
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowMangaBuilder(true)}
+                      className="bg-gradient-to-br from-pink-500 to-pink-700 rounded-2xl p-3 text-left relative overflow-hidden"
+                    >
+                      <span className="text-2xl mb-1 inline-block">📚</span>
+                      <p className="font-display font-bold text-xs text-white">Manga Builder</p>
+                      <p className="text-xs text-white/80">Create Story</p>
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowRealMissions(true)}
+                      className="bg-gradient-to-br from-yellow-500 to-yellow-700 rounded-2xl p-3 text-left relative overflow-hidden"
+                    >
+                      <span className="text-2xl mb-1 inline-block">🎯</span>
+                      <p className="font-display font-bold text-xs text-white">Real Missions</p>
+                      <p className="text-xs text-white/80">Earn XP</p>
+                    </motion.button>
+                  </div>
+                </>
+              )}
 
               {/* Fun Fact */}
               <FoodFactBubble fact={currentFact} />
@@ -422,16 +583,16 @@ const Index = () => {
                 <div className="relative">
                   <div className="flex items-center gap-2 mb-2">
                     <Sparkles className="w-5 h-5" />
-                    <span className="text-sm font-semibold opacity-90">Daily Challenge</span>
+                    <span className="text-sm font-semibold opacity-90">{t("home.daily_challenge")}</span>
                   </div>
                   <h3 className="font-display text-xl font-bold mb-2">
-                    Try a new veggie today! 🥦
+                    {t("home.challenge_desc")}
                   </h3>
                   <p className="text-sm opacity-80 mb-3">
-                    Earn 10 points by trying a vegetable you&apos;ve never had before!
+                    {t("home.challenge_text")}
                   </p>
                   <button className="bg-white/20 backdrop-blur px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 hover:bg-white/30 transition-colors">
-                    Accept Challenge <ArrowRight className="w-4 h-4" />
+                    {t("home.accept_challenge")} <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               </motion.div>
@@ -439,7 +600,7 @@ const Index = () => {
               {/* Quick Recipes */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-display text-lg font-bold text-foreground">Quick Recipes</h3>
+                  <h3 className="font-display text-lg font-bold text-foreground">{t("home.quick_recipes")}</h3>
                   <button 
                     onClick={() => setActiveTab("recipes")}
                     className="text-primary text-sm font-semibold"

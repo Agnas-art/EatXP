@@ -280,6 +280,16 @@ export const Login = () => {
           >
             Create New Account
           </motion.button>
+
+          {/* Demo Features Button */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate("/features-demo")}
+            className="w-full mt-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-2 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-colors"
+          >
+            🎉 Try New Features Demo
+          </motion.button>
         </motion.div>
 
         {/* Features */}
@@ -289,9 +299,9 @@ export const Login = () => {
           transition={{ delay: 0.5 }}
           className="mt-8 grid grid-cols-3 gap-3 text-center text-xs text-muted-foreground"
         >
-          <div>✨ 8 Anime Themes</div>
-          <div>🎤 Voice Control</div>
-          <div>🎮 Fun Games</div>
+          <div>✨ 9 Languages</div>
+          <div>🎤 Voice Bot</div>
+          <div>🌍 Multi-lang Support</div>
         </motion.div>
       </motion.div>
 

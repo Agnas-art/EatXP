@@ -1,0 +1,80 @@
+{
+  "app_name": "EatXP",
+  "nav": {
+    "home": "Inicio",
+    "recipes": "Recetas",
+    "games": "Juegos",
+    "profile": "Perfil",
+    "settings": "Configuración"
+  },
+  "common": {
+    "language": "Idioma",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "japanese": "日本語",
+    "hindi": "हिंदी",
+    "bengali": "বাংলা",
+    "tamil": "தமிழ்",
+    "telugu": "తెలుగు",
+    "marathi": "मराठी",
+    "voice_bot": "Asistente de Voz",
+    "logout": "Cerrar sesión",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "back_to_home": "← Volver a Inicio",
+    "hello": "Hola",
+    "choose_character": "Elegir Personaje",
+    "story_mode": "Modo Historia",
+    "change_theme": "Cambiar Tema",
+    "change_age": "Cambiar Edad",
+    "anime_themes": "Temas Anime"
+  },
+  "home": {
+    "welcome": "Bienvenido a EatXP",
+    "subtitle": "¡Aprende sobre comida mientras te diviertes!",
+    "start_learning": "Comenzar a aprender",
+    "story_mode": "Modo Historia",
+    "story_desc": "¡Aprende sobre nutrición!",
+    "play_games": "Jugar Juegos",
+    "games_desc": "¡Aprende y diviértete!",
+    "read_comics": "Leer Cómics",
+    "comics_desc": "¡Historias divertidas de comida!",
+    "food_map": "Mapa de Comida",
+    "food_map_desc": "¡Explora regiones!",
+    "cutscenes": "Escenas de Cierre",
+    "cutscenes_desc": "¡Mira anime!",
+    "manga": "Manga",
+    "manga_desc": "¡Tiras cómicas!",
+    "daily_challenge": "Desafío Diario",
+    "challenge_desc": "¡Intenta una verdura nueva hoy! 🥦",
+    "challenge_text": "¡Gana 10 puntos probando una verdura que nunca hayas probado antes!",
+    "accept_challenge": "Aceptar Desafío",
+    "quick_recipes": "Recetas Rápidas"
+  },
+  "age_groups": {
+    "kids": "Pequeño Chef",
+    "tweens": "Chef Junior",
+    "teens": "Chef Adolescente",
+    "default": "Chef"
+  },
+  "voice_bot": {
+    "title": "Asistente de Voz EatXP",
+    "listen": "Escuchando...",
+    "speak": "Haz clic para hablar",
+    "processing": "Procesando...",
+    "help_text": "¡Pregúntame cualquier cosa sobre comida, recetas o nutrición!"
+  },
+  "teen_features": {
+    "shokuiku_saga": "RPG Shokuiku Saga",
+    "shokuiku_desc": "Aventura de rol en el Reino de la Comida",
+    "boss_battles": "Batallas de Jefes",
+    "boss_desc": "Peleas semanales contra jefes anime",
+    "meal_mastery": "Dominio de Comidas",
+    "meal_desc": "Diseña planes de comidas balanceados",
+    "manga_builder": "Generador de Manga",
+    "manga_desc": "Crea historias temáticas de comida",
+    "real_missions": "Misiones de la Vida Real",
+    "missions_desc": "Completa tareas para potenciar tu personaje"
+  }
+}

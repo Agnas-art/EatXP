@@ -46,10 +46,41 @@ export const CharacterSelector = ({ onSelect }: CharacterSelectorProps) => {
               border: `3px solid ${character.color}`,
             }}
           >
-            {/* 3D Character Preview */}
+            {/* Anime Character Image */}
             <div className="mb-4 flex justify-center">
-              <div style={{ width: "120px", height: "120px" }}>
-                <Character3D character={character} size="small" autoRotate={true} />
+              <div style={{ width: "120px", height: "150px", overflow: "hidden", borderRadius: "8px" }}>
+                {character.imageUrl ? (
+                  <img 
+                    src={character.imageUrl} 
+                    alt={character.name}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      objectPosition: "center"
+                    }}
+                    onError={(e) => {
+                      // Fallback if image fails to load
+                      const target = e.target as HTMLImageElement;
+                      target.style.backgroundColor = character.color;
+                      target.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      backgroundColor: character.color,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "48px"
+                    }}
+                  >
+                    {character.emoji}
+                  </div>
+                )}
               </div>
             </div>
 

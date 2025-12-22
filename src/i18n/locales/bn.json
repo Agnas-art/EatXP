@@ -1,0 +1,48 @@
+{
+  "app_name": "EatXP",
+  "nav": {
+    "home": "বাড়ি",
+    "recipes": "রেসিপি",
+    "games": "খেলা",
+    "profile": "প্রোফাইল",
+    "settings": "সেটিংস"
+  },
+  "common": {
+    "language": "ভাষা",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "japanese": "日本語",
+    "hindi": "हिंदी",
+    "bengali": "বাংলা",
+    "tamil": "தமிழ்",
+    "telugu": "తెలుగు",
+    "marathi": "मराठी",
+    "voice_bot": "ভয়েস বট",
+    "logout": "লগ আউট",
+    "login": "লগ ইন",
+    "register": "নিবন্ধন"
+  },
+  "home": {
+    "welcome": "EatXP এ আপনাকে স্বাগতম",
+    "subtitle": "মজা করে খাবার সম্পর্কে শিখুন!",
+    "start_learning": "শেখা শুরু করুন"
+  },
+  "voice_bot": {
+    "title": "EatXP ভয়েস সহায়ক",
+    "listen": "শুনছি...",
+    "speak": "কথা বলতে ক্লিক করুন",
+    "processing": "প্রক্রিয়াকরণ...",
+    "help_text": "আমাকে খাবার, রেসিপি বা পুষ্টি সম্পর্কে যেকোনো প্রশ্ন জিজ্ঞাসা করুন!"  },
+  "teen_features": {
+    "shokuiku_saga": "শোকুইকু সাগা আরপিজি",
+    "shokuiku_desc": "ফুড কিংডমে রোল-প্লেয়িং অ্যাডভেঞ্চার",
+    "boss_battles": "বস ব্যাটেল",
+    "boss_desc": "সাপ্তাহিক অ্যানিমে বস লড়াই",
+    "meal_mastery": "খাবার দক্ষতা",
+    "meal_desc": "সুষম খাবার পরিকল্পনা ডিজাইন করুন",
+    "manga_builder": "ম্যাঙ্গা বিল্ডার",
+    "manga_desc": "খাবার-থিম গল্প তৈরি করুন",
+    "real_missions": "বাস্তব মিশন",
+    "missions_desc": "আপনার চরিত্র শক্তিশালী করতে কাজ সম্পূর্ণ করুন"  }
+}
