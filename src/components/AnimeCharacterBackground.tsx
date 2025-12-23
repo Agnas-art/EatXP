@@ -1,0 +1,92 @@
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { ANIME_CHARACTERS } from "@/data/animeCharacters";
+import { useThemeStore } from "@/hooks/useThemeStore";
+
+interface AnimeCharacterBackgroundProps {
+  characterId?: string;
+  opacity?: number;
+  scale?: number;
+  position?: "left" | "center" | "right";
+  animate?: boolean;
+}
+
+export const AnimeCharacterBackground = ({
+  characterId = "naruto",
+  opacity = 0.3,
+  scale = 1.2,
+  position = "right",
+  animate = true,
+}: AnimeCharacterBackgroundProps) => {
+  const [character, setCharacter] = useState(ANIME_CHARACTERS[characterId] || ANIME_CHARACTERS.naruto);
+  const { currentTheme } = useThemeStore();
+
+  useEffect(() => {
+    if (characterId && ANIME_CHARACTERS[characterId]) {
+      setCharacter(ANIME_CHARACTERS[characterId]);
+    }
+  }, [characterId]);
+
+  if (!character.imageUrl) {
+    return null;
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity }}
+      transition={{ duration: 0.8 }}
+      className={`fixed top-0 bottom-0 pointer-events-none overflow-hidden`}
+      style={{
+        zIndex: 1,
+        right: position === "right" ? 0 : "auto",
+        left: position === "left" ? 0 : position === "center" ? "50%" : "auto",
+        transform: position === "center" ? "translateX(-50%)" : undefined,
+        width: "55vw",
+        maxWidth: "700px",
+      }}
+    >
+      {/* Animated character image */}
+      <motion.img
+        src={character.imageUrl}
+        alt={character.name}
+        animate={
+          animate
+            ? { y: [0, -15, 0] }
+            : {}
+        }
+        transition={
+          animate
+            ? { duration: 6, repeat: Infinity, repeatType: "loop" as const }
+            : {}
+        }
+        className="w-full h-full object-cover object-bottom"
+        style={{
+          opacity,
+          filter: `drop-shadow(0 10px 30px hsla(${currentTheme.colors.primary}, 0.4))`,
+          transform: `scale(${scale})`,
+          transformOrigin: "bottom center",
+        }}
+        loading="lazy"
+        onError={() => {
+          console.warn(`Failed to load character image: ${character.name}`);
+        }}
+      />
+
+      {/* Gradient fade overlay - ensures content is readable */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(to left, 
+            ${`hsla(${currentTheme.colors.background}, 1)`} 0%,
+            ${`hsla(${currentTheme.colors.background}, 0.8)`} 30%,
+            ${`hsla(${currentTheme.colors.background}, 0.5)`} 60%,
+            transparent 100%)`,
+          pointerEvents: "none",
+        }}
+      />
+    </motion.div>
+  );
+};
+
+export default AnimeCharacterBackground;

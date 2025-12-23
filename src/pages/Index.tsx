@@ -24,6 +24,7 @@ import { CharacterSelector } from "@/components/CharacterSelector";
 import { VoiceControlButton } from "@/components/VoiceControlButton";
 import { UserProfile } from "@/components/UserProfile";
 import { VoiceBot } from "@/components/VoiceBot";
+import { AnimeCharacterBackground } from "@/components/AnimeCharacterBackground";
 import { ShokuikuSagaRPG } from "@/components/teen/ShokuikuSagaRPG";
 import { BossBattleChallenges } from "@/components/teen/BossBattleChallenges";
 import { MealMasterySimulator } from "@/components/teen/MealMasterySimulator";
@@ -360,57 +361,68 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <header className="sticky top-0 bg-background/95 backdrop-blur-lg z-40 px-4 py-3 border-b border-border">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <FoodMascot mood="happy" size="sm" />
-            <div>
-              <p className="text-xs text-muted-foreground">{t("common.hello")}, {getAgeLabel()}!</p>
-              <h2 className="font-display font-bold text-foreground">{t("app_name")}</h2>
+    <div className="min-h-screen bg-background pb-24 relative overflow-hidden">
+      {/* Anime Character Background */}
+      <AnimeCharacterBackground
+        characterId={user?.characterId || "naruto"}
+        opacity={0.25}
+        scale={1.15}
+        position="right"
+        animate={true}
+      />
+
+      {/* Content wrapper with z-index to sit above background */}
+      <div className="relative z-10">
+        {/* Header */}
+        <header className="sticky top-0 bg-background/95 backdrop-blur-lg z-40 px-4 py-3 border-b border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <FoodMascot mood="happy" size="sm" />
+              <div>
+                <p className="text-xs text-muted-foreground">{t("common.hello")}, {getAgeLabel()}!</p>
+                <h2 className="font-display font-bold text-foreground">{t("app_name")}</h2>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <LanguageSelector />
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setShowCharacterSelector(true)}
+                className="bg-primary/10 text-primary hover:bg-primary/20 p-2 rounded-full transition-all"
+                title={t("common.choose_character")}
+              >
+                <Users className="w-5 h-5" />
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setShowStoryMode(true)}
+                className="bg-secondary/10 text-secondary hover:bg-secondary/20 p-2 rounded-full transition-all"
+                title={t("common.story_mode")}
+              >
+                <BookMarked className="w-5 h-5" />
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setShowThemeSelector(true)}
+                className="bg-accent/10 text-accent hover:bg-accent/20 p-2 rounded-full transition-all"
+                title={t("common.change_theme")}
+              >
+                <Palette className="w-5 h-5" />
+              </motion.button>
+              <VoiceControlButton className="relative" />
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setShowWelcome(true)}
+                className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-semibold"
+              >
+                {t("common.change_age")}
+              </motion.button>
+              <UserProfile />
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <LanguageSelector />
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setShowCharacterSelector(true)}
-              className="bg-primary/10 text-primary hover:bg-primary/20 p-2 rounded-full transition-all"
-              title={t("common.choose_character")}
-            >
-              <Users className="w-5 h-5" />
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setShowStoryMode(true)}
-              className="bg-secondary/10 text-secondary hover:bg-secondary/20 p-2 rounded-full transition-all"
-              title={t("common.story_mode")}
-            >
-              <BookMarked className="w-5 h-5" />
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setShowThemeSelector(true)}
-              className="bg-accent/10 text-accent hover:bg-accent/20 p-2 rounded-full transition-all"
-              title={t("common.change_theme")}
-            >
-              <Palette className="w-5 h-5" />
-            </motion.button>
-            <VoiceControlButton className="relative" />
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setShowWelcome(true)}
-              className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-semibold"
-            >
-              {t("common.change_age")}
-            </motion.button>
-            <UserProfile />
-          </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="px-4 py-4 space-y-6">
+        <main className="px-4 py-4 space-y-6">
         <AnimatePresence mode="wait">
           {activeTab === "home" && (
             <motion.div
@@ -837,9 +849,10 @@ const Index = () => {
             </motion.div>
           )}
         </AnimatePresence>
-      </main>
+        </main>
 
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
     </div>
   );
 };

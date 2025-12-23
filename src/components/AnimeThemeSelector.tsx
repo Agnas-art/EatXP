@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useThemeStore } from "@/hooks/useThemeStore";
 import { ANIME_THEMES } from "@/data/animeThemes";
+import { ANIME_CHARACTERS } from "@/data/animeCharacters";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 
@@ -21,74 +22,93 @@ export const AnimeThemeSelector = ({ onSelect }: ThemeSelectorProps) => {
       <div className="mb-8">
         <h2 className="font-display text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
           <Sparkles className="w-6 h-6 text-primary" />
-          Choose Your Anime Theme
+          Choose Your Anime Theme & Character Background
         </h2>
         <p className="text-muted-foreground">
-          Pick your favorite anime aesthetic to personalize your learning experience!
+          Pick your favorite anime aesthetic to personalize your learning experience! Each theme pairs with anime character backgrounds.
         </p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {Object.entries(ANIME_THEMES).map(([themeId, theme]) => (
-          <motion.button
-            key={themeId}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => handleThemeChange(themeId)}
-            className={`relative overflow-hidden rounded-2xl p-4 transition-all ${
-              currentTheme.id === themeId
-                ? "ring-2 ring-primary shadow-lg scale-105"
-                : "shadow hover:shadow-md"
-            }`}
-            style={{
-              backgroundColor: `hsl(${theme.colors.background})`,
-              border: `2px solid hsl(${theme.colors.primary})`,
-            }}
-          >
-            {/* Theme preview gradient */}
-            <div
-              className="absolute inset-0 opacity-20"
+        {Object.entries(ANIME_THEMES).map(([themeId, theme]) => {
+          // Find a character that matches the theme anime
+          const matchingCharacter = Object.values(ANIME_CHARACTERS).find(
+            (char) => char.anime.toLowerCase() === theme.name.toLowerCase()
+          ) || Object.values(ANIME_CHARACTERS)[Math.floor(Math.random() * Object.values(ANIME_CHARACTERS).length)];
+
+          return (
+            <motion.button
+              key={themeId}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleThemeChange(themeId)}
+              className={`relative overflow-hidden rounded-2xl p-4 transition-all h-64 flex flex-col justify-end ${
+                currentTheme.id === themeId
+                  ? "ring-2 ring-primary shadow-lg scale-105"
+                  : "shadow hover:shadow-md"
+              }`}
               style={{
-                background: theme.gradients.main,
+                backgroundColor: `hsl(${theme.colors.background})`,
+                border: `2px solid hsl(${theme.colors.primary})`,
               }}
-            />
-
-            {/* Content */}
-            <div className="relative z-10 space-y-2">
-              <div className="flex gap-1 mb-2">
-                <div
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: `hsl(${theme.colors.primary})` }}
+            >
+              {/* Character background preview */}
+              {matchingCharacter?.imageUrl && (
+                <img
+                  src={matchingCharacter.imageUrl}
+                  alt={matchingCharacter.name}
+                  className="absolute inset-0 w-full h-full object-cover opacity-40"
+                  style={{
+                    objectPosition: "right bottom",
+                  }}
                 />
-                <div
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: `hsl(${theme.colors.secondary})` }}
-                />
-                <div
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: `hsl(${theme.colors.accent})` }}
-                />
-              </div>
-
-              <p className="font-display font-bold text-foreground text-sm line-clamp-1">
-                {theme.name}
-              </p>
-              <p className="text-xs text-muted-foreground line-clamp-2">
-                {theme.description}
-              </p>
-
-              {currentTheme.id === themeId && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1"
-                >
-                  <span className="text-xs font-bold">✓</span>
-                </motion.div>
               )}
-            </div>
-          </motion.button>
-        ))}
+
+              {/* Theme preview gradient */}
+              <div
+                className="absolute inset-0 opacity-20"
+                style={{
+                  background: theme.gradients.main,
+                }}
+              />
+
+              {/* Content */}
+              <div className="relative z-10 space-y-2">
+                <div className="flex gap-1 mb-2">
+                  <div
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: `hsl(${theme.colors.primary})` }}
+                  />
+                  <div
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: `hsl(${theme.colors.secondary})` }}
+                  />
+                  <div
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: `hsl(${theme.colors.accent})` }}
+                  />
+                </div>
+
+                <p className="font-display font-bold text-foreground text-sm line-clamp-1">
+                  {theme.name}
+                </p>
+                <p className="text-xs text-muted-foreground line-clamp-2">
+                  {matchingCharacter?.name}
+                </p>
+
+                {currentTheme.id === themeId && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1"
+                  >
+                    <span className="text-xs font-bold">✓</span>
+                  </motion.div>
+                )}
+              </div>
+            </motion.button>
+          );
+        })}
       </div>
 
       {/* Current theme info */}
@@ -134,6 +154,22 @@ export const AnimeThemeSelector = ({ onSelect }: ThemeSelectorProps) => {
             <p className="text-sm font-bold text-foreground">{currentTheme.typography.fontFamily?.split(",")[0]}</p>
           </div>
         </div>
+      </motion.div>
+
+      {/* Background Preview Info */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mt-6 p-6 rounded-2xl bg-primary/5 border border-primary/20 space-y-3"
+      >
+        <h3 className="font-display font-bold text-foreground flex items-center gap-2">
+          <span>✨</span> Anime Character Backgrounds
+        </h3>
+        <p className="text-sm text-foreground">
+          Your selected theme's anime character will appear as a dynamic background in your home screen! 
+          The background will animate smoothly with floating effects and match your theme's color scheme.
+        </p>
       </motion.div>
     </div>
   );
