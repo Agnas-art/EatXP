@@ -54,7 +54,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Strategic, Brave, Determined",
     color: "#2D5016",
     emoji: "⚔️",
-    imageUrl: "", // Add working image URL here
+    imageUrl: "https://th.bing.com/th/id/OIP.6sINk4Z-yOK480J6XO1AswHaDt?w=323&h=175&c=7&r=0&o=7&cb=ucfimg2&dpr=2.2&pid=1.7&rm=3&ucfimg=1",
     position: { x: 0, y: 0, z: 0 },
   },
   yuji: {
