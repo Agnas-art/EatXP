@@ -68,28 +68,6 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     imageUrl: "https://th.bing.com/th/id/OIP.J3nL3QT6QkfLqhzH-Rw26QHaHZ?w=207&h=206&c=7&r=0&o=7&cb=ucfimg2&dpr=2.2&pid=1.7&rm=3&ucfimg=1",
     position: { x: 0, y: 0, z: 0 },
   },
-  goku: {
-    id: "goku",
-    name: "Goku",
-    description: "Adventure-seeking warrior with legendary strength",
-    anime: "Dragon Ball",
-    personality: "Adventurous, Strong, Playful",
-    color: "#FF6600",
-    emoji: "⚡",
-    imageUrl: "", // Add working image URL here
-    position: { x: 0, y: 0, z: 0 },
-  },
-  luffy: {
-    id: "luffy",
-    name: "Luffy",
-    description: "Pirate captain with big dreams",
-    anime: "One Piece",
-    personality: "Adventurous, Loyal, Courageous",
-    color: "#FF0000",
-    emoji: "🏴‍☠️",
-    imageUrl: "", // Add working image URL here
-    position: { x: 0, y: 0, z: 0 },
-  },
   kaneki: {
     id: "kaneki",
     name: "Ken Kaneki",
