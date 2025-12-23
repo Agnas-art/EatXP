@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, Clock, Users, Star, ChefHat, CheckCircle2, Volume2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { ANIME_CHARACTERS } from "../data/animeCharacters";
 
 interface RecipeDetailProps {
@@ -20,17 +21,18 @@ interface RecipeDetailProps {
   onBack: () => void;
 }
 
-const difficultyConfig = {
-  easy: { label: "Easy Peasy", stars: 1, color: "text-secondary" },
-  medium: { label: "Getting Good", stars: 2, color: "text-kawaii-yellow" },
-  challenging: { label: "Chef Mode", stars: 3, color: "text-primary" },
-};
+const difficultyConfig = (t: any) => ({
+  easy: { label: t("recipes_section.difficulty_easy"), stars: 1, color: "text-secondary" },
+  medium: { label: t("recipes_section.difficulty_medium"), stars: 2, color: "text-kawaii-yellow" },
+  challenging: { label: t("recipes_section.difficulty_hard"), stars: 3, color: "text-primary" },
+});
 
 const RecipeDetail = ({ recipe, ageGroup, characterGuide, onBack }: RecipeDetailProps) => {
+  const { t } = useTranslation();
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [activeTimer, setActiveTimer] = useState<number | null>(null);
   const [timerSeconds, setTimerSeconds] = useState(0);
-  const config = difficultyConfig[recipe.difficulty];
+  const config = difficultyConfig(t)[recipe.difficulty];
 
   // Get character guide
   const guideCharacter = characterGuide

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Clock, ChefHat, Star, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface RecipeCardProps {
   title: string;
@@ -12,11 +13,11 @@ interface RecipeCardProps {
   onClick?: () => void;
 }
 
-const difficultyConfig = {
-  easy: { label: "Easy Peasy", stars: 1, color: "text-secondary" },
-  medium: { label: "Getting Good", stars: 2, color: "text-kawaii-yellow" },
-  challenging: { label: "Chef Mode", stars: 3, color: "text-primary" },
-};
+const difficultyConfig = (t: any) => ({
+  easy: { label: t("recipes_section.difficulty_easy"), stars: 1, color: "text-secondary" },
+  medium: { label: t("recipes_section.difficulty_medium"), stars: 2, color: "text-kawaii-yellow" },
+  challenging: { label: t("recipes_section.difficulty_hard"), stars: 3, color: "text-primary" },
+});
 
 const RecipeCard = ({
   title,
@@ -27,7 +28,8 @@ const RecipeCard = ({
   ageGroup,
   onClick,
 }: RecipeCardProps) => {
-  const config = difficultyConfig[difficulty];
+  const { t } = useTranslation();
+  const config = difficultyConfig(t)[difficulty];
 
   return (
     <motion.div
