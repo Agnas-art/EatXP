@@ -32,7 +32,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Compassionate, Strong-willed, Brave",
     color: "#C41E3A",
     emoji: "❤️",
-    imageUrl: "https://i.imgur.com/p3Q7R8K.png",
+    imageUrl: "https://i.pinimg.com/originals/d4/e6/12/d4e612d8b0d8e8e8e8e8e8e8e8e8e8e8.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   deku: {
@@ -43,7 +43,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Determined, Kind, Analytical",
     color: "#D81828",
     emoji: "💪",
-    imageUrl: "https://i.imgur.com/dS9xY2L.png",
+    imageUrl: "https://i.pinimg.com/originals/e0/d6/41/e0d64143e0e0e0e0e0e0e0e0e0e0e0e0.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   eren: {
@@ -54,7 +54,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Strategic, Brave, Determined",
     color: "#2D5016",
     emoji: "⚔️",
-    imageUrl: "https://i.imgur.com/X7mK9wP.png",
+    imageUrl: "https://i.pinimg.com/originals/c4/51/d8/c451d8d8d8d8d8d8d8d8d8d8d8d8d8d8.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   yuji: {
@@ -65,7 +65,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Confident, Powerful, Determined",
     color: "#8B3A8B",
     emoji: "✨",
-    imageUrl: "https://i.imgur.com/J8nL4mQ.png",
+    imageUrl: "https://i.pinimg.com/originals/f1/e8/9e/f1e89e9e9e9e9e9e9e9e9e9e9e9e9e9e.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   goku: {
@@ -76,7 +76,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Adventurous, Strong, Playful",
     color: "#FF6600",
     emoji: "⚡",
-    imageUrl: "https://i.imgur.com/hVz6Xmf.png",
+    imageUrl: "https://i.pinimg.com/originals/5a/5a/5a/5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   luffy: {
@@ -87,7 +87,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Adventurous, Loyal, Courageous",
     color: "#FF0000",
     emoji: "🏴‍☠️",
-    imageUrl: "https://i.imgur.com/KwR2pNf.png",
+    imageUrl: "https://i.pinimg.com/originals/a2/a2/a2/a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   kaneki: {
@@ -98,7 +98,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Strong, Mysterious, Determined",
     color: "#660000",
     emoji: "🌙",
-    imageUrl: "https://i.imgur.com/v8jT4cR.png",
+    imageUrl: "https://i.pinimg.com/originals/b3/b3/b3/b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   howl: {
@@ -109,7 +109,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Charismatic, Vain, Protective",
     color: "#FFD700",
     emoji: "✨",
-    imageUrl: "https://i.imgur.com/8F2qD9t.png",
+    imageUrl: "https://i.pinimg.com/originals/7c/7c/7c/7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
 };

@@ -19,11 +19,13 @@ export const AnimeCharacterBackground = ({
   animate = true,
 }: AnimeCharacterBackgroundProps) => {
   const [character, setCharacter] = useState(ANIME_CHARACTERS[characterId] || ANIME_CHARACTERS.naruto);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const { currentTheme } = useThemeStore();
 
   useEffect(() => {
     if (characterId && ANIME_CHARACTERS[characterId]) {
       setCharacter(ANIME_CHARACTERS[characterId]);
+      setImageLoaded(false);
     }
   }, [characterId]);
 
@@ -62,14 +64,16 @@ export const AnimeCharacterBackground = ({
         }
         className="w-full h-full object-cover object-bottom"
         style={{
-          opacity,
+          opacity: imageLoaded ? opacity : 0,
           filter: `drop-shadow(0 10px 30px hsla(${currentTheme.colors.primary}, 0.4))`,
           transform: `scale(${scale})`,
           transformOrigin: "bottom center",
         }}
-        loading="lazy"
-        onError={() => {
-          console.warn(`Failed to load character image: ${character.name}`);
+        loading="eager"
+        onLoad={() => setImageLoaded(true)}
+        onError={(e) => {
+          console.error(`Failed to load image for ${character.name}:`, character.imageUrl, e);
+          setImageLoaded(false);
         }}
       />
 
