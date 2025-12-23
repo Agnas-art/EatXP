@@ -101,17 +101,6 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     imageUrl: "", // Add working image URL here
     position: { x: 0, y: 0, z: 0 },
   },
-  howl: {
-    id: "howl",
-    name: "Howl Jenkins Pendragon",
-    description: "Charming wizard with mystical powers",
-    anime: "Howl's Moving Castle",
-    personality: "Charismatic, Vain, Protective",
-    color: "#FFD700",
-    emoji: "✨",
-    imageUrl: "https://i.pinimg.com/736x/b2/93/73/b29373e02318cb481fc51252934f4d6f.jpg",
-    position: { x: 0, y: 0, z: 0 },
-  },
 };
 
 export const DEFAULT_CHARACTER = ANIME_CHARACTERS.naruto;
