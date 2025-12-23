@@ -46,36 +46,39 @@ export const AnimeCharacterBackground = ({
         transform: position === "center" ? "translateX(-50%)" : undefined,
         width: "55vw",
         maxWidth: "700px",
+        background: `linear-gradient(135deg, ${character.color}20 0%, ${character.color}40 50%, transparent 100%)`,
       }}
     >
       {/* Animated character image */}
-      <motion.img
-        src={character.imageUrl}
-        alt={character.name}
-        animate={
-          animate
-            ? { y: [0, -15, 0] }
-            : {}
-        }
-        transition={
-          animate
-            ? { duration: 6, repeat: Infinity, repeatType: "loop" as const }
-            : {}
-        }
-        className="w-full h-full object-cover object-bottom"
-        style={{
-          opacity: imageLoaded ? opacity : 0,
-          filter: `drop-shadow(0 10px 30px hsla(${currentTheme.colors.primary}, 0.4))`,
-          transform: `scale(${scale})`,
-          transformOrigin: "bottom center",
-        }}
-        loading="eager"
-        onLoad={() => setImageLoaded(true)}
-        onError={(e) => {
-          console.error(`Failed to load image for ${character.name}:`, character.imageUrl, e);
-          setImageLoaded(false);
-        }}
-      />
+      {character.imageUrl && (
+        <motion.img
+          src={character.imageUrl}
+          alt={character.name}
+          animate={
+            animate
+              ? { y: [0, -15, 0] }
+              : {}
+          }
+          transition={
+            animate
+              ? { duration: 6, repeat: Infinity, repeatType: "loop" as const }
+              : {}
+          }
+          className="w-full h-full object-cover object-bottom"
+          style={{
+            opacity: imageLoaded ? opacity : 0,
+            filter: `drop-shadow(0 10px 30px hsla(${currentTheme.colors.primary}, 0.4))`,
+            transform: `scale(${scale})`,
+            transformOrigin: "bottom center",
+          }}
+          loading="eager"
+          onLoad={() => setImageLoaded(true)}
+          onError={(e) => {
+            console.error(`Failed to load image for ${character.name}:`, character.imageUrl, e);
+            setImageLoaded(false);
+          }}
+        />
+      )}
 
       {/* Gradient fade overlay - ensures content is readable */}
       <div
