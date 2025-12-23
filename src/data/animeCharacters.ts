@@ -32,7 +32,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Compassionate, Strong-willed, Brave",
     color: "#C41E3A",
     emoji: "❤️",
-    imageUrl: "https://th.bing.com/th/id/OIP.aRA6osn6g6HWcjTSCMWXXgHaFP?w=236&h=180&c=7&r=0&o=7&cb=ucfimg2&dpr=2.2&pid=1.7&rm=3&ucfimg=1",
+    imageUrl: "https://th.bing.com/th/id/OIP.77HZbV1ATaLoFRz0zQdeeAHaEK?w=331&h=186&c=7&r=0&o=7&cb=ucfimg2&dpr=2.2&pid=1.7&rm=3&ucfimg=1",
     position: { x: 0, y: 0, z: 0 },
   },
   deku: {
