@@ -100,9 +100,62 @@ const Index = () => {
     }
   }, [transcript]);
 
-  const currentFoods = selectedAge
-    ? healthyFoods[selectedAge as keyof typeof healthyFoods] || []
-    : [];
+  const getFoodData = () => {
+    if (!selectedAge) return [];
+    const foods = healthyFoods[selectedAge as keyof typeof healthyFoods] || [];
+    
+    // Map food names to translation keys
+    const foodNameMap: {[key: string]: string} = {
+      "Banana": "foods.banana",
+      "Carrot": "foods.carrot",
+      "Apple": "foods.apple",
+      "Cheese": "foods.cheese",
+      "Avocado": "foods.avocado",
+      "Salmon": "foods.salmon",
+      "Spinach": "foods.spinach",
+      "Eggs": "foods.eggs",
+      "Quinoa": "foods.quinoa",
+      "Greek Yogurt": "foods.greek_yogurt",
+      "Sweet Potato": "foods.sweet_potato",
+      "Chicken": "foods.chicken",
+    };
+
+    // Map benefit names to translation keys
+    const benefitMap: {[key: string]: string} = {
+      "Energy boost": "food_info.banana_benefit_1",
+      "Happy tummy": "food_info.banana_benefit_2",
+      "Super eyes": "food_info.carrot_benefit_1",
+      "Crunchy fun": "food_info.carrot_benefit_2",
+      "Strong teeth": "food_info.apple_benefit_1",
+      "Yummy snack": "food_info.apple_benefit_2",
+      "Strong bones": "food_info.apple_benefit_1",
+      "Tasty treat": "food_info.apple_benefit_2",
+      "Brain power": "food_info.banana_benefit_1",
+      "Healthy fats": "food_info.banana_benefit_2",
+      "Omega-3": "food_info.carrot_benefit_1",
+      "Strong muscles": "food_info.apple_benefit_1",
+      "Iron boost": "food_info.carrot_benefit_1",
+      "Energy": "food_info.banana_benefit_1",
+      "Complete protein": "food_info.apple_benefit_1",
+      "Brain food": "food_info.apple_benefit_2",
+    };
+
+    // Map fun fact keys
+    const funFactMap: {[key: string]: string} = {
+      "Bananas can float in water!": "food_info.banana_fact",
+      "Carrots were first purple, not orange!": "food_info.carrot_fact",
+      "Apples are part of the rose family!": "food_info.apple_fact",
+    };
+
+    return foods.map(food => ({
+      ...food,
+      name: t(foodNameMap[food.name] || `foods.${food.name.toLowerCase().replace(/\s+/g, '_')}`),
+      benefits: food.benefits.map(b => t(benefitMap[b] || b)),
+      funFact: food.funFact ? t(funFactMap[food.funFact] || food.funFact) : undefined,
+    }));
+  };
+
+  const currentFoods = getFoodData();
   const currentRecipes = selectedAge
     ? recipes[selectedAge as keyof typeof recipes] || []
     : [];
@@ -635,7 +688,7 @@ const Index = () => {
               {/* Healthy Foods */}
               <div>
                 <h3 className="font-display text-lg font-bold text-foreground mb-3">
-                  Healthy Food Heroes
+                  {t("healthy_heroes.title")}
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {currentFoods.slice(0, 4).map((food, i) => (

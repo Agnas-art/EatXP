@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Cloud, Sun, CloudRain, Snowflake, Wind, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface WeatherData {
   condition: "sunny" | "cloudy" | "rainy" | "snowy" | "windy";
@@ -16,33 +17,33 @@ interface FoodSuggestion {
   recipe?: string;
 }
 
-const weatherFoods: Record<string, FoodSuggestion[]> = {
+const getWeatherFoods = (t: any): Record<string, FoodSuggestion[]> => ({
   sunny: [
-    { food: "Watermelon", emoji: "🍉", reason: "Stay cool and hydrated!", recipe: "Watermelon Pops" },
-    { food: "Ice Cream", emoji: "🍦", reason: "A refreshing treat!", recipe: "Frozen Yogurt Bites" },
-    { food: "Salad", emoji: "🥗", reason: "Light and fresh!", recipe: "Rainbow Salad" },
+    { food: t("weather_section.watermelon"), emoji: "🍉", reason: t("weather_section.sunny"), recipe: "Watermelon Pops" },
+    { food: t("weather_section.ice_cream"), emoji: "🍦", reason: "A refreshing treat!", recipe: "Frozen Yogurt Bites" },
+    { food: t("weather_section.salad"), emoji: "🥗", reason: "Light and fresh!", recipe: "Rainbow Salad" },
   ],
   cloudy: [
-    { food: "Sandwich", emoji: "🥪", reason: "Perfect for a cozy day!", recipe: "Veggie Club" },
-    { food: "Smoothie", emoji: "🥤", reason: "Boost your energy!", recipe: "Berry Blast Smoothie" },
-    { food: "Pasta", emoji: "🍝", reason: "Comfort food time!", recipe: "Veggie Pasta" },
+    { food: t("weather_section.sandwich"), emoji: "🥪", reason: t("weather_section.cloudy"), recipe: "Veggie Club" },
+    { food: t("weather_section.smoothie"), emoji: "🥤", reason: "Boost your energy!", recipe: "Berry Blast Smoothie" },
+    { food: t("weather_section.pasta"), emoji: "🍝", reason: "Comfort food time!", recipe: "Veggie Pasta" },
   ],
   rainy: [
-    { food: "Hot Soup", emoji: "🍜", reason: "Warm up from inside!", recipe: "Vegetable Soup" },
-    { food: "Hot Cocoa", emoji: "☕", reason: "Cozy drink for rainy days!", recipe: "Healthy Hot Cocoa" },
-    { food: "Grilled Cheese", emoji: "🧀", reason: "Ultimate comfort food!", recipe: "Cheesy Delight" },
+    { food: t("weather_section.hot_soup"), emoji: "🍜", reason: t("weather_section.rainy"), recipe: "Vegetable Soup" },
+    { food: t("weather_section.hot_cocoa"), emoji: "☕", reason: "Cozy drink for rainy days!", recipe: "Healthy Hot Cocoa" },
+    { food: t("weather_section.grilled_cheese"), emoji: "🧀", reason: "Ultimate comfort food!", recipe: "Cheesy Delight" },
   ],
   snowy: [
-    { food: "Hot Oatmeal", emoji: "🥣", reason: "Start your day warm!", recipe: "Apple Cinnamon Oatmeal" },
+    { food: t("weather_section.hot_oatmeal"), emoji: "🥣", reason: t("weather_section.snowy"), recipe: "Apple Cinnamon Oatmeal" },
     { food: "Stew", emoji: "🥘", reason: "Hearty and warming!", recipe: "Veggie Stew" },
-    { food: "Baked Potato", emoji: "🥔", reason: "Filling and delicious!", recipe: "Loaded Baked Potato" },
+    { food: t("weather_section.baked_potato"), emoji: "🥔", reason: "Filling and delicious!", recipe: "Loaded Baked Potato" },
   ],
   windy: [
-    { food: "Energy Bars", emoji: "🍫", reason: "Stay energized!", recipe: "Homemade Granola Bars" },
-    { food: "Warm Milk", emoji: "🥛", reason: "Soothing and nutritious!", recipe: "Golden Milk" },
-    { food: "Rice Bowl", emoji: "🍚", reason: "Filling and grounding!", recipe: "Teriyaki Rice Bowl" },
+    { food: t("weather_section.energy_bars"), emoji: "🍫", reason: t("weather_section.windy"), recipe: "Homemade Granola Bars" },
+    { food: t("weather_section.warm_milk"), emoji: "🥛", reason: "Soothing and nutritious!", recipe: "Golden Milk" },
+    { food: t("weather_section.rice_bowl"), emoji: "🍚", reason: "Filling and grounding!", recipe: "Teriyaki Rice Bowl" },
   ],
-};
+});
 
 const weatherIcons = {
   sunny: Sun,
@@ -61,6 +62,7 @@ const weatherColors = {
 };
 
 const WeatherFoodSuggestion = () => {
+  const { t } = useTranslation();
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedFood, setSelectedFood] = useState<FoodSuggestion | null>(null);
@@ -137,6 +139,7 @@ const WeatherFoodSuggestion = () => {
   if (!weather) return null;
 
   const WeatherIcon = weatherIcons[weather.condition];
+  const weatherFoods = getWeatherFoods(t);
   const suggestions = weatherFoods[weather.condition];
 
   return (
@@ -178,7 +181,7 @@ const WeatherFoodSuggestion = () => {
       {/* Food Suggestions */}
       <div>
         <h4 className="font-display font-bold text-foreground mb-3">
-          🍽️ Perfect Foods for Today!
+          🍽️ {t("weather_section.title")}
         </h4>
         <div className="grid grid-cols-3 gap-2">
           {suggestions.map((food, i) => (
