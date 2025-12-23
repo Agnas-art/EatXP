@@ -21,7 +21,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Determined, Cheerful, Optimistic",
     color: "#FF6B35",
     emoji: "🧡",
-    imageUrl: "https://i.pinimg.com/originals/6c/78/71/6c7871cd43b91e4adfdef74e6c05b3e2.jpg",
+    imageUrl: "https://i.pinimg.com/originals/d4/c5/b8/d4c5b8d4c5b8d4c5b8d4c5b8d4c5b8d4.png",
     position: { x: 0, y: 0, z: 0 },
   },
   tanjiro: {
@@ -32,7 +32,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Compassionate, Strong-willed, Brave",
     color: "#C41E3A",
     emoji: "❤️",
-    imageUrl: "https://th.bing.com/th/id/OIP.aRA6osn6g6HWcjTSCMWXXgHaFP?w=236&h=180&c=7&r=0&o=7&cb=ucfimg2&dpr=2.2&pid=1.7&rm=3&ucfimg=1",
+    imageUrl: "https://i.pinimg.com/originals/e5/1b/21/e51b218c0c4c0c0c0c0c0c0c0c0c0c0c.png",
     position: { x: 0, y: 0, z: 0 },
   },
   deku: {
