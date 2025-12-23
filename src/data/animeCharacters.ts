@@ -32,7 +32,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Compassionate, Strong-willed, Brave",
     color: "#C41E3A",
     emoji: "❤️",
-    imageUrl: "https://cdn.myanimelist.net/images/characters/1/322991.jpg",
+    imageUrl: "https://i.pinimg.com/originals/05/8e/05/058e05f0e0e0e0e0e0e0e0e0e0e0e0e0.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   deku: {
@@ -43,7 +43,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Determined, Kind, Analytical",
     color: "#D81828",
     emoji: "💪",
-    imageUrl: "https://cdn.myanimelist.net/images/characters/5/287837.jpg",
+    imageUrl: "https://i.pinimg.com/originals/f7/00/b8/f700b8b8b8b8b8b8b8b8b8b8b8b8b8b8.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   eren: {
@@ -54,7 +54,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Strategic, Brave, Determined",
     color: "#2D5016",
     emoji: "⚔️",
-    imageUrl: "https://cdn.myanimelist.net/images/characters/7/290436.jpg",
+    imageUrl: "https://i.pinimg.com/originals/3d/8f/f6/3d8ff6f6f6f6f6f6f6f6f6f6f6f6f6f6.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   yuji: {
@@ -65,7 +65,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Confident, Powerful, Determined",
     color: "#8B3A8B",
     emoji: "✨",
-    imageUrl: "https://cdn.myanimelist.net/images/characters/5/441011.jpg",
+    imageUrl: "https://i.pinimg.com/originals/a9/f0/f0/a9f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   goku: {
@@ -76,7 +76,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Adventurous, Strong, Playful",
     color: "#FF6600",
     emoji: "⚡",
-    imageUrl: "https://cdn.myanimelist.net/images/characters/9/131406.jpg",
+    imageUrl: "https://i.pinimg.com/originals/2d/17/3f/2d173f3f3f3f3f3f3f3f3f3f3f3f3f3f.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   luffy: {
@@ -87,7 +87,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Adventurous, Loyal, Courageous",
     color: "#FF0000",
     emoji: "🏴‍☠️",
-    imageUrl: "https://cdn.myanimelist.net/images/characters/5/131261.jpg",
+    imageUrl: "https://i.pinimg.com/originals/5c/05/09/5c050909090909090909090909090909.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   kaneki: {
@@ -98,7 +98,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Strong, Mysterious, Determined",
     color: "#660000",
     emoji: "🌙",
-    imageUrl: "https://cdn.myanimelist.net/images/characters/5/227819.jpg",
+    imageUrl: "https://i.pinimg.com/originals/b4/7f/8f/b47f8f8f8f8f8f8f8f8f8f8f8f8f8f8f.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   howl: {
@@ -109,7 +109,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Charismatic, Vain, Protective",
     color: "#FFD700",
     emoji: "✨",
-    imageUrl: "https://cdn.myanimelist.net/images/characters/2/115559.jpg",
+    imageUrl: "https://i.pinimg.com/originals/c8/a5/8f/c8a58f8f8f8f8f8f8f8f8f8f8f8f8f8f.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
 };
