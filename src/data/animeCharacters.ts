@@ -43,7 +43,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Determined, Kind, Analytical",
     color: "#D81828",
     emoji: "💪",
-    imageUrl: "", // Add working image URL here
+    imageUrl: "https://wallpaperaccess.com/full/1082853.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   eren: {
