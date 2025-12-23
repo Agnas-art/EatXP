@@ -87,7 +87,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Strategic, Cold, Determined",
     color: "#1a1a2e",
     emoji: "👑",
-    imageUrl: "https://th.bing.com/th/id/OIP.WMCPSoYmotOJcjfrzZRcSAHaLA?w=130&h=174&c=7&r=0&o=7&cb=ucfimg2&dpr=2.2&pid=1.7&rm=3&ucfimg=1",
+    imageUrl: "https://vignette.wikia.nocookie.net/kuroshitsuji/images/6/60/Ciel_Phantomhive_-_BOM1_1.png/revision/latest?cb=20160828134007&path-prefix=pl",
     position: { x: 0, y: 0, z: 0 },
   },
 };
