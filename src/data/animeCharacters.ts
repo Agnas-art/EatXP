@@ -32,7 +32,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Compassionate, Strong-willed, Brave",
     color: "#C41E3A",
     emoji: "❤️",
-    imageUrl: "https://i.pinimg.com/originals/d4/e6/12/d4e612d8b0d8e8e8e8e8e8e8e8e8e8e8.jpg",
+    imageUrl: "https://cdnb.artstation.com/p/assets/images/images/028/206/797/large/saran-sombat-tanjiro-complete.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   deku: {
@@ -43,7 +43,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Determined, Kind, Analytical",
     color: "#D81828",
     emoji: "💪",
-    imageUrl: "https://i.pinimg.com/originals/e0/d6/41/e0d64143e0e0e0e0e0e0e0e0e0e0e0e0.jpg",
+    imageUrl: "https://cdnb.artstation.com/p/assets/images/images/019/709/799/large/noctis-cr-izuku.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   eren: {
@@ -54,7 +54,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Strategic, Brave, Determined",
     color: "#2D5016",
     emoji: "⚔️",
-    imageUrl: "https://i.pinimg.com/originals/c4/51/d8/c451d8d8d8d8d8d8d8d8d8d8d8d8d8d8.jpg",
+    imageUrl: "https://cdnb.artstation.com/p/assets/images/images/003/805/822/large/megan-de-jong-eren.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   yuji: {
@@ -65,7 +65,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Confident, Powerful, Determined",
     color: "#8B3A8B",
     emoji: "✨",
-    imageUrl: "https://i.pinimg.com/originals/f1/e8/9e/f1e89e9e9e9e9e9e9e9e9e9e9e9e9e9e.jpg",
+    imageUrl: "https://cdnb.artstation.com/p/assets/images/images/031/739/847/large/rho-aias-yuji-itadori-jjk.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   goku: {
@@ -76,7 +76,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Adventurous, Strong, Playful",
     color: "#FF6600",
     emoji: "⚡",
-    imageUrl: "https://i.pinimg.com/originals/5a/5a/5a/5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a.jpg",
+    imageUrl: "https://cdnb.artstation.com/p/assets/images/images/008/631/476/large/sebastian-fischer-goku-01.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   luffy: {
@@ -87,7 +87,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Adventurous, Loyal, Courageous",
     color: "#FF0000",
     emoji: "🏴‍☠️",
-    imageUrl: "https://i.pinimg.com/originals/a2/a2/a2/a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2.jpg",
+    imageUrl: "https://cdnb.artstation.com/p/assets/images/images/009/155/625/large/kimberly-chang-luffy-01-final.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   kaneki: {
@@ -98,7 +98,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Strong, Mysterious, Determined",
     color: "#660000",
     emoji: "🌙",
-    imageUrl: "https://i.pinimg.com/originals/b3/b3/b3/b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3.jpg",
+    imageUrl: "https://cdnb.artstation.com/p/assets/images/images/003/701/618/large/ian-wong-kaneki-01.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   howl: {
@@ -109,7 +109,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Charismatic, Vain, Protective",
     color: "#FFD700",
     emoji: "✨",
-    imageUrl: "https://i.pinimg.com/originals/7c/7c/7c/7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c.jpg",
+    imageUrl: "https://cdnb.artstation.com/p/assets/images/images/018/256/397/large/marie-cecile-thijs-howl-s-moving-castle-howl.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
 };
