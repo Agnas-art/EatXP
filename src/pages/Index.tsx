@@ -418,7 +418,7 @@ const Index = () => {
       {/* Anime Character Background */}
       <AnimeCharacterBackground
         characterId={user?.characterId || "naruto"}
-        opacity={0.25}
+        opacity={1}
         scale={1.15}
         position="right"
         animate={true}

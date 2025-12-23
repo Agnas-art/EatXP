@@ -21,7 +21,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Determined, Cheerful, Optimistic",
     color: "#FF6B35",
     emoji: "🧡",
-    imageUrl: "https://cdn.myanimelist.net/images/characters/9/131317.jpg",
+    imageUrl: "https://i.pinimg.com/originals/6c/78/71/6c7871cd43b91e4adfdef74e6c05b3e2.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
   tanjiro: {
@@ -99,6 +99,17 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     color: "#660000",
     emoji: "🌙",
     imageUrl: "https://cdn.myanimelist.net/images/characters/5/227819.jpg",
+    position: { x: 0, y: 0, z: 0 },
+  },
+  howl: {
+    id: "howl",
+    name: "Howl Jenkins Pendragon",
+    description: "Charming wizard with mystical powers",
+    anime: "Howl's Moving Castle",
+    personality: "Charismatic, Vain, Protective",
+    color: "#FFD700",
+    emoji: "✨",
+    imageUrl: "https://cdn.myanimelist.net/images/characters/2/115559.jpg",
     position: { x: 0, y: 0, z: 0 },
   },
 };
