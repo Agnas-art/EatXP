@@ -79,6 +79,17 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     imageUrl: "", // Add working image URL here
     position: { x: 0, y: 0, z: 0 },
   },
+  ciel: {
+    id: "ciel",
+    name: "Ciel Phantomhive",
+    description: "Young noble with mysterious past",
+    anime: "Black Butler",
+    personality: "Strategic, Cold, Determined",
+    color: "#1a1a2e",
+    emoji: "👑",
+    imageUrl: "https://th.bing.com/th/id/OIP.WMCPSoYmotOJcjfrzZRcSAHaLA?w=130&h=174&c=7&r=0&o=7&cb=ucfimg2&dpr=2.2&pid=1.7&rm=3&ucfimg=1",
+    position: { x: 0, y: 0, z: 0 },
+  },
 };
 
 export const DEFAULT_CHARACTER = ANIME_CHARACTERS.naruto;
