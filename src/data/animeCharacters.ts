@@ -68,6 +68,17 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     imageUrl: "https://th.bing.com/th/id/OIP.W_MdzuxjRECUf1pClsh-TgAAAA?w=167&h=180&c=7&r=0&o=7&dpr=2.2&pid=1.7&rm=3",
     position: { x: 0, y: 0, z: 0 },
   },
+  yor: {
+    id: "yor",
+    name: "Yor Forger",
+    description: "Elegant assassin with a caring heart",
+    anime: "Spy x Family",
+    personality: "Compassionate, Graceful, Protective",
+    color: "#E91E63",
+    emoji: "💜",
+    imageUrl: "",
+    position: { x: 0, y: 0, z: 0 },
+  },
 };
 
 export const DEFAULT_CHARACTER = ANIME_CHARACTERS.tanjiro;

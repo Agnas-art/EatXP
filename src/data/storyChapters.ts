@@ -19,7 +19,7 @@ export interface StoryChapter {
   number: number;
   title: string;
   narrative: string;
-  characterGuide: "tanjiro" | "deku" | "eren" | "yuji" | "goku" | "luffy" | "ninrir";
+  characterGuide: "tanjiro" | "deku" | "eren" | "yuji" | "goku" | "luffy" | "ninrir" | "yor";
   lesson: StoryLesson;
   unlocksRecipes: UnlockedRecipe[];
   comicPanels: {
