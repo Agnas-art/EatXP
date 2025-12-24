@@ -121,6 +121,34 @@ export function FloatingVoiceBot({ characterId = "tanjiro" }: { characterId?: st
 
   const getAIResponse = async (question: string, conversationHistory: Message[]): Promise<string> => {
     try {
+      // Try Supabase edge function first
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      
+      if (supabaseUrl && supabaseKey) {
+        const response = await fetch(
+          `${supabaseUrl}/functions/v1/voice-chat`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${supabaseKey}`,
+            },
+            body: JSON.stringify({
+              message: question,
+              conversationHistory: conversationHistory.slice(-10),
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.reply) {
+            return data.reply;
+          }
+        }
+      }
+
       // Build context from conversation history
       let conversationContext = "Previous conversation:\n";
       conversationHistory.slice(-6).forEach((msg) => {
