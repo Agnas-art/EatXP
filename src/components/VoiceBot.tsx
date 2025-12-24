@@ -260,6 +260,23 @@ const VoiceBot = () => {
   const handleSendMessage = useCallback(async (text: string) => {
     if (!text.trim()) return;
 
+    // Check environment configuration
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      toast({
+        title: "Configuration Error",
+        description: "Supabase configuration is missing. Please check environment variables.",
+        variant: "destructive",
+      });
+      console.error('Missing environment variables:', { 
+        VITE_SUPABASE_URL: !!supabaseUrl, 
+        VITE_SUPABASE_PUBLISHABLE_KEY: !!supabaseKey 
+      });
+      return;
+    }
+
     const userMessage: Message = { 
       role: 'user', 
       content: text,
@@ -295,20 +312,27 @@ const VoiceBot = () => {
       }
 
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
+        `${supabaseUrl}/functions/v1/voice-chat`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            'Authorization': `Bearer ${supabaseKey}`,
           },
           body: JSON.stringify(contextPayload),
         }
       );
 
       if (!response.ok) {
+        console.error('Voice chat request failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url,
+          headers: Object.fromEntries(response.headers.entries())
+        });
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Request failed: ${response.status}`);
+        console.error('Error response data:', errorData);
+        throw new Error(errorData.error || `Request failed: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
