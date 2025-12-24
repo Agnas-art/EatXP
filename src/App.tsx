@@ -11,6 +11,7 @@ import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import FeaturesDemo from "./pages/FeaturesDemo";
 import { AnimeCharacterFollower } from "@/components/AnimeCharacterFollower";
+import AnimeCharacterCursor from "@/components/AnimeCharacterCursor";
 import VoiceBot from "@/components/VoiceBot";
 import { initializeTheme } from "@/hooks/useThemeStore";
 import "@/i18n/config";
@@ -65,6 +66,9 @@ const AppContent = () => {
     <>      
       {/* Global Anime Character Follower */}
       <AnimeCharacterFollower characterId={characterId} enabled={true} />
+      
+      {/* 3D Anime Character Cursor - Changes based on character selection */}
+      <AnimeCharacterCursor characterId={characterId} />
       
       {/* Global Floating Voice Bot - Exclude from auth pages */}
       {!isAuthPage && <VoiceBot />}
