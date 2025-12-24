@@ -91,12 +91,14 @@ export function FloatingVoiceBot({ characterId = "tanjiro" }: { characterId?: st
       content: text,
       timestamp: new Date(),
     };
-    setMessages((prev) => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setCurrentTranscript("");
     setIsProcessing(true);
 
     try {
-      const response = await getAIResponse(text, messages);
+      // Pass the current conversation history excluding the just-added message
+      const response = await getAIResponse(text, updatedMessages.slice(0, -1));
       const botMessage: Message = {
         role: "bot",
         content: response,

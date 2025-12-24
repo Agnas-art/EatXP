@@ -16,19 +16,24 @@ serve(async (req) => {
     console.log("Received message:", message);
     console.log("Conversation history length:", conversationHistory?.length || 0);
     
-    // Try OpenAI first
+    // Try OpenAI first with full conversation context
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (OPENAI_API_KEY) {
       const messages = [
         { 
           role: "system", 
-          content: "You are a friendly food education assistant for children. Keep your responses concise and conversational since they will be spoken aloud. Be warm, engaging, and helpful. Limit responses to 2-3 sentences when possible." 
+          content: "You are a friendly food education assistant for children. Keep your responses concise and conversational since they will be spoken aloud. Be warm, engaging, and helpful. Remember the conversation history to provide contextually relevant answers. Limit responses to 2-3 sentences when possible." 
         },
-        ...(conversationHistory || []),
+        // Include conversation history for context
+        ...(conversationHistory || []).slice(-8).map((msg: any) => ({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        })),
         { role: "user", content: message }
       ];
 
-      console.log("Calling OpenAI API...");
+      console.log("Calling OpenAI API with context...");
+      console.log("Messages being sent:", JSON.stringify(messages, null, 2));
       
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
@@ -40,6 +45,7 @@ serve(async (req) => {
           model: "gpt-3.5-turbo",
           messages,
           max_tokens: 150,
+          temperature: 0.8, // Add some personality while keeping responses focused
         }),
       });
 
@@ -52,12 +58,18 @@ serve(async (req) => {
         return new Response(JSON.stringify({ reply }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
+      } else {
+        console.error("OpenAI API error:", response.status, await response.text());
       }
     }
 
-    // Fallback responses for food education
-    const getFallbackResponse = (question: string): string => {
+    // Enhanced fallback responses with context awareness
+    const getFallbackResponse = (question: string, history: any[] = []): string => {
       const lowerQuestion = question.toLowerCase();
+      
+      // Check if we're continuing a conversation about a specific topic
+      const recentMessages = history.slice(-3) || [];
+      const recentTopics = recentMessages.map((msg: any) => msg.content?.toLowerCase() || '').join(' ');
       
       const foodResponses: Record<string, string> = {
         apple: "Apples are full of fiber and vitamin C! They help keep your teeth healthy and give you energy.",
@@ -76,12 +88,28 @@ serve(async (req) => {
         exercise: "Exercise is fun and keeps your body healthy! You can run, dance, swim, or play!",
       };
 
+      // Check current question first
       for (const [keyword, answer] of Object.entries(foodResponses)) {
         if (lowerQuestion.includes(keyword)) {
           return answer;
         }
       }
 
+      // Context-aware responses for follow-up questions
+      if (lowerQuestion.includes('more') || lowerQuestion.includes('tell') || lowerQuestion.includes('what else')) {
+        for (const [keyword, answer] of Object.entries(foodResponses)) {
+          if (recentTopics.includes(keyword)) {
+            return `Here's more about ${keyword}: ${answer}`;
+          }
+        }
+        return "What specific aspect would you like to know more about? I'm happy to share more details!";
+      }
+
+      if (lowerQuestion.includes('why') || lowerQuestion.includes('how')) {
+        return "Great question! Understanding how food affects our bodies helps us make better choices. What would you like to learn about?";
+      }
+
+      // Context-aware general responses
       const generalResponses = [
         "That's a great question about food! Keep learning about healthy eating!",
         "I like your interest in food and nutrition! Ask me about specific foods or recipes!",
@@ -93,7 +121,7 @@ serve(async (req) => {
       return generalResponses[Math.floor(Math.random() * generalResponses.length)];
     };
 
-    const reply = getFallbackResponse(message);
+    const reply = getFallbackResponse(message, conversationHistory || []);
     console.log("Fallback response:", reply);
 
     return new Response(JSON.stringify({ reply }), {

@@ -170,13 +170,15 @@ export function VoiceBot() {
     if (!text.trim()) return;
 
     const userMessage: Message = { role: 'user', content: text };
-    setMessages(prev => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setTranscript('');
     setIsProcessing(true);
     setCurrentResponse('');
 
     try {
-      const response = await getAIResponse(text, messages);
+      // Pass the updated conversation history including the current message
+      const response = await getAIResponse(text, updatedMessages.slice(0, -1)); // Exclude current message since it's already in the prompt
       const assistantMessage: Message = { role: 'assistant', content: response };
       
       setMessages(prev => [...prev, assistantMessage]);
@@ -195,7 +197,37 @@ export function VoiceBot() {
 
   const getAIResponse = async (question: string, conversationHistory: Message[]): Promise<string> => {
     try {
-      // Try ChatGPT first
+      // Try Supabase edge function first for better context handling
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      
+      if (supabaseUrl && supabaseKey) {
+        const response = await fetch(
+          `${supabaseUrl}/functions/v1/voice-chat`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${supabaseKey}`,
+            },
+            body: JSON.stringify({
+              message: question,
+              conversationHistory: conversationHistory.slice(-10), // Keep last 10 messages for context
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.reply) {
+            return data.reply;
+          }
+        } else {
+          console.log('Supabase function failed, falling back to OpenAI API');
+        }
+      }
+
+      // Try ChatGPT with full conversation context
       const openaiKey = import.meta.env.VITE_OPENAI_API_KEY;
       if (openaiKey) {
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -209,9 +241,9 @@ export function VoiceBot() {
             messages: [
               {
                 role: "system",
-                content: "You are a friendly food education assistant for children. Keep responses brief and encouraging.",
+                content: "You are a friendly food education assistant for children. Keep responses brief and encouraging. Remember the conversation history to provide contextually relevant answers.",
               },
-              ...conversationHistory.map((msg) => ({
+              ...conversationHistory.slice(-8).map((msg) => ({
                 role: msg.role === 'user' ? 'user' : 'assistant',
                 content: msg.content,
               })),
@@ -229,16 +261,20 @@ export function VoiceBot() {
         }
       }
 
-      // Fallback to local responses
-      return getFallbackResponse(question);
+      // Fallback to local responses with simple context awareness
+      return getFallbackResponse(question, conversationHistory);
     } catch (error) {
       console.error('AI API error:', error);
-      return getFallbackResponse(question);
+      return getFallbackResponse(question, conversationHistory);
     }
   };
 
-  const getFallbackResponse = (question: string): string => {
+  const getFallbackResponse = (question: string, conversationHistory?: Message[]): string => {
     const lowerQuestion = question.toLowerCase();
+    
+    // Check if we're continuing a conversation about a specific topic
+    const recentMessages = conversationHistory?.slice(-3) || [];
+    const recentTopics = recentMessages.map(msg => msg.content.toLowerCase()).join(' ');
     
     const foodResponses: Record<string, string> = {
       apple: "Apples are full of fiber and vitamin C! They help keep your teeth healthy and give you energy.",
@@ -257,10 +293,32 @@ export function VoiceBot() {
       exercise: "Exercise is fun and keeps your body healthy! You can run, dance, swim, or play!",
     };
 
+    // Check current question first
     for (const [keyword, answer] of Object.entries(foodResponses)) {
       if (lowerQuestion.includes(keyword)) {
         return answer;
       }
+    }
+
+    // Check recent conversation for context
+    for (const [keyword, answer] of Object.entries(foodResponses)) {
+      if (recentTopics.includes(keyword)) {
+        // Provide follow-up information if we're continuing a topic
+        if (lowerQuestion.includes('more') || lowerQuestion.includes('tell') || lowerQuestion.includes('what else')) {
+          return `Here's more about ${keyword}: ${answer}`;
+        }
+      }
+    }
+
+    // Context-aware general responses
+    if (lowerQuestion.includes('more') || lowerQuestion.includes('tell') || lowerQuestion.includes('what else')) {
+      if (recentMessages.length > 0) {
+        return "What specific aspect would you like to know more about? I'm happy to share more details!";
+      }
+    }
+
+    if (lowerQuestion.includes('why') || lowerQuestion.includes('how')) {
+      return "Great question! Understanding how food affects our bodies helps us make better choices. What would you like to learn about?";
     }
 
     const generalResponses = [
