@@ -57,6 +57,17 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     imageUrl: "https://th.bing.com/th/id/OIP.J3nL3QT6QkfLqhzH-Rw26QHaHZ?w=207&h=206&c=7&r=0&o=7&cb=ucfimg2&dpr=2.2&pid=1.7&rm=3&ucfimg=1",
     position: { x: 0, y: 0, z: 0 },
   },
+  ninrir: {
+    id: "ninrir",
+    name: "Ninrir",
+    description: "Outdoor chef with campfire mastery",
+    anime: "Campfire Cooking in Another World with My Portable Oven",
+    personality: "Adventurous, Warm-hearted, Creative",
+    color: "#D2691E",
+    emoji: "🔥",
+    imageUrl: "",
+    position: { x: 0, y: 0, z: 0 },
+  },
 };
 
 export const DEFAULT_CHARACTER = ANIME_CHARACTERS.tanjiro;
