@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +10,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import FeaturesDemo from "./pages/FeaturesDemo";
+import { FloatingVoiceBot } from "@/components/FloatingVoiceBot";
+import { AnimeCharacterFollower } from "@/components/AnimeCharacterFollower";
 import { initializeTheme } from "@/hooks/useThemeStore";
 import "@/i18n/config";
 import { I18nextProvider } from "react-i18next";
@@ -40,27 +42,45 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AppContent = () => {
+  const { user } = useAuth();
+  const [characterId, setCharacterId] = useState("tanjiro");
+
   useEffect(() => {
     // Initialize theme on app load
     initializeTheme();
   }, []);
 
+  // Update character ID from user preferences
+  useEffect(() => {
+    if (user?.characterId) {
+      setCharacterId(user.characterId);
+    }
+  }, [user?.characterId]);
+
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/features-demo" element={<FeaturesDemo />} />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Index />
-          </ProtectedRoute>
-        }
-      />
-      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <>
+      {/* Global Floating Voice Bot */}
+      <FloatingVoiceBot characterId={characterId} />
+      
+      {/* Global Anime Character Follower */}
+      <AnimeCharacterFollower characterId={characterId} enabled={true} />
+
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/features-demo" element={<FeaturesDemo />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Index />
+            </ProtectedRoute>
+          }
+        />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 };
 
