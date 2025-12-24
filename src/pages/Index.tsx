@@ -51,7 +51,6 @@ const Index = () => {
   const [showFoodKingdomMap, setShowFoodKingdomMap] = useState(false);
   const [showAnimeCutscenes, setShowAnimeCutscenes] = useState(false);
   const [showMangaPanels, setShowMangaPanels] = useState(false);
-  const [showVoiceBot, setShowVoiceBot] = useState(false);
   const [showShokuikuSaga, setShowShokuikuSaga] = useState(false);
   const [showBossBattles, setShowBossBattles] = useState(false);
   const [showMealMastery, setShowMealMastery] = useState(false);
@@ -345,24 +344,6 @@ const Index = () => {
     );
   }
 
-  if (showVoiceBot) {
-    return (
-      <div className="min-h-screen bg-background pb-8">
-        <header className="sticky top-0 bg-background/95 backdrop-blur-lg z-40 px-4 py-3 border-b border-border">
-          <button
-            onClick={() => setShowVoiceBot(false)}
-            className="text-muted-foreground hover:text-foreground transition-colors font-semibold"
-          >
-            {t("common.back_to_home")}
-          </button>
-        </header>
-        <main className="px-4 py-4 flex items-center justify-center">
-          <VoiceBot />
-        </main>
-      </div>
-    );
-  }
-
   if (showShokuikuSaga) {
     return (
       <div className="min-h-screen bg-background pb-8">
@@ -556,16 +537,7 @@ const Index = () => {
                   <p className="text-xs text-primary-foreground/80">{t("home.manga_desc")}</p>
                 </motion.button>
 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowVoiceBot(true)}
-                  className="bg-gradient-to-br from-blue-400 to-cyan-500 rounded-2xl p-3 text-left relative overflow-hidden"
-                >
-                  <span className="text-2xl mb-1 inline-block">🎤</span>
-                  <p className="font-display font-bold text-xs text-primary-foreground">{t("common.voice_bot")}</p>
-                  <p className="text-xs text-primary-foreground/80">Talk & Learn</p>
-                </motion.button>
+
               </div>
 
               {/* Teen Features - Only show for ages 13+ */}
