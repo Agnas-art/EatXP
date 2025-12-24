@@ -2,33 +2,12 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-requested-with, accept, accept-language, content-language",
-  "Access-Control-Allow-Methods": "POST, OPTIONS, GET",
-  "Access-Control-Max-Age": "86400",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 serve(async (req) => {
-  console.log(`Received ${req.method} request to voice-chat`);
-  console.log('Request headers:', Object.fromEntries(req.headers.entries()));
-  
   if (req.method === "OPTIONS") {
-    console.log('Handling CORS preflight request');
-    return new Response(null, { 
-      status: 200,
-      headers: corsHeaders 
-    });
-  }
-
-  if (req.method !== "POST") {
-    console.error(`Method not allowed: ${req.method}`);
-    return new Response(JSON.stringify({ 
-      error: "Method not allowed", 
-      method: req.method,
-      allowedMethods: ["POST", "OPTIONS"]
-    }), {
-      status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {

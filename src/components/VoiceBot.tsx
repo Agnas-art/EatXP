@@ -115,6 +115,89 @@ const VoiceBot = () => {
     }
   }, [messages, conversationSummary]);
 
+  // Local fallback response generator
+  const generateLocalResponse = useCallback(async (userInput: string, messageHistory: Message[]): Promise<string> => {
+    const input = userInput.toLowerCase().trim();
+    
+    // Food and cooking related responses
+    if (input.includes('food') || input.includes('cook') || input.includes('recipe') || input.includes('eat')) {
+      const responses = [
+        "That sounds delicious! I love talking about food. What's your favorite cuisine?",
+        "Cooking is such a wonderful skill! Are you looking for recipe suggestions?",
+        "Food brings people together! What are you in the mood to cook today?",
+        "I'd love to help you with cooking tips! What dish are you thinking about?",
+        "There's nothing better than a good meal! Tell me more about what you're craving."
+      ];
+      return responses[Math.floor(Math.random() * responses.length)];
+    }
+    
+    // Anime related responses
+    if (input.includes('anime') || input.includes('manga') || input.includes('naruto') || input.includes('tanjiro') || input.includes('deku')) {
+      const responses = [
+        "Anime is amazing! Which series are you watching right now?",
+        "I love anime too! The storytelling and animation are incredible.",
+        "That's a great anime choice! What did you think of the latest episodes?",
+        "Anime characters are so inspiring! Who's your favorite character?",
+        "The anime world has so many amazing stories! What genre do you prefer?"
+      ];
+      return responses[Math.floor(Math.random() * responses.length)];
+    }
+    
+    // Gaming related responses
+    if (input.includes('game') || input.includes('play') || input.includes('gaming')) {
+      const responses = [
+        "Games are so much fun! What type of games do you enjoy playing?",
+        "I'd love to hear about your gaming adventures! What's your current favorite?",
+        "Gaming is a great way to relax and have fun! Any recommendations for me?",
+        "That sounds like an exciting game! How long have you been playing it?",
+        "Games can be so immersive! What draws you to that particular game?"
+      ];
+      return responses[Math.floor(Math.random() * responses.length)];
+    }
+    
+    // General conversation responses
+    if (input.includes('hello') || input.includes('hi') || input.includes('hey')) {
+      return "Hello! I'm so happy to chat with you today! What would you like to talk about?";
+    }
+    
+    if (input.includes('how are you') || input.includes('how\'s it going')) {
+      return "I'm doing great, thank you for asking! I'm excited to be here chatting with you. How are you doing today?";
+    }
+    
+    if (input.includes('thank you') || input.includes('thanks')) {
+      return "You're very welcome! I'm here to help whenever you need it. Is there anything else you'd like to chat about?";
+    }
+    
+    if (input.includes('help') || input.includes('support')) {
+      return "I'm here to help! You can ask me about food, cooking, anime, games, or just chat about anything on your mind!";
+    }
+    
+    // Default responses based on conversation context
+    const recentTopics = messageHistory.slice(-5).map(m => m.content.toLowerCase());
+    const hasFood = recentTopics.some(t => t.includes('food') || t.includes('cook'));
+    const hasAnime = recentTopics.some(t => t.includes('anime') || t.includes('manga'));
+    
+    if (hasFood && hasAnime) {
+      return "That's interesting! I love how anime often features amazing food scenes. Have you seen any cooking anime?";
+    } else if (hasFood) {
+      return "I love our food conversation! Cooking is such a creative and rewarding activity. What's your next culinary adventure?";
+    } else if (hasAnime) {
+      return "Anime discussions are the best! There are so many incredible series with unique stories and characters.";
+    }
+    
+    // Generic friendly responses
+    const genericResponses = [
+      "That's really interesting! Tell me more about that.",
+      "I appreciate you sharing that with me! What's your thoughts on it?",
+      "That sounds fascinating! I'd love to hear your perspective.",
+      "Thanks for chatting with me! What else is on your mind today?",
+      "That's a great point! I enjoy our conversations so much.",
+      "I'm here to listen and chat! What would you like to explore next?"
+    ];
+    
+    return genericResponses[Math.floor(Math.random() * genericResponses.length)];
+  }, []);
+
   // Generate conversation summary for long conversations
   const generateSummary = useCallback(async (allMessages: Message[]): Promise<string> => {
     if (allMessages.length < 10) return '';
@@ -260,20 +343,23 @@ const VoiceBot = () => {
   const handleSendMessage = useCallback(async (text: string) => {
     if (!text.trim()) return;
 
-    // Check environment configuration
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    // Debug: Check configuration
+    console.log('=== VoiceBot Configuration Debug ===');
+    console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
+    console.log('VITE_SUPABASE_PUBLISHABLE_KEY:', import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? 'SET' : 'MISSING');
     
-    if (!supabaseUrl || !supabaseKey) {
+    // Validate configuration
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
+      const missing = [];
+      if (!import.meta.env.VITE_SUPABASE_URL) missing.push('VITE_SUPABASE_URL');
+      if (!import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) missing.push('VITE_SUPABASE_PUBLISHABLE_KEY');
+      
       toast({
         title: "Configuration Error",
-        description: "Supabase configuration is missing. Please check environment variables.",
+        description: `Missing environment variables: ${missing.join(', ')}. Please check your .env file.`,
         variant: "destructive",
       });
-      console.error('Missing environment variables:', { 
-        VITE_SUPABASE_URL: !!supabaseUrl, 
-        VITE_SUPABASE_PUBLISHABLE_KEY: !!supabaseKey 
-      });
+      setIsProcessing(false);
       return;
     }
 
@@ -311,28 +397,68 @@ const VoiceBot = () => {
         }
       }
 
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/voice-chat`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${supabaseKey}`,
-          },
-          body: JSON.stringify(contextPayload),
-        }
-      );
+      // Try Supabase edge function first, fallback to local implementation
+      let response;
+      try {
+        response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify(contextPayload),
+          }
+        );
 
-      if (!response.ok) {
-        console.error('Voice chat request failed:', {
-          status: response.status,
-          statusText: response.statusText,
-          url: response.url,
-          headers: Object.fromEntries(response.headers.entries())
-        });
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Error response data:', errorData);
-        throw new Error(errorData.error || `Request failed: ${response.status} ${response.statusText}`);
+        console.log('API Response Status:', response.status);
+        console.log('API Response Headers:', Object.fromEntries(response.headers.entries()));
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('API Error Response:', errorText);
+          
+          // If the error is configuration-related, fall back to local response
+          if (response.status === 500 || errorText.includes('LOVABLE_API_KEY')) {
+            throw new Error('FALLBACK_TO_LOCAL');
+          }
+          
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch {
+            errorData = { error: errorText };
+          }
+          
+          throw new Error(errorData.error || `Request failed: ${response.status} - ${errorText}`);
+        }
+      } catch (fetchError) {
+        console.warn('Supabase edge function not available, using local fallback:', fetchError);
+        
+        // Show a one-time notification about fallback mode
+        if (!localStorage.getItem('voicebot_fallback_notified')) {
+          toast({
+            title: "Local Mode",
+            description: "Using local responses. Configure Supabase for AI-powered chat.",
+            variant: "default",
+          });
+          localStorage.setItem('voicebot_fallback_notified', 'true');
+        }
+        
+        // Local fallback response
+        const localResponse = await generateLocalResponse(text, recentMessages);
+        const assistantMessage: Message = { 
+          role: 'assistant', 
+          content: localResponse,
+          timestamp: Date.now()
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+        setCurrentResponse(localResponse);
+        speakText(localResponse);
+        setIsProcessing(false);
+        return;
       }
 
       const data = await response.json();
