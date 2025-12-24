@@ -19,7 +19,7 @@ export interface StoryChapter {
   number: number;
   title: string;
   narrative: string;
-  characterGuide: "naruto" | "tanjiro" | "deku" | "eren" | "yuji" | "goku" | "luffy" | "kaneki";
+  characterGuide: "naruto" | "tanjiro" | "deku" | "eren" | "yuji" | "goku" | "luffy";
   lesson: StoryLesson;
   unlocksRecipes: UnlockedRecipe[];
   comicPanels: {
@@ -235,7 +235,7 @@ export const STORY_CHAPTERS: Record<string, StoryChapter> = {
     title: "The Great Cooking Challenge",
     narrative:
       "Time to put it all together! Create a balanced meal with every food group. You're ready to become a true Anime Eats Master!",
-    characterGuide: "kaneki",
+    characterGuide: "luffy",
     lesson: {
       id: "lesson_balanced_meals",
       title: "Creating Balanced Meals",

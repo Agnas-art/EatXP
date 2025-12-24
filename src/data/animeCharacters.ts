@@ -68,17 +68,6 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     imageUrl: "https://th.bing.com/th/id/OIP.J3nL3QT6QkfLqhzH-Rw26QHaHZ?w=207&h=206&c=7&r=0&o=7&cb=ucfimg2&dpr=2.2&pid=1.7&rm=3&ucfimg=1",
     position: { x: 0, y: 0, z: 0 },
   },
-  kaneki: {
-    id: "kaneki",
-    name: "Ken Kaneki",
-    description: "Urban fighter with dark aesthetic",
-    anime: "Tokyo Ghoul",
-    personality: "Strong, Mysterious, Determined",
-    color: "#660000",
-    emoji: "🌙",
-    imageUrl: "", // Add working image URL here
-    position: { x: 0, y: 0, z: 0 },
-  },
 };
 
 export const DEFAULT_CHARACTER = ANIME_CHARACTERS.naruto;
