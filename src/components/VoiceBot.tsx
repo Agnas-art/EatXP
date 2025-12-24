@@ -273,34 +273,55 @@ const VoiceBot = () => {
   useEffect(() => {
     const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
     
+    console.log('Initializing speech recognition...', {
+      SpeechRecognition: !!window.SpeechRecognition,
+      webkitSpeechRecognition: !!window.webkitSpeechRecognition,
+      userAgent: navigator.userAgent
+    });
+    
     if (SpeechRecognitionClass) {
-      recognitionRef.current = new SpeechRecognitionClass();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'en-US';
-      
-      // Add performance optimizations
-      // @ts-ignore - These properties might not be in TypeScript definitions
-      if ('maxAlternatives' in recognitionRef.current) {
-        recognitionRef.current.maxAlternatives = 1; // Reduce processing overhead
-      }
-      if ('serviceURI' in recognitionRef.current) {
-        // Use faster speech service if available
-        recognitionRef.current.serviceURI = 'chrome://speechapi/';
+      try {
+        recognitionRef.current = new SpeechRecognitionClass();
+        recognitionRef.current.continuous = false;
+        recognitionRef.current.interimResults = true;
+        recognitionRef.current.lang = 'en-US';
+        
+        // Add performance optimizations
+        try {
+          // @ts-ignore - These properties might not be in TypeScript definitions
+          if ('maxAlternatives' in recognitionRef.current) {
+            recognitionRef.current.maxAlternatives = 1;
+          }
+        } catch (e) {
+          console.log('maxAlternatives not supported');
+        }
+        
+        console.log('Speech recognition initialized successfully');
+      } catch (error) {
+        console.error('Error initializing speech recognition:', error);
+        recognitionRef.current = null;
       }
 
       recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
-        const current = event.resultIndex;
-        const result = event.results[current];
-        const transcriptText = result[0].transcript;
-        
-        // Update transcript immediately for better responsiveness
-        setTranscript(transcriptText);
-        
-        if (result.isFinal) {
-          // Process final result immediately
-          handleSendMessage(transcriptText);
-          setTranscript(''); // Clear transcript after processing
+        try {
+          const current = event.resultIndex;
+          const result = event.results[current];
+          
+          if (result && result[0]) {
+            const transcriptText = result[0].transcript.trim();
+            
+            // Update transcript immediately for better responsiveness
+            setTranscript(transcriptText);
+            
+            if (result.isFinal && transcriptText) {
+              // Process final result immediately
+              console.log('Final transcript:', transcriptText);
+              handleSendMessage(transcriptText);
+              setTranscript(''); // Clear transcript after processing
+            }
+          }
+        } catch (error) {
+          console.error('Error processing speech result:', error);
         }
       };
 
@@ -346,7 +367,9 @@ const VoiceBot = () => {
       };
 
       recognitionRef.current.onend = () => {
+        console.log('Speech recognition ended');
         setIsListening(false);
+        setTranscript(''); // Clear any remaining transcript
       };
     }
 
@@ -359,6 +382,8 @@ const VoiceBot = () => {
   }, []);
 
   const startListening = useCallback(async () => {
+    console.log('Starting speech recognition...');
+    
     if (!recognitionRef.current) {
       toast({
         title: "Not Supported",
@@ -368,15 +393,38 @@ const VoiceBot = () => {
       return;
     }
 
-    if (isListening) return; // Prevent double-start
+    if (isListening) {
+      console.log('Already listening, ignoring start request');
+      return; // Prevent double-start
+    }
 
     try {
       // Clear any previous transcript and start recognition immediately
       setTranscript('');
       setIsListening(true);
       
-      // Start recognition immediately without delays
-      recognitionRef.current.start();
+      // Add a small delay to ensure state is updated
+      setTimeout(() => {
+        if (recognitionRef.current) {
+          try {
+            console.log('Actually starting recognition...');
+            recognitionRef.current.start();
+          } catch (startError) {
+            console.error('Error in recognition start:', startError);
+            setIsListening(false);
+            
+            if (startError instanceof DOMException && startError.name === 'InvalidStateError') {
+              console.log('Recognition already running, resetting...');
+              recognitionRef.current?.abort();
+              setTimeout(() => {
+                if (recognitionRef.current) {
+                  recognitionRef.current.start();
+                }
+              }, 100);
+            }
+          }
+        }
+      }, 50);
       
     } catch (error) {
       console.error('Speech recognition start error:', error);
@@ -390,9 +438,12 @@ const VoiceBot = () => {
             variant: "destructive",
           });
         } else if (error.name === 'InvalidStateError') {
-          // Recognition is already running, just ignore
-          console.log('Recognition already running, ignoring start request');
-          return;
+          // Recognition is already running, try to reset
+          console.log('Recognition already running, attempting reset...');
+          recognitionRef.current?.abort();
+          setTimeout(() => {
+            setIsListening(false);
+          }, 100);
         } else {
           toast({
             title: "Speech Recognition Error",
@@ -411,16 +462,25 @@ const VoiceBot = () => {
   }, [isListening, toast]);
 
   const stopListening = useCallback(() => {
-    if (recognitionRef.current && isListening) {
+    console.log('Stopping speech recognition...');
+    
+    if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
       } catch (error) {
         console.error('Error stopping recognition:', error);
+        // Force abort if stop fails
+        try {
+          recognitionRef.current.abort();
+        } catch (abortError) {
+          console.error('Error aborting recognition:', abortError);
+        }
       }
     }
+    
     setIsListening(false);
     setTranscript('');
-  }, [isListening]);
+  }, []);
 
   const speakText = useCallback((text: string) => {
     window.speechSynthesis.cancel();
