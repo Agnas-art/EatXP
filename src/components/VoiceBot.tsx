@@ -51,6 +51,45 @@ declare global {
   }
 }
 
+// Platform detection utilities
+const isMobile = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
+const isAndroid = () => {
+  return /Android/i.test(navigator.userAgent);
+};
+
+const isIOS = () => {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent);
+};
+
+const isChrome = () => {
+  return /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+};
+
+const isSafari = () => {
+  return /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+};
+
+const isFirefox = () => {
+  return /Firefox/.test(navigator.userAgent);
+};
+
+const getSpeechRecognitionSupport = () => {
+  const hasAPI = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  const platform = isAndroid() ? 'Android' : isIOS() ? 'iOS' : 'Desktop';
+  const browser = isChrome() ? 'Chrome' : isSafari() ? 'Safari' : isFirefox() ? 'Firefox' : 'Other';
+  
+  return {
+    hasAPI,
+    platform,
+    browser,
+    isSupported: hasAPI && (isChrome() || (isAndroid() && isChrome())),
+    requiresHTTPS: true
+  };
+};
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -72,6 +111,9 @@ const VoiceBot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentResponse, setCurrentResponse] = useState('');
   const [conversationSummary, setConversationSummary] = useState<string>('');
+  const [speechSupport, setSpeechSupport] = useState(getSpeechRecognitionSupport());
+  const [micPermissionGranted, setMicPermissionGranted] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
@@ -115,69 +157,73 @@ const VoiceBot = () => {
     }
   }, [messages, conversationSummary]);
 
-  // Pre-warm speech recognition for faster startup
-  useEffect(() => {
-    if (isOpen && recognitionRef.current) {
-      // Pre-initialize recognition when voice bot opens for faster response
-      try {
-        // This helps warm up the speech recognition engine
-        const warmUpRecognition = () => {
-          if (recognitionRef.current && !isListening) {
-            // Quick start/stop cycle to warm up the engine (invisible to user)
-            recognitionRef.current.start();
-            setTimeout(() => {
-              if (recognitionRef.current && !isListening) {
-                recognitionRef.current.abort();
-              }
-            }, 10);
-          }
-        };
-        
-        // Warm up after a short delay when opened
-        const warmUpTimer = setTimeout(warmUpRecognition, 100);
-        
-        return () => {
-          clearTimeout(warmUpTimer);
-        };
-      } catch (error) {
-        // Ignore warm-up errors
-        console.log('Speech recognition warm-up skipped:', error);
-      }
-    }
-  }, [isOpen, isListening]);
-
-  // Local fallback response generator
+  // Local fallback response generator with enhanced context awareness
   const generateLocalResponse = useCallback(async (userInput: string, messageHistory: Message[]): Promise<string> => {
     const input = userInput.toLowerCase().trim();
     
-    // Food and cooking related responses
+    // Analyze conversation history for context
+    const recentMessages = messageHistory.slice(-10); // Look at more recent context
+    const allTopics = messageHistory.map(m => m.content.toLowerCase()).join(' ');
+    const userPreferences = {
+      food: allTopics.includes('food') || allTopics.includes('cook') || allTopics.includes('recipe'),
+      anime: allTopics.includes('anime') || allTopics.includes('manga') || allTopics.includes('naruto') || allTopics.includes('tanjiro'),
+      gaming: allTopics.includes('game') || allTopics.includes('play') || allTopics.includes('gaming'),
+    };
+    
+    // Extract user's name if mentioned in conversation
+    const nameMatch = allTopics.match(/my name is (\w+)|i'm (\w+)|call me (\w+)/);
+    const userName = nameMatch ? (nameMatch[1] || nameMatch[2] || nameMatch[3]) : '';
+    
+    // Check for repeated questions or similar topics
+    const isRepeatedQuestion = recentMessages.some(m => 
+      m.role === 'user' && 
+      m.content.toLowerCase().includes(input.substring(0, 20)) && 
+      m.content !== userInput
+    );
+    
+    // Find previous discussions about similar topics
+    const previousUserMessages = recentMessages.filter(m => m.role === 'user').slice(-3);
+    const previousAssistantMessages = recentMessages.filter(m => m.role === 'assistant').slice(-3);
+    
+    // Handle repeated or follow-up questions with context
+    if (isRepeatedQuestion && previousAssistantMessages.length > 0) {
+      return `${userName ? `${userName}, ` : ''}I think we talked about something similar before. To build on our previous discussion, what specific aspect would you like to explore further?`;
+    }
+    
+    // Context-aware responses based on conversation flow
     if (input.includes('food') || input.includes('cook') || input.includes('recipe') || input.includes('eat')) {
+      if (userPreferences.anime && userPreferences.food) {
+        return `${userName ? `${userName}, ` : ''}Since we've been talking about both food and anime, have you noticed how beautifully food is portrayed in anime? What's your favorite food scene from an anime?`;
+      }
       const responses = [
-        "That sounds delicious! I love talking about food. What's your favorite cuisine?",
+        `${userName ? `Great question, ${userName}! ` : ''}That sounds delicious! Based on our chat, what's your favorite cuisine?`,
         "Cooking is such a wonderful skill! Are you looking for recipe suggestions?",
         "Food brings people together! What are you in the mood to cook today?",
-        "I'd love to help you with cooking tips! What dish are you thinking about?",
+        `${userName ? `${userName}, ` : ''}I'd love to help you with cooking tips! What dish are you thinking about?`,
         "There's nothing better than a good meal! Tell me more about what you're craving."
       ];
       return responses[Math.floor(Math.random() * responses.length)];
     }
     
-    // Anime related responses
+    // Anime related responses with context
     if (input.includes('anime') || input.includes('manga') || input.includes('naruto') || input.includes('tanjiro') || input.includes('deku')) {
+      if (userPreferences.food && userPreferences.anime) {
+        return `${userName ? `${userName}, ` : ''}I love how we've been discussing both anime and food! Have you ever tried making dishes from your favorite anime series?`;
+      }
       const responses = [
-        "Anime is amazing! Which series are you watching right now?",
+        `${userName ? `${userName}, ` : ''}anime is amazing! Which series are you watching right now?`,
         "I love anime too! The storytelling and animation are incredible.",
         "That's a great anime choice! What did you think of the latest episodes?",
         "Anime characters are so inspiring! Who's your favorite character?",
-        "The anime world has so many amazing stories! What genre do you prefer?"
+        `${userName ? `Based on our chat, ${userName}, ` : ''}the anime world has so many amazing stories! What genre do you prefer?`
       ];
       return responses[Math.floor(Math.random() * responses.length)];
     }
     
-    // Gaming related responses
+    // Gaming related responses with context
     if (input.includes('game') || input.includes('play') || input.includes('gaming')) {
       const responses = [
-        "Games are so much fun! What type of games do you enjoy playing?",
+        `${userName ? `${userName}, ` : ''}games are so much fun! What type of games do you enjoy playing?`,
         "I'd love to hear about your gaming adventures! What's your current favorite?",
         "Gaming is a great way to relax and have fun! Any recommendations for me?",
         "That sounds like an exciting game! How long have you been playing it?",
@@ -186,61 +232,103 @@ const VoiceBot = () => {
       return responses[Math.floor(Math.random() * responses.length)];
     }
     
-    // General conversation responses
+    // Greeting responses with context awareness
     if (input.includes('hello') || input.includes('hi') || input.includes('hey')) {
-      return "Hello! I'm so happy to chat with you today! What would you like to talk about?";
+      if (messageHistory.length > 5) {
+        return `${userName ? `Hello again, ${userName}! ` : 'Hello again! '}It's great to continue our conversation. What would you like to talk about next?`;
+      }
+      return `${userName ? `Hello, ${userName}! ` : 'Hello! '}I'm so happy to chat with you today! What would you like to talk about?`;
     }
     
     if (input.includes('how are you') || input.includes('how\'s it going')) {
-      return "I'm doing great, thank you for asking! I'm excited to be here chatting with you. How are you doing today?";
+      return `${userName ? `${userName}, ` : ''}I'm doing great, thank you for asking! I'm really enjoying our conversation. How are you doing today?`;
     }
     
     if (input.includes('thank you') || input.includes('thanks')) {
-      return "You're very welcome! I'm here to help whenever you need it. Is there anything else you'd like to chat about?";
+      return `${userName ? `You're very welcome, ${userName}! ` : 'You\'re very welcome! '}I'm here to help whenever you need it. Is there anything else you'd like to chat about?`;
     }
     
     if (input.includes('help') || input.includes('support')) {
+      const topics = [];
+      if (userPreferences.food) topics.push('food and cooking');
+      if (userPreferences.anime) topics.push('anime');
+      if (userPreferences.gaming) topics.push('games');
+      
+      if (topics.length > 0) {
+        return `${userName ? `${userName}, ` : ''}I'm here to help! I see we've been chatting about ${topics.join(', ')}. Feel free to ask me more about these topics or anything else on your mind!`;
+      }
       return "I'm here to help! You can ask me about food, cooking, anime, games, or just chat about anything on your mind!";
     }
     
-    // Default responses based on conversation context
-    const recentTopics = messageHistory.slice(-5).map(m => m.content.toLowerCase());
+    // Contextual responses based on conversation history
+    const recentTopics = recentMessages.slice(-5).map(m => m.content.toLowerCase());
     const hasFood = recentTopics.some(t => t.includes('food') || t.includes('cook'));
     const hasAnime = recentTopics.some(t => t.includes('anime') || t.includes('manga'));
+    const hasGaming = recentTopics.some(t => t.includes('game') || t.includes('play'));
     
     if (hasFood && hasAnime) {
-      return "That's interesting! I love how anime often features amazing food scenes. Have you seen any cooking anime?";
+      return `${userName ? `${userName}, ` : ''}that's interesting! I love how anime often features amazing food scenes. Have you seen any cooking anime like Shokugeki no Soma?`;
+    } else if (hasFood && hasGaming) {
+      return `${userName ? `${userName}, ` : ''}I notice you enjoy both food and gaming! Have you played any cooking games or food-themed games?`;
+    } else if (hasAnime && hasGaming) {
+      return `${userName ? `${userName}, ` : ''}anime and gaming - great combination! Have you played any games based on anime series?`;
     } else if (hasFood) {
-      return "I love our food conversation! Cooking is such a creative and rewarding activity. What's your next culinary adventure?";
+      return `${userName ? `${userName}, ` : ''}I love our food conversation! Cooking is such a creative and rewarding activity. What's your next culinary adventure?`;
     } else if (hasAnime) {
-      return "Anime discussions are the best! There are so many incredible series with unique stories and characters.";
+      return `${userName ? `${userName}, ` : ''}anime discussions are the best! There are so many incredible series with unique stories and characters.`;
+    } else if (hasGaming) {
+      return `${userName ? `${userName}, ` : ''}gaming is such an amazing hobby! What draws you to the games you play?`;
     }
     
-    // Generic friendly responses
-    const genericResponses = [
-      "That's really interesting! Tell me more about that.",
-      "I appreciate you sharing that with me! What's your thoughts on it?",
+    // Context-aware generic responses
+    const contextualResponses = [
+      `${userName ? `${userName}, ` : ''}that's really interesting! Based on our chat, tell me more about that.`,
+      `${userName ? `I appreciate you sharing that with me, ${userName}! ` : 'I appreciate you sharing that with me! '}What's your thoughts on it?`,
       "That sounds fascinating! I'd love to hear your perspective.",
-      "Thanks for chatting with me! What else is on your mind today?",
+      `${userName ? `Thanks for chatting with me, ${userName}! ` : 'Thanks for chatting with me! '}What else is on your mind today?`,
       "That's a great point! I enjoy our conversations so much.",
-      "I'm here to listen and chat! What would you like to explore next?"
+      `${userName ? `${userName}, ` : ''}I'm here to listen and chat! What would you like to explore next?`
     ];
     
-    return genericResponses[Math.floor(Math.random() * genericResponses.length)];
+    return contextualResponses[Math.floor(Math.random() * contextualResponses.length)];
   }, []);
 
-  // Generate conversation summary for long conversations
+  // Generate conversation summary for long conversations with better context
   const generateSummary = useCallback(async (allMessages: Message[]): Promise<string> => {
-    if (allMessages.length < 10) return '';
+    if (allMessages.length < 8) return ''; // Reduced threshold for better context
     
     try {
-      // Take first few messages and last few messages for context
+      // Extract key information from conversation
+      const userMessages = allMessages.filter(m => m.role === 'user');
+      const assistantMessages = allMessages.filter(m => m.role === 'assistant');
+      
+      // Find user's name if mentioned
+      const nameMatch = allMessages.map(m => m.content.toLowerCase()).join(' ').match(/my name is (\w+)|i'm (\w+)|call me (\w+)/);
+      const userName = nameMatch ? (nameMatch[1] || nameMatch[2] || nameMatch[3]) : '';
+      
+      // Identify main topics discussed
+      const allContent = allMessages.map(m => m.content.toLowerCase()).join(' ');
+      const topics = [];
+      if (allContent.includes('food') || allContent.includes('cook') || allContent.includes('recipe')) topics.push('food/cooking');
+      if (allContent.includes('anime') || allContent.includes('manga')) topics.push('anime');
+      if (allContent.includes('game') || allContent.includes('play') || allContent.includes('gaming')) topics.push('gaming');
+      
+      // Create context-rich summary prompt
+      let summaryPrompt = `Create a brief summary of this conversation to maintain context for future messages. Include:
+1. User's name if mentioned: ${userName || 'not provided'}
+2. Main topics discussed: ${topics.join(', ') || 'general conversation'}
+3. Any specific preferences or interests mentioned
+4. Ongoing themes or questions
+
+Recent conversation context:\n`;
+      
+      // Include more context for better summarization
       const contextMessages = [
-        ...allMessages.slice(0, 3),
-        ...allMessages.slice(-5)
+        ...allMessages.slice(0, 4),  // First few messages for introduction context
+        ...allMessages.slice(-8)    // Recent messages for current context
       ];
       
-      const summaryPrompt = `Please provide a brief summary of this conversation to maintain context:\n\n${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}`;
+      summaryPrompt += contextMessages.map(m => `${m.role}: ${m.content}`).join('\n');
       
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
@@ -260,216 +348,305 @@ const VoiceBot = () => {
       
       if (response.ok) {
         const data = await response.json();
+        console.log('Generated conversation summary:', data.reply);
         return data.reply || '';
       }
     } catch (error) {
       console.error('Failed to generate summary:', error);
+      
+      // Create a basic local summary as fallback
+      const userMessages = allMessages.filter(m => m.role === 'user');
+      const allContent = allMessages.map(m => m.content.toLowerCase()).join(' ');
+      const topics = [];
+      if (allContent.includes('food') || allContent.includes('cook')) topics.push('food/cooking');
+      if (allContent.includes('anime') || allContent.includes('manga')) topics.push('anime');
+      if (allContent.includes('game') || allContent.includes('gaming')) topics.push('gaming');
+      
+      const nameMatch = allContent.match(/my name is (\w+)|i'm (\w+)|call me (\w+)/);
+      const userName = nameMatch ? (nameMatch[1] || nameMatch[2] || nameMatch[3]) : '';
+      
+      return `Conversation with ${userName || 'user'} about ${topics.length > 0 ? topics.join(', ') : 'various topics'}. ${userMessages.length} user messages exchanged.`;
     }
     
     return '';
   }, []);
 
-  // Initialize speech recognition
+  // Initialize speech recognition with platform-specific optimizations
   useEffect(() => {
-    const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    console.log('Initializing speech recognition...', {
-      SpeechRecognition: !!window.SpeechRecognition,
-      webkitSpeechRecognition: !!window.webkitSpeechRecognition,
-      userAgent: navigator.userAgent
-    });
-    
-    if (SpeechRecognitionClass) {
-      try {
-        recognitionRef.current = new SpeechRecognitionClass();
-        recognitionRef.current.continuous = false;
-        recognitionRef.current.interimResults = true;
-        recognitionRef.current.lang = 'en-US';
-        
-        // Add performance optimizations
-        try {
-          // @ts-ignore - These properties might not be in TypeScript definitions
-          if ('maxAlternatives' in recognitionRef.current) {
-            recognitionRef.current.maxAlternatives = 1;
-          }
-        } catch (e) {
-          console.log('maxAlternatives not supported');
-        }
-        
-        console.log('Speech recognition initialized successfully');
-      } catch (error) {
-        console.error('Error initializing speech recognition:', error);
-        recognitionRef.current = null;
+    const initializeSpeechRecognition = () => {
+      const support = getSpeechRecognitionSupport();
+      setSpeechSupport(support);
+      
+      console.log('=== Speech Recognition Support Debug ===');
+      console.log('Platform:', support.platform);
+      console.log('Browser:', support.browser);
+      console.log('Has API:', support.hasAPI);
+      console.log('Is Supported:', support.isSupported);
+      console.log('Is Mobile:', isMobile());
+      console.log('Is Android:', isAndroid());
+      console.log('Is HTTPS:', location.protocol === 'https:');
+      
+      if (!support.hasAPI) {
+        console.error('Speech Recognition API not available');
+        return;
       }
-
-      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+      
+      if (!support.isSupported) {
+        console.warn('Speech Recognition not fully supported on this platform/browser');
+      }
+      
+      const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (SpeechRecognitionClass) {
         try {
-          const current = event.resultIndex;
-          const result = event.results[current];
+          recognitionRef.current = new SpeechRecognitionClass();
           
-          if (result && result[0]) {
-            const transcriptText = result[0].transcript.trim();
-            
-            // Update transcript immediately for better responsiveness
-            setTranscript(transcriptText);
-            
-            if (result.isFinal && transcriptText) {
-              // Process final result immediately
-              console.log('Final transcript:', transcriptText);
-              handleSendMessage(transcriptText);
-              setTranscript(''); // Clear transcript after processing
-            }
+          // Platform-specific configuration
+          if (isAndroid()) {
+            recognitionRef.current.continuous = false;
+            recognitionRef.current.interimResults = false; // More reliable on Android
+          } else {
+            recognitionRef.current.continuous = false;
+            recognitionRef.current.interimResults = true;
           }
+          
+          recognitionRef.current.lang = 'en-US';
+          
+          recognitionRef.current.onstart = () => {
+            console.log('Speech recognition started');
+            setIsListening(true);
+            setRetryCount(0);
+          };
+
+          recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+            console.log('Speech recognition result:', event);
+            
+            try {
+              const current = event.resultIndex;
+              if (event.results && event.results[current] && event.results[current][0]) {
+                const result = event.results[current][0];
+                const transcriptText = result.transcript?.trim() || '';
+                
+                console.log('Transcript:', transcriptText, 'Confidence:', result.confidence, 'isFinal:', event.results[current].isFinal);
+                
+                if (transcriptText) {
+                  setTranscript(transcriptText);
+                  
+                  // On Android, process immediately due to different behavior
+                  if (isAndroid() || event.results[current].isFinal) {
+                    handleSendMessage(transcriptText);
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('Error processing speech result:', error);
+            }
+          };
+
+          recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
+            console.error('Speech recognition error:', event.error, event);
+            setIsListening(false);
+            
+            switch (event.error) {
+              case 'not-allowed':
+                setMicPermissionGranted(false);
+                toast({
+                  title: "Microphone Access Denied",
+                  description: isAndroid() 
+                    ? "Please enable microphone access in your browser settings and refresh the page." 
+                    : "Please enable microphone access to use voice features.",
+                  variant: "destructive",
+                });
+                break;
+              case 'no-speech':
+                toast({
+                  title: "No Speech Detected",
+                  description: "Please try speaking again. Make sure you're close to the microphone.",
+                  variant: "default",
+                });
+                break;
+              case 'audio-capture':
+                toast({
+                  title: "Microphone Error",
+                  description: "Could not access microphone. Please check your device settings.",
+                  variant: "destructive",
+                });
+                break;
+              case 'network':
+                toast({
+                  title: "Network Error",
+                  description: "Speech recognition requires an internet connection.",
+                  variant: "destructive",
+                });
+                break;
+              case 'aborted':
+                // Silent - user stopped manually
+                break;
+              default:
+                toast({
+                  title: "Speech Recognition Error",
+                  description: `Error: ${event.error}. Please try again.`,
+                  variant: "destructive",
+                });
+            }
+          };
+
+          recognitionRef.current.onend = () => {
+            console.log('Speech recognition ended');
+            setIsListening(false);
+          };
+          
         } catch (error) {
-          console.error('Error processing speech result:', error);
+          console.error('Failed to initialize speech recognition:', error);
         }
-      };
-
-      recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-        
-        // Fast error handling without excessive toasts for common errors
-        switch (event.error) {
-          case 'not-allowed':
-            toast({
-              title: "Microphone Access Denied",
-              description: "Please enable microphone access in your browser settings and reload the page.",
-              variant: "destructive",
-            });
-            break;
-          case 'no-speech':
-            // Don't show toast for no-speech, just stop listening
-            console.log('No speech detected, stopping...');
-            break;
-          case 'audio-capture':
-            toast({
-              title: "Microphone Not Available",
-              description: "Your microphone is being used by another application or is not working properly.",
-              variant: "destructive",
-            });
-            break;
-          case 'network':
-            toast({
-              title: "Network Error",
-              description: "Speech recognition requires an internet connection.",
-              variant: "destructive",
-            });
-            break;
-          case 'aborted':
-            // Normal abort, don't show error
-            console.log('Speech recognition aborted');
-            break;
-          default:
-            // Only show toast for unexpected errors
-            console.error(`Speech recognition error: ${event.error}`);
-        }
-      };
-
-      recognitionRef.current.onend = () => {
-        console.log('Speech recognition ended');
-        setIsListening(false);
-        setTranscript(''); // Clear any remaining transcript
-      };
-    }
-
+      }
+    };
+    
+    // Initialize with delay for mobile browsers
+    const timeoutId = setTimeout(initializeSpeechRecognition, isMobile() ? 500 : 100);
+    
     return () => {
+      clearTimeout(timeoutId);
       if (recognitionRef.current) {
-        recognitionRef.current.abort();
+        try {
+          recognitionRef.current.abort();
+        } catch (error) {
+          console.error('Error aborting speech recognition:', error);
+        }
       }
       window.speechSynthesis.cancel();
     };
   }, []);
 
   const startListening = useCallback(async () => {
-    console.log('Starting speech recognition...');
+    console.log('=== Starting Speech Recognition ===');
+    console.log('Recognition ref:', !!recognitionRef.current);
+    console.log('Is listening:', isListening);
+    console.log('Speech support:', speechSupport);
     
-    if (!recognitionRef.current) {
+    if (!speechSupport.hasAPI || !recognitionRef.current) {
+      const message = !speechSupport.hasAPI 
+        ? `Speech recognition is not supported in ${speechSupport.browser} on ${speechSupport.platform}.`
+        : "Speech recognition failed to initialize. Please refresh the page.";
+      
       toast({
         title: "Not Supported",
-        description: "Speech recognition is not supported in your browser. Please use Chrome or Edge.",
+        description: isAndroid() 
+          ? "Please use Chrome browser for voice features on Android." 
+          : message,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+      toast({
+        title: "HTTPS Required",
+        description: "Voice features require a secure connection (HTTPS).",
         variant: "destructive",
       });
       return;
     }
 
-    if (isListening) {
-      console.log('Already listening, ignoring start request');
-      return; // Prevent double-start
-    }
-
     try {
-      // Clear any previous transcript and start recognition immediately
-      setTranscript('');
-      setIsListening(true);
+      console.log('Requesting microphone access...');
       
-      // Add a small delay to ensure state is updated
+      // Request microphone permission first
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          ...(isAndroid() ? {
+            sampleRate: 16000,
+            channelCount: 1
+          } : {})
+        }
+      });
+      
+      // Stop the stream immediately after getting permission
+      stream.getTracks().forEach(track => track.stop());
+      setMicPermissionGranted(true);
+      
+      console.log('Microphone permission granted, starting recognition...');
+      
+      // Clear previous transcript
+      setTranscript('');
+      
+      // Ensure recognition is not already running
+      if (isListening && recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch (e) {
+          console.log('Recognition abort failed (expected):', e);
+        }
+      }
+      
+      // Add delay for mobile browsers
       setTimeout(() => {
         if (recognitionRef.current) {
           try {
-            console.log('Actually starting recognition...');
+            console.log('Attempting to start speech recognition...');
             recognitionRef.current.start();
-          } catch (startError) {
-            console.error('Error in recognition start:', startError);
+            setIsListening(true);
+          } catch (error) {
+            console.error('Failed to start recognition:', error);
             setIsListening(false);
             
-            if (startError instanceof DOMException && startError.name === 'InvalidStateError') {
-              console.log('Recognition already running, resetting...');
-              recognitionRef.current?.abort();
-              setTimeout(() => {
-                if (recognitionRef.current) {
-                  recognitionRef.current.start();
-                }
-              }, 100);
+            if (retryCount < 2) {
+              console.log('Retrying speech recognition...', retryCount + 1);
+              setRetryCount(prev => prev + 1);
+              setTimeout(() => startListening(), 1000);
+            } else {
+              toast({
+                title: "Speech Recognition Error",
+                description: "Failed to start voice recognition. Please try again.",
+                variant: "destructive",
+              });
             }
           }
         }
-      }, 50);
+      }, isAndroid() ? 300 : 100);
       
     } catch (error) {
-      console.error('Speech recognition start error:', error);
+      console.error('Microphone access error:', error);
+      setMicPermissionGranted(false);
       setIsListening(false);
       
-      if (error instanceof DOMException) {
-        if (error.name === 'NotAllowedError') {
-          toast({
-            title: "Microphone Access Denied",
-            description: "Please click the microphone icon in your browser's address bar and allow access.",
-            variant: "destructive",
-          });
-        } else if (error.name === 'InvalidStateError') {
-          // Recognition is already running, try to reset
-          console.log('Recognition already running, attempting reset...');
-          recognitionRef.current?.abort();
-          setTimeout(() => {
-            setIsListening(false);
-          }, 100);
-        } else {
-          toast({
-            title: "Speech Recognition Error",
-            description: `Could not start: ${error.message}`,
-            variant: "destructive",
-          });
-        }
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      if (errorMessage.includes('Permission denied') || errorMessage.includes('NotAllowedError')) {
+        toast({
+          title: "Microphone Access Denied",
+          description: isAndroid() 
+            ? "Please enable microphone access in your browser settings, then refresh the page." 
+            : "Please enable microphone access and try again.",
+          variant: "destructive",
+        });
+      } else if (errorMessage.includes('NotFoundError')) {
+        toast({
+          title: "No Microphone Found",
+          description: "Please connect a microphone and try again.",
+          variant: "destructive",
+        });
       } else {
         toast({
-          title: "Speech Recognition Error",
-          description: "Could not start speech recognition. Please try again.",
+          title: "Microphone Error",
+          description: `Could not access microphone: ${errorMessage}`,
           variant: "destructive",
         });
       }
     }
-  }, [isListening, toast]);
+  }, [toast, speechSupport, isListening, retryCount]);
 
   const stopListening = useCallback(() => {
     console.log('Stopping speech recognition...');
     
-    if (recognitionRef.current) {
+    if (recognitionRef.current && isListening) {
       try {
         recognitionRef.current.stop();
       } catch (error) {
         console.error('Error stopping recognition:', error);
-        // Force abort if stop fails
         try {
           recognitionRef.current.abort();
         } catch (abortError) {
@@ -480,7 +657,7 @@ const VoiceBot = () => {
     
     setIsListening(false);
     setTranscript('');
-  }, []);
+  }, [isListening]);
 
   const speakText = useCallback((text: string) => {
     window.speechSynthesis.cancel();
@@ -515,6 +692,14 @@ const VoiceBot = () => {
     console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
     console.log('VITE_SUPABASE_PUBLISHABLE_KEY:', import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? 'SET' : 'MISSING');
     
+    // Debug: Conversation context
+    console.log('=== Conversation Context Debug ===');
+    console.log('Current message count:', updatedMessages.length);
+    console.log('Has conversation summary:', !!conversationSummary);
+    console.log('Recent messages for context:', recentMessages.length);
+    console.log('Last 3 messages:', updatedMessages.slice(-3).map(m => ({ role: m.role, content: m.content.substring(0, 50) + '...' })));
+    console.log('Conversation summary:', conversationSummary ? conversationSummary.substring(0, 100) + '...' : 'None');
+    
     // Validate configuration
     if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
       const missing = [];
@@ -543,24 +728,38 @@ const VoiceBot = () => {
     setCurrentResponse('');
 
     try {
-      // Prepare context with recent messages and summary
+      // Prepare enhanced context with conversation analysis
       const recentMessages = updatedMessages.slice(-CONTEXT_WINDOW);
+      
+      // Analyze conversation for better context
+      const allContent = updatedMessages.map(m => m.content.toLowerCase()).join(' ');
+      const userName = allContent.match(/my name is (\w+)|i'm (\w+)|call me (\w+)/);
+      const userNameExtracted = userName ? (userName[1] || userName[2] || userName[3]) : '';
+      
       let contextPayload: any = {
         message: text,
         conversationHistory: recentMessages.slice(0, -1), // Exclude current message
+        conversationMetadata: {
+          messageCount: updatedMessages.length,
+          userName: userNameExtracted,
+          hasLongHistory: updatedMessages.length > 10
+        }
       };
       
-      // Add conversation summary for better context if available
-      if (conversationSummary && updatedMessages.length > 15) {
+      // Add conversation summary for better context if available and conversation is substantial
+      if (conversationSummary && updatedMessages.length > 10) {
         contextPayload.conversationSummary = conversationSummary;
+        console.log('Including conversation summary in context:', conversationSummary);
       }
       
-      // Generate new summary if conversation is getting long
-      if (updatedMessages.length > 0 && updatedMessages.length % 25 === 0) {
+      // Generate new summary periodically for long conversations
+      if (updatedMessages.length > 0 && updatedMessages.length % 20 === 0) { // Reduced frequency
+        console.log('Generating conversation summary at message', updatedMessages.length);
         const newSummary = await generateSummary(updatedMessages);
         if (newSummary) {
           setConversationSummary(newSummary);
           contextPayload.conversationSummary = newSummary;
+          console.log('Updated conversation summary:', newSummary);
         }
       }
 
@@ -708,6 +907,21 @@ const VoiceBot = () => {
                   {conversationSummary && (
                     <p className="mt-2 text-xs opacity-70">Continuing our previous conversation...</p>
                   )}
+                  {!speechSupport.isSupported && (
+                    <div className="mt-4 p-3 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-800 rounded-lg">
+                      <p className="text-xs text-yellow-800 dark:text-yellow-200">
+                        ⚠️ Voice features work best in Chrome browser
+                        {isAndroid() && " on Android devices"}
+                      </p>
+                    </div>
+                  )}
+                  {!micPermissionGranted && speechSupport.hasAPI && (
+                    <div className="mt-2 p-2 bg-blue-100 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-800 rounded-lg">
+                      <p className="text-xs text-blue-800 dark:text-blue-200">
+                        🎤 Microphone access required for voice chat
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
               {conversationSummary && messages.length > 0 && (
@@ -769,18 +983,29 @@ const VoiceBot = () => {
               
               <motion.button
                 onClick={isListening ? stopListening : startListening}
-                disabled={isProcessing || isSpeaking}
+                disabled={isProcessing || isSpeaking || !speechSupport.hasAPI}
                 className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
-                  isListening
+                  !speechSupport.hasAPI
+                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                    : isListening
                     ? 'bg-destructive text-destructive-foreground animate-pulse'
                     : isProcessing || isSpeaking
                     ? 'bg-muted text-muted-foreground cursor-not-allowed'
                     : 'bg-primary text-primary-foreground hover:bg-primary/90'
                 }`}
-                whileHover={!isProcessing && !isSpeaking ? { scale: 1.05 } : {}}
-                whileTap={!isProcessing && !isSpeaking ? { scale: 0.95 } : {}}
+                whileHover={!isProcessing && !isSpeaking && speechSupport.hasAPI ? { scale: 1.05 } : {}}
+                whileTap={!isProcessing && !isSpeaking && speechSupport.hasAPI ? { scale: 0.95 } : {}}
+                title={
+                  !speechSupport.hasAPI 
+                    ? `Voice not supported in ${speechSupport.browser} on ${speechSupport.platform}` 
+                    : isListening 
+                    ? "Stop listening" 
+                    : "Start voice input"
+                }
               >
-                {isListening ? (
+                {!speechSupport.hasAPI ? (
+                  <MicOff className="w-6 h-6" />
+                ) : isListening ? (
                   <MicOff className="w-6 h-6" />
                 ) : (
                   <Mic className="w-6 h-6" />
