@@ -54,6 +54,13 @@ declare global {
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  timestamp?: number;
+}
+
+interface ConversationContext {
+  messages: Message[];
+  summary?: string;
+  lastActiveTime: number;
 }
 
 const VoiceBot = () => {
@@ -64,10 +71,89 @@ const VoiceBot = () => {
   const [transcript, setTranscript] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentResponse, setCurrentResponse] = useState('');
+  const [conversationSummary, setConversationSummary] = useState<string>('');
   
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
   const { toast } = useToast();
+
+  // Storage key for conversation persistence
+  const STORAGE_KEY = 'voicebot_conversation';
+  const MAX_STORED_MESSAGES = 50;
+  const CONTEXT_WINDOW = 20; // Increased from 10
+
+  // Load conversation from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const context: ConversationContext = JSON.parse(stored);
+        // Only load if conversation is recent (within last 24 hours)
+        if (Date.now() - context.lastActiveTime < 24 * 60 * 60 * 1000) {
+          setMessages(context.messages || []);
+          setConversationSummary(context.summary || '');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load conversation history:', error);
+    }
+  }, []);
+
+  // Save conversation to localStorage
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        const context: ConversationContext = {
+          messages: messages.slice(-MAX_STORED_MESSAGES),
+          summary: conversationSummary,
+          lastActiveTime: Date.now()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(context));
+      } catch (error) {
+        console.error('Failed to save conversation history:', error);
+      }
+    }
+  }, [messages, conversationSummary]);
+
+  // Generate conversation summary for long conversations
+  const generateSummary = useCallback(async (allMessages: Message[]): Promise<string> => {
+    if (allMessages.length < 10) return '';
+    
+    try {
+      // Take first few messages and last few messages for context
+      const contextMessages = [
+        ...allMessages.slice(0, 3),
+        ...allMessages.slice(-5)
+      ];
+      
+      const summaryPrompt = `Please provide a brief summary of this conversation to maintain context:\n\n${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}`;
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            message: summaryPrompt,
+            conversationHistory: [],
+            isInternalSummary: true
+          }),
+        }
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data.reply || '';
+      }
+    } catch (error) {
+      console.error('Failed to generate summary:', error);
+    }
+    
+    return '';
+  }, []);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -174,13 +260,40 @@ const VoiceBot = () => {
   const handleSendMessage = useCallback(async (text: string) => {
     if (!text.trim()) return;
 
-    const userMessage: Message = { role: 'user', content: text };
-    setMessages(prev => [...prev, userMessage]);
+    const userMessage: Message = { 
+      role: 'user', 
+      content: text,
+      timestamp: Date.now()
+    };
+    
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setTranscript('');
     setIsProcessing(true);
     setCurrentResponse('');
 
     try {
+      // Prepare context with recent messages and summary
+      const recentMessages = updatedMessages.slice(-CONTEXT_WINDOW);
+      let contextPayload: any = {
+        message: text,
+        conversationHistory: recentMessages.slice(0, -1), // Exclude current message
+      };
+      
+      // Add conversation summary for better context if available
+      if (conversationSummary && updatedMessages.length > 15) {
+        contextPayload.conversationSummary = conversationSummary;
+      }
+      
+      // Generate new summary if conversation is getting long
+      if (updatedMessages.length > 0 && updatedMessages.length % 25 === 0) {
+        const newSummary = await generateSummary(updatedMessages);
+        if (newSummary) {
+          setConversationSummary(newSummary);
+          contextPayload.conversationSummary = newSummary;
+        }
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
         {
@@ -189,10 +302,7 @@ const VoiceBot = () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({
-            message: text,
-            conversationHistory: messages.slice(-10),
-          }),
+          body: JSON.stringify(contextPayload),
         }
       );
 
@@ -202,7 +312,11 @@ const VoiceBot = () => {
       }
 
       const data = await response.json();
-      const assistantMessage: Message = { role: 'assistant', content: data.reply };
+      const assistantMessage: Message = { 
+        role: 'assistant', 
+        content: data.reply,
+        timestamp: Date.now()
+      };
       
       setMessages(prev => [...prev, assistantMessage]);
       setCurrentResponse(data.reply);
@@ -217,7 +331,7 @@ const VoiceBot = () => {
     } finally {
       setIsProcessing(false);
     }
-  }, [messages, speakText, toast]);
+  }, [messages, conversationSummary, generateSummary, speakText, toast]);
 
   const stopSpeaking = useCallback(() => {
     window.speechSynthesis.cancel();
@@ -274,6 +388,14 @@ const VoiceBot = () => {
                 <div className="text-center text-muted-foreground text-sm py-8">
                   <p>👋 Hi! I'm your AI assistant.</p>
                   <p className="mt-2">Tap the microphone and ask me anything!</p>
+                  {conversationSummary && (
+                    <p className="mt-2 text-xs opacity-70">Continuing our previous conversation...</p>
+                  )}
+                </div>
+              )}
+              {conversationSummary && messages.length > 0 && (
+                <div className="text-xs text-muted-foreground bg-muted/30 p-2 rounded-lg border-l-2 border-primary/30">
+                  <span className="font-medium">Previous context:</span> {conversationSummary.substring(0, 100)}{conversationSummary.length > 100 && '...'}
                 </div>
               )}
               {messages.map((msg, i) => (
