@@ -1,278 +1,756 @@
-import { useState, useRef, useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import { Mic, Volume2, RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mic, MicOff, Volume2, X, MessageCircle, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
+// Web Speech API types
 interface SpeechRecognitionEvent extends Event {
+  resultIndex: number;
   results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
 }
 
 interface SpeechRecognitionErrorEvent extends Event {
   error: string;
 }
 
-export function VoiceBot() {
-  const { t, i18n } = useTranslation();
+interface SpeechRecognitionInstance extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  abort(): void;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition?: new () => SpeechRecognitionInstance;
+    webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+  }
+}
+
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp?: number;
+}
+
+interface ConversationContext {
+  messages: Message[];
+  summary?: string;
+  lastActiveTime: number;
+}
+
+const VoiceBot = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState("");
-  const [response, setResponse] = useState("");
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const recognitionRef = useRef<any>(null);
+  const [transcript, setTranscript] = useState('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [currentResponse, setCurrentResponse] = useState('');
+  const [conversationSummary, setConversationSummary] = useState<string>('');
+  
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const { toast } = useToast();
 
+  // Storage key for conversation persistence
+  const STORAGE_KEY = 'voicebot_conversation';
+  const MAX_STORED_MESSAGES = 50;
+  const CONTEXT_WINDOW = 20; // Increased from 10
+
+  // Load conversation from localStorage on mount
   useEffect(() => {
-    // Initialize speech recognition
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = i18n.language === "es" ? "es-ES" : 
-                        i18n.language === "fr" ? "fr-FR" :
-                        i18n.language === "ja" ? "ja-JP" :
-                        i18n.language === "hi" ? "hi-IN" :
-                        i18n.language === "ta" ? "ta-IN" :
-                        i18n.language === "te" ? "te-IN" : "en-US";
-
-      recognition.onstart = () => {
-        setIsListening(true);
-        setTranscript("");
-      };
-
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
-        let interimTranscript = "";
-        for (let i = event.results.length - 1; i >= 0; --i) {
-          if (event.results[i].isFinal) {
-            setTranscript(event.results[i][0].transcript);
-            handleVoiceInput(event.results[i][0].transcript);
-          } else {
-            interimTranscript += event.results[i][0].transcript;
-          }
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const context: ConversationContext = JSON.parse(stored);
+        // Only load if conversation is recent (within last 24 hours)
+        if (Date.now() - context.lastActiveTime < 24 * 60 * 60 * 1000) {
+          setMessages(context.messages || []);
+          setConversationSummary(context.summary || '');
         }
-      };
-
-      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-        console.error("Speech recognition error:", event.error);
-        setIsListening(false);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      recognitionRef.current = recognition;
-    }
-  }, [i18n.language]);
-
-  const handleVoiceInput = async (text: string) => {
-    setIsProcessing(true);
-    setResponse("Thinking...");
-    
-    try {
-      // Smart AI response using keyword matching and AI model
-      const aiResponse = await getAIResponse(text);
-      setResponse(aiResponse);
-      speakResponse(aiResponse);
+      }
     } catch (error) {
-      console.error("Error getting response:", error);
-      // Fallback to smart responses
-      const aiResponse = await getAIResponse(text);
-      setResponse(aiResponse);
-      speakResponse(aiResponse);
-    } finally {
-      setIsProcessing(false);
+      console.error('Failed to load conversation history:', error);
     }
-  };
+  }, []);
 
-  const getAIResponse = async (question: string): Promise<string> => {
-    const lowerQuestion = question.toLowerCase();
-    
-    // Try using HuggingFace's free inference API with zero authentication
-    // Using a pre-built space that doesn't require API key
+  // Save conversation to localStorage
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        const context: ConversationContext = {
+          messages: messages.slice(-MAX_STORED_MESSAGES),
+          summary: conversationSummary,
+          lastActiveTime: Date.now()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(context));
+      } catch (error) {
+        console.error('Failed to save conversation history:', error);
+      }
+    }
+  }, [messages, conversationSummary]);
+
+  // Check microphone availability and permission
+  const checkMicrophonePermission = useCallback(async (): Promise<boolean> => {
     try {
-      const hfToken = import.meta.env.VITE_HF_TOKEN;
+      // Check if getUserMedia is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        toast({
+          title: "Microphone Not Available",
+          description: "Your browser does not support microphone access. Please use a modern browser.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Check permission status
+      const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+      
+      if (permission.state === 'denied') {
+        toast({
+          title: "Microphone Permission Denied",
+          description: "Please enable microphone access in your browser settings: Click the lock icon in the address bar.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error checking microphone permission:', error);
+      return true; // Assume permission is available if check fails
+    }
+  }, [toast]);
+
+  // Local fallback response generator
+  const generateLocalResponse = useCallback(async (userInput: string, messageHistory: Message[]): Promise<string> => {
+    const input = userInput.toLowerCase().trim();
+    
+    // Food and cooking related responses
+    if (input.includes('food') || input.includes('cook') || input.includes('recipe') || input.includes('eat')) {
+      const responses = [
+        "That sounds delicious! I love talking about food. What's your favorite cuisine?",
+        "Cooking is such a wonderful skill! Are you looking for recipe suggestions?",
+        "Food brings people together! What are you in the mood to cook today?",
+        "I'd love to help you with cooking tips! What dish are you thinking about?",
+        "There's nothing better than a good meal! Tell me more about what you're craving."
+      ];
+      return responses[Math.floor(Math.random() * responses.length)];
+    }
+    
+    // Anime related responses
+    if (input.includes('anime') || input.includes('manga') || input.includes('naruto') || input.includes('tanjiro') || input.includes('deku')) {
+      const responses = [
+        "Anime is amazing! Which series are you watching right now?",
+        "I love anime too! The storytelling and animation are incredible.",
+        "That's a great anime choice! What did you think of the latest episodes?",
+        "Anime characters are so inspiring! Who's your favorite character?",
+        "The anime world has so many amazing stories! What genre do you prefer?"
+      ];
+      return responses[Math.floor(Math.random() * responses.length)];
+    }
+    
+    // Gaming related responses
+    if (input.includes('game') || input.includes('play') || input.includes('gaming')) {
+      const responses = [
+        "Games are so much fun! What type of games do you enjoy playing?",
+        "I'd love to hear about your gaming adventures! What's your current favorite?",
+        "Gaming is a great way to relax and have fun! Any recommendations for me?",
+        "That sounds like an exciting game! How long have you been playing it?",
+        "Games can be so immersive! What draws you to that particular game?"
+      ];
+      return responses[Math.floor(Math.random() * responses.length)];
+    }
+    
+    // General conversation responses
+    if (input.includes('hello') || input.includes('hi') || input.includes('hey')) {
+      return "Hello! I'm so happy to chat with you today! What would you like to talk about?";
+    }
+    
+    if (input.includes('how are you') || input.includes('how\'s it going')) {
+      return "I'm doing great, thank you for asking! I'm excited to be here chatting with you. How are you doing today?";
+    }
+    
+    if (input.includes('thank you') || input.includes('thanks')) {
+      return "You're very welcome! I'm here to help whenever you need it. Is there anything else you'd like to chat about?";
+    }
+    
+    if (input.includes('help') || input.includes('support')) {
+      return "I'm here to help! You can ask me about food, cooking, anime, games, or just chat about anything on your mind!";
+    }
+    
+    // Default responses based on conversation context
+    const recentTopics = messageHistory.slice(-5).map(m => m.content.toLowerCase());
+    const hasFood = recentTopics.some(t => t.includes('food') || t.includes('cook'));
+    const hasAnime = recentTopics.some(t => t.includes('anime') || t.includes('manga'));
+    
+    if (hasFood && hasAnime) {
+      return "That's interesting! I love how anime often features amazing food scenes. Have you seen any cooking anime?";
+    } else if (hasFood) {
+      return "I love our food conversation! Cooking is such a creative and rewarding activity. What's your next culinary adventure?";
+    } else if (hasAnime) {
+      return "Anime discussions are the best! There are so many incredible series with unique stories and characters.";
+    }
+    
+    // Generic friendly responses
+    const genericResponses = [
+      "That's really interesting! Tell me more about that.",
+      "I appreciate you sharing that with me! What's your thoughts on it?",
+      "That sounds fascinating! I'd love to hear your perspective.",
+      "Thanks for chatting with me! What else is on your mind today?",
+      "That's a great point! I enjoy our conversations so much.",
+      "I'm here to listen and chat! What would you like to explore next?"
+    ];
+    
+    return genericResponses[Math.floor(Math.random() * genericResponses.length)];
+  }, []);
+
+  // Generate conversation summary for long conversations
+  const generateSummary = useCallback(async (allMessages: Message[]): Promise<string> => {
+    if (allMessages.length < 10) return '';
+    
+    try {
+      // Take first few messages and last few messages for context
+      const contextMessages = [
+        ...allMessages.slice(0, 3),
+        ...allMessages.slice(-5)
+      ];
+      
+      const summaryPrompt = `Please provide a brief summary of this conversation to maintain context:\n\n${contextMessages.map(m => `${m.role}: ${m.content}`).join('\n')}`;
+      
       const response = await fetch(
-        "https://api-inference.huggingface.co/models/google/flan-t5-base",
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
         {
-          headers: hfToken ? { Authorization: `Bearer ${hfToken}` } : {},
-          method: "POST",
-          body: JSON.stringify({ 
-            inputs: `Answer briefly about food education for children: ${question}`,
-            parameters: { max_length: 100 }
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            message: summaryPrompt,
+            conversationHistory: [],
+            isInternalSummary: true
           }),
         }
       );
       
       if (response.ok) {
-        const result = await response.json();
-        if (Array.isArray(result) && result[0]?.generated_text) {
-          return result[0].generated_text.trim();
+        const data = await response.json();
+        return data.reply || '';
+      }
+    } catch (error) {
+      console.error('Failed to generate summary:', error);
+    }
+    
+    return '';
+  }, []);
+
+  // Initialize speech recognition
+  useEffect(() => {
+    const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (SpeechRecognitionClass) {
+      recognitionRef.current = new SpeechRecognitionClass();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'en-US';
+
+      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+        const current = event.resultIndex;
+        const transcriptText = event.results[current][0].transcript;
+        setTranscript(transcriptText);
+        
+        if (event.results[current].isFinal) {
+          handleSendMessage(transcriptText);
+        }
+      };
+
+      recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        
+        switch (event.error) {
+          case 'not-allowed':
+            toast({
+              title: "Microphone Access Denied",
+              description: "Please enable microphone access in your browser settings and reload the page.",
+              variant: "destructive",
+            });
+            break;
+          case 'no-speech':
+            toast({
+              title: "No Speech Detected",
+              description: "Please speak clearly into your microphone.",
+              variant: "default",
+            });
+            break;
+          case 'audio-capture':
+            toast({
+              title: "Microphone Not Available",
+              description: "Your microphone is being used by another application or is not working properly.",
+              variant: "destructive",
+            });
+            break;
+          case 'network':
+            toast({
+              title: "Network Error",
+              description: "Speech recognition requires an internet connection.",
+              variant: "destructive",
+            });
+            break;
+          default:
+            toast({
+              title: "Speech Recognition Error",
+              description: `Error: ${event.error}. Please try again.`,
+              variant: "destructive",
+            });
+        }
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+      window.speechSynthesis.cancel();
+    };
+  }, []);
+
+  const startListening = useCallback(async () => {
+    if (!recognitionRef.current) {
+      toast({
+        title: "Not Supported",
+        description: "Speech recognition is not supported in your browser. Please use Chrome or Edge.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check microphone permission first
+    const hasPermission = await checkMicrophonePermission();
+    if (!hasPermission) {
+      return;
+    }
+
+    try {
+      // Test microphone access before starting recognition
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Release the stream immediately as we only needed to test access
+      stream.getTracks().forEach(track => track.stop());
+      
+      // Clear any previous transcript and start recognition
+      setTranscript('');
+      setIsListening(true);
+      
+      // Add a small delay to ensure microphone is ready
+      setTimeout(() => {
+        if (recognitionRef.current && !isListening) {
+          try {
+            recognitionRef.current.start();
+          } catch (startError) {
+            console.error('Recognition start error:', startError);
+            setIsListening(false);
+            toast({
+              title: "Speech Recognition Error",
+              description: "Could not start speech recognition. Please try again.",
+              variant: "destructive",
+            });
+          }
+        }
+      }, 150);
+      
+    } catch (error) {
+      console.error('Microphone access error:', error);
+      setIsListening(false);
+      
+      if (error instanceof DOMException) {
+        if (error.name === 'NotAllowedError') {
+          toast({
+            title: "Microphone Access Denied",
+            description: "Please click the microphone icon in your browser's address bar and allow access.",
+            variant: "destructive",
+          });
+        } else if (error.name === 'NotFoundError') {
+          toast({
+            title: "Microphone Not Found",
+            description: "No microphone detected. Please check your microphone connection.",
+            variant: "destructive",
+          });
+        } else if (error.name === 'NotReadableError') {
+          toast({
+            title: "Microphone In Use",
+            description: "Your microphone is being used by another application. Please close other apps and try again.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Microphone Error",
+            description: `Could not access microphone: ${error.message}`,
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Microphone Error",
+          description: "Could not access microphone. Please check your browser permissions.",
+          variant: "destructive",
+        });
+      }
+    }
+  }, [toast, checkMicrophonePermission, isListening]);
+
+  const stopListening = useCallback(() => {
+    if (recognitionRef.current && isListening) {
+      try {
+        recognitionRef.current.stop();
+      } catch (error) {
+        console.error('Error stopping recognition:', error);
+      }
+    }
+    setIsListening(false);
+    setTranscript('');
+  }, [isListening]);
+
+  const speakText = useCallback((text: string) => {
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    
+    // Try to use a good voice
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(v => 
+      v.name.includes('Google') || v.name.includes('Samantha') || v.lang === 'en-US'
+    );
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    synthRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  }, []);
+
+  const handleSendMessage = useCallback(async (text: string) => {
+    if (!text.trim()) return;
+
+    // Debug: Check configuration
+    console.log('=== VoiceBot Configuration Debug ===');
+    console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
+    console.log('VITE_SUPABASE_PUBLISHABLE_KEY:', import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? 'SET' : 'MISSING');
+    
+    // Validate configuration
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
+      const missing = [];
+      if (!import.meta.env.VITE_SUPABASE_URL) missing.push('VITE_SUPABASE_URL');
+      if (!import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) missing.push('VITE_SUPABASE_PUBLISHABLE_KEY');
+      
+      toast({
+        title: "Configuration Error",
+        description: `Missing environment variables: ${missing.join(', ')}. Please check your .env file.`,
+        variant: "destructive",
+      });
+      setIsProcessing(false);
+      return;
+    }
+
+    const userMessage: Message = { 
+      role: 'user', 
+      content: text,
+      timestamp: Date.now()
+    };
+    
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    setTranscript('');
+    setIsProcessing(true);
+    setCurrentResponse('');
+
+    try {
+      // Prepare context with recent messages and summary
+      const recentMessages = updatedMessages.slice(-CONTEXT_WINDOW);
+      let contextPayload: any = {
+        message: text,
+        conversationHistory: recentMessages.slice(0, -1), // Exclude current message
+      };
+      
+      // Add conversation summary for better context if available
+      if (conversationSummary && updatedMessages.length > 15) {
+        contextPayload.conversationSummary = conversationSummary;
+      }
+      
+      // Generate new summary if conversation is getting long
+      if (updatedMessages.length > 0 && updatedMessages.length % 25 === 0) {
+        const newSummary = await generateSummary(updatedMessages);
+        if (newSummary) {
+          setConversationSummary(newSummary);
+          contextPayload.conversationSummary = newSummary;
         }
       }
-    } catch (e) {
-      console.log("HF API fallback, using local responses");
-    }
 
-    // Smart fallback responses based on keywords
-    const foodResponses = {
-      apple: "Apples are full of fiber and vitamin C! They help keep your teeth healthy and give you energy.",
-      banana: "Bananas have potassium which helps your muscles and heart! They're also great for energy.",
-      carrot: "Carrots have beta-carotene which is great for your eyes! Orange veggies are super healthy.",
-      broccoli: "Broccoli is full of vitamins and minerals! It helps your bones grow strong.",
-      spinach: "Spinach is packed with iron and vitamins! It makes you strong like Popeye!",
-      milk: "Milk has calcium which builds strong bones and teeth! Great for growing kids.",
-      egg: "Eggs have protein and choline which help your brain grow! Perfect for breakfast.",
-      fish: "Fish has omega-3s which are great for your brain! It helps you think better.",
-      water: "Water is super important! It keeps your body cool and helps everything work right.",
-      salad: "Salads have lots of veggies with vitamins and minerals! Eating colorful food is healthy.",
-      recipe: "I can teach you delicious recipes! Ask me about pizza, pasta, cookies, or any food you like!",
-      cook: "Cooking is fun and helps you learn! What food would you like to cook?",
-      healthy: "Eating healthy means lots of fruits, veggies, whole grains, and water! It helps your body grow strong.",
-      exercise: "Exercise is fun and keeps your body healthy! You can run, dance, swim, or play!",
-      food: "Food gives your body energy and helps you grow! Eat lots of colors - veggies, fruits, proteins!",
-      sugar: "Sugar gives quick energy but too much isn't good for teeth! Eat sweets in small amounts.",
-      chocolate: "Chocolate has some good stuff but also sugar! Have it as a treat, not every day.",
-      pizza: "Pizza can be healthy! Use whole wheat crust and lots of veggie toppings!",
-      snack: "Healthy snacks are fruits, nuts, yogurt, or cheese! They give you energy between meals.",
-      breakfast: "Breakfast is important! Eat eggs, oatmeal, fruit, or milk in the morning!",
-      lunch: "Lunch should have protein, veggies, and carbs! It gives you energy for the afternoon!",
-      dinner: "Dinner should be balanced with veggies, protein, and grains! Eat 2-3 hours before bed!",
-    };
+      // Try Supabase edge function first, fallback to local implementation
+      let response;
+      try {
+        response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify(contextPayload),
+          }
+        );
 
-    // Check for keyword matches
-    for (const [keyword, answer] of Object.entries(foodResponses)) {
-      if (lowerQuestion.includes(keyword)) {
-        return answer;
+        console.log('API Response Status:', response.status);
+        console.log('API Response Headers:', Object.fromEntries(response.headers.entries()));
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('API Error Response:', errorText);
+          
+          // If the error is configuration-related, fall back to local response
+          if (response.status === 500 || errorText.includes('LOVABLE_API_KEY')) {
+            throw new Error('FALLBACK_TO_LOCAL');
+          }
+          
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch {
+            errorData = { error: errorText };
+          }
+          
+          throw new Error(errorData.error || `Request failed: ${response.status} - ${errorText}`);
+        }
+      } catch (fetchError) {
+        console.warn('Supabase edge function not available, using local fallback:', fetchError);
+        
+        // Show a one-time notification about fallback mode
+        if (!localStorage.getItem('voicebot_fallback_notified')) {
+          toast({
+            title: "Local Mode",
+            description: "Using local responses. Configure Supabase for AI-powered chat.",
+            variant: "default",
+          });
+          localStorage.setItem('voicebot_fallback_notified', 'true');
+        }
+        
+        // Local fallback response
+        const localResponse = await generateLocalResponse(text, recentMessages);
+        const assistantMessage: Message = { 
+          role: 'assistant', 
+          content: localResponse,
+          timestamp: Date.now()
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+        setCurrentResponse(localResponse);
+        speakText(localResponse);
+        setIsProcessing(false);
+        return;
       }
+
+      const data = await response.json();
+      const assistantMessage: Message = { 
+        role: 'assistant', 
+        content: data.reply,
+        timestamp: Date.now()
+      };
+      
+      setMessages(prev => [...prev, assistantMessage]);
+      setCurrentResponse(data.reply);
+      speakText(data.reply);
+    } catch (error) {
+      console.error('Voice chat error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to get response",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
     }
+  }, [messages, conversationSummary, generateSummary, speakText, toast]);
 
-    // General encouraging responses
-    const generalResponses = [
-      "That's a great question about food! Keep learning about healthy eating!",
-      "I like your interest in food and nutrition! Ask me about specific foods or recipes!",
-      "Good question! Eating well helps your body grow strong and your brain work better!",
-      "That's interesting! Learning about food is a great way to be healthy!",
-      "Keep asking questions about food! The more you know, the healthier you can be!",
-    ];
-
-    return generalResponses[Math.floor(Math.random() * generalResponses.length)];
-  };
-
-  const speakResponse = (text: string) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = i18n.language === "es" ? "es-ES" : 
-                     i18n.language === "fr" ? "fr-FR" :
-                     i18n.language === "ja" ? "ja-JP" :
-                     i18n.language === "hi" ? "hi-IN" :
-                     i18n.language === "ta" ? "ta-IN" :
-                     i18n.language === "te" ? "te-IN" : "en-US";
-    utterance.rate = 1;
-
+  const stopSpeaking = useCallback(() => {
     window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-  };
-
-  const startListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.start();
-    }
-  };
-
-  const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-    }
-  };
-
-  const reset = () => {
-    setTranscript("");
-    setResponse("");
-    setIsListening(false);
-  };
+    setIsSpeaking(false);
+  }, []);
 
   return (
-    <Card className="p-6 max-w-md mx-auto bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200">
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Volume2 className="w-6 h-6 text-purple-600" />
-          <h2 className="text-xl font-bold text-purple-600">
-            {t("voice_bot.title")}
-          </h2>
-        </div>
+    <>
+      {/* Floating button */}
+      <motion.button
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-primary to-accent shadow-lg flex items-center justify-center text-primary-foreground hover:scale-110 transition-transform"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        initial={{ scale: 0 }}
+        animate={{ scale: isOpen ? 0 : 1 }}
+      >
+        <MessageCircle className="w-6 h-6" />
+      </motion.button>
 
-        <p className="text-sm text-gray-600">{t("voice_bot.help_text")}</p>
+      {/* Voice bot panel */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 100, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 100, scale: 0.9 }}
+            className="fixed bottom-24 right-6 z-50 w-80 bg-card border border-border rounded-2xl shadow-2xl overflow-hidden"
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-primary to-accent p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                  <Volume2 className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-primary-foreground text-sm">AI Voice Assistant</h3>
+                  <p className="text-xs text-primary-foreground/80">Tap the mic to speak</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsOpen(false)}
+                className="text-primary-foreground hover:bg-white/20"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
 
-        {/* Display user input */}
-        {transcript && (
-          <div className="bg-blue-100 p-3 rounded-lg">
-            <p className="text-sm font-semibold text-blue-900">
-              {t("common.you")}:
-            </p>
-            <p className="text-sm text-blue-800">{transcript}</p>
-          </div>
+            {/* Messages area */}
+            <div className="h-64 overflow-y-auto p-4 space-y-3 bg-background">
+              {messages.length === 0 && (
+                <div className="text-center text-muted-foreground text-sm py-8">
+                  <p>👋 Hi! I'm your AI assistant.</p>
+                  <p className="mt-2">Tap the microphone and ask me anything!</p>
+                  {conversationSummary && (
+                    <p className="mt-2 text-xs opacity-70">Continuing our previous conversation...</p>
+                  )}
+                </div>
+              )}
+              {conversationSummary && messages.length > 0 && (
+                <div className="text-xs text-muted-foreground bg-muted/30 p-2 rounded-lg border-l-2 border-primary/30">
+                  <span className="font-medium">Previous context:</span> {conversationSummary.substring(0, 100)}{conversationSummary.length > 100 && '...'}
+                </div>
+              )}
+              {messages.map((msg, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${
+                      msg.role === 'user'
+                        ? 'bg-primary text-primary-foreground rounded-br-md'
+                        : 'bg-muted text-foreground rounded-bl-md'
+                    }`}
+                  >
+                    {msg.content}
+                  </div>
+                </motion.div>
+              ))}
+              {isProcessing && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex justify-start"
+                >
+                  <div className="bg-muted px-4 py-2 rounded-2xl rounded-bl-md flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-sm text-muted-foreground">Thinking...</span>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+
+            {/* Transcript display */}
+            {transcript && (
+              <div className="px-4 py-2 bg-muted/50 border-t border-border">
+                <p className="text-xs text-muted-foreground">Hearing: "{transcript}"</p>
+              </div>
+            )}
+
+            {/* Controls */}
+            <div className="p-4 border-t border-border bg-card flex items-center justify-center gap-4">
+              {isSpeaking && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={stopSpeaking}
+                  className="text-xs"
+                >
+                  Stop Speaking
+                </Button>
+              )}
+              
+              <motion.button
+                onClick={isListening ? stopListening : startListening}
+                disabled={isProcessing || isSpeaking}
+                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
+                  isListening
+                    ? 'bg-destructive text-destructive-foreground animate-pulse'
+                    : isProcessing || isSpeaking
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                    : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                }`}
+                whileHover={!isProcessing && !isSpeaking ? { scale: 1.05 } : {}}
+                whileTap={!isProcessing && !isSpeaking ? { scale: 0.95 } : {}}
+              >
+                {isListening ? (
+                  <MicOff className="w-6 h-6" />
+                ) : (
+                  <Mic className="w-6 h-6" />
+                )}
+              </motion.button>
+            </div>
+          </motion.div>
         )}
-
-        {/* Display bot response */}
-        {response && (
-          <div className="bg-green-100 p-3 rounded-lg">
-            <p className="text-sm font-semibold text-green-900">Bot:</p>
-            <p className="text-sm text-green-800">{response}</p>
-          </div>
-        )}
-
-        {/* Status indicator */}
-        {isListening && (
-          <div className="text-center text-sm text-orange-600 font-semibold">
-            {t("voice_bot.listen")}
-          </div>
-        )}
-
-        {isProcessing && (
-          <div className="text-center text-sm text-blue-600 font-semibold">
-            {t("voice_bot.processing")}
-          </div>
-        )}
-
-        {/* Controls */}
-        <div className="flex gap-2 justify-center">
-          {!isListening ? (
-            <Button
-              onClick={startListening}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
-              size="sm"
-            >
-              <Mic className="w-4 h-4 mr-2" />
-              {t("voice_bot.speak")}
-            </Button>
-          ) : (
-            <Button
-              onClick={stopListening}
-              className="bg-red-600 hover:bg-red-700 text-white"
-              size="sm"
-            >
-              Stop
-            </Button>
-          )}
-
-          {(transcript || response) && (
-            <Button
-              onClick={reset}
-              variant="outline"
-              size="sm"
-              className="text-gray-700"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </Button>
-          )}
-        </div>
-
-        <p className="text-xs text-gray-500 text-center">
-          Currently speaking: {i18n.language.toUpperCase()}
-        </p>
-      </div>
-    </Card>
+      </AnimatePresence>
+    </>
   );
-}
+};
+
+export default VoiceBot;

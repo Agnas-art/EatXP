@@ -3,15 +3,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import FeaturesDemo from "./pages/FeaturesDemo";
-import { FloatingVoiceBot } from "@/components/FloatingVoiceBot";
-import { AnimeCharacterFollower } from "@/components/AnimeCharacterFollower";
+import AnimeCharacterCursor from "@/components/AnimeCharacterCursor";
+import VoiceBot from "@/components/VoiceBot";
 import { initializeTheme } from "@/hooks/useThemeStore";
 import "@/i18n/config";
 import { I18nextProvider } from "react-i18next";
@@ -44,6 +44,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const AppContent = () => {
   const { user } = useAuth();
   const [characterId, setCharacterId] = useState("tanjiro");
+  const location = useLocation();
+  
+  // Check if current page is login or register
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
   useEffect(() => {
     // Initialize theme on app load
@@ -58,12 +62,12 @@ const AppContent = () => {
   }, [user?.characterId]);
 
   return (
-    <>
-      {/* Global Floating Voice Bot */}
-      <FloatingVoiceBot characterId={characterId} />
+    <>      
+      {/* 3D Anime Character Cursor - Changes based on character selection */}
+      <AnimeCharacterCursor characterId={characterId} />
       
-      {/* Global Anime Character Follower */}
-      <AnimeCharacterFollower characterId={characterId} enabled={true} />
+      {/* Global Floating Voice Bot - Exclude from auth pages */}
+      {!isAuthPage && <VoiceBot />}
 
       <Routes>
         <Route path="/login" element={<Login />} />
