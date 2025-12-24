@@ -13,17 +13,6 @@ export interface AnimeCharacter {
 }
 
 export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
-  naruto: {
-    id: "naruto",
-    name: "Naruto Uzumaki",
-    description: "Energetic ninja with orange power",
-    anime: "Naruto",
-    personality: "Determined, Cheerful, Optimistic",
-    color: "#FF6B35",
-    emoji: "🧡",
-    imageUrl: "https://i.pinimg.com/originals/d4/c5/b8/d4c5b8d4c5b8d4c5b8d4c5b8d4c5b8d4.png",
-    position: { x: 0, y: 0, z: 0 },
-  },
   tanjiro: {
     id: "tanjiro",
     name: "Tanjiro Kamado",
@@ -70,4 +59,4 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
   },
 };
 
-export const DEFAULT_CHARACTER = ANIME_CHARACTERS.naruto;
+export const DEFAULT_CHARACTER = ANIME_CHARACTERS.tanjiro;

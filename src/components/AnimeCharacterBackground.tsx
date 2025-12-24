@@ -12,13 +12,13 @@ interface AnimeCharacterBackgroundProps {
 }
 
 export const AnimeCharacterBackground = ({
-  characterId = "naruto",
+  characterId = "tanjiro",
   opacity = 0.3,
   scale = 1.2,
   position = "right",
   animate = true,
 }: AnimeCharacterBackgroundProps) => {
-  const [character, setCharacter] = useState(ANIME_CHARACTERS[characterId] || ANIME_CHARACTERS.naruto);
+  const [character, setCharacter] = useState(ANIME_CHARACTERS[characterId] || ANIME_CHARACTERS.tanjiro);
   const [imageLoaded, setImageLoaded] = useState(false);
   const { currentTheme } = useThemeStore();
 

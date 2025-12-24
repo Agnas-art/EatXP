@@ -10,7 +10,7 @@ interface CharacterSelectorProps {
 
 export const CharacterSelector = ({ onSelect }: CharacterSelectorProps) => {
   const { user, setUserCharacter } = useAuth();
-  const currentCharacterId = user?.characterId || "naruto";
+  const currentCharacterId = user?.characterId || "tanjiro";
 
   const handleCharacterChange = (characterId: string) => {
     setUserCharacter(characterId);

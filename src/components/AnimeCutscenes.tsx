@@ -94,7 +94,7 @@ export default function AnimeCutscenes({
             <div className="mb-8 p-8 bg-purple-800 rounded-lg border-2 border-purple-400 min-h-64 flex flex-col items-center justify-center">
               <div className="text-8xl mb-4 animate-pulse">
                 {selectedCutscene.frames[currentFrameIndex].character ===
-                "naruto"
+                "tanjiro"
                   ? "🧑‍🦱"
                   : selectedCutscene.frames[currentFrameIndex].character ===
                       "tanjiro"

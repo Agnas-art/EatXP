@@ -417,7 +417,7 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-24 relative overflow-hidden">
       {/* Anime Character Background */}
       <AnimeCharacterBackground
-        characterId={user?.characterId || "naruto"}
+        characterId={user?.characterId || "tanjiro"}
         opacity={1}
         scale={1.15}
         position="right"

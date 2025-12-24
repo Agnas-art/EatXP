@@ -29,7 +29,7 @@ const StoryMode = ({
   const characterData =
     currentCharacterId && ANIME_CHARACTERS[currentCharacterId]
       ? ANIME_CHARACTERS[currentCharacterId]
-      : ANIME_CHARACTERS.naruto;
+      : ANIME_CHARACTERS.tanjiro;
 
   const totalXP = chapters.reduce((sum, ch) => {
     if (completedChapters.includes(ch.id)) {
