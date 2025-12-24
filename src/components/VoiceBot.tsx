@@ -115,37 +115,36 @@ const VoiceBot = () => {
     }
   }, [messages, conversationSummary]);
 
-  // Check microphone availability and permission
-  const checkMicrophonePermission = useCallback(async (): Promise<boolean> => {
-    try {
-      // Check if getUserMedia is available
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        toast({
-          title: "Microphone Not Available",
-          description: "Your browser does not support microphone access. Please use a modern browser.",
-          variant: "destructive",
-        });
-        return false;
+  // Pre-warm speech recognition for faster startup
+  useEffect(() => {
+    if (isOpen && recognitionRef.current) {
+      // Pre-initialize recognition when voice bot opens for faster response
+      try {
+        // This helps warm up the speech recognition engine
+        const warmUpRecognition = () => {
+          if (recognitionRef.current && !isListening) {
+            // Quick start/stop cycle to warm up the engine (invisible to user)
+            recognitionRef.current.start();
+            setTimeout(() => {
+              if (recognitionRef.current && !isListening) {
+                recognitionRef.current.abort();
+              }
+            }, 10);
+          }
+        };
+        
+        // Warm up after a short delay when opened
+        const warmUpTimer = setTimeout(warmUpRecognition, 100);
+        
+        return () => {
+          clearTimeout(warmUpTimer);
+        };
+      } catch (error) {
+        // Ignore warm-up errors
+        console.log('Speech recognition warm-up skipped:', error);
       }
-
-      // Check permission status
-      const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-      
-      if (permission.state === 'denied') {
-        toast({
-          title: "Microphone Permission Denied",
-          description: "Please enable microphone access in your browser settings: Click the lock icon in the address bar.",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error checking microphone permission:', error);
-      return true; // Assume permission is available if check fails
     }
-  }, [toast]);
+  }, [isOpen, isListening]);
 
   // Local fallback response generator
   const generateLocalResponse = useCallback(async (userInput: string, messageHistory: Message[]): Promise<string> => {
@@ -279,14 +278,29 @@ const VoiceBot = () => {
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'en-US';
+      
+      // Add performance optimizations
+      // @ts-ignore - These properties might not be in TypeScript definitions
+      if ('maxAlternatives' in recognitionRef.current) {
+        recognitionRef.current.maxAlternatives = 1; // Reduce processing overhead
+      }
+      if ('serviceURI' in recognitionRef.current) {
+        // Use faster speech service if available
+        recognitionRef.current.serviceURI = 'chrome://speechapi/';
+      }
 
       recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
         const current = event.resultIndex;
-        const transcriptText = event.results[current][0].transcript;
+        const result = event.results[current];
+        const transcriptText = result[0].transcript;
+        
+        // Update transcript immediately for better responsiveness
         setTranscript(transcriptText);
         
-        if (event.results[current].isFinal) {
+        if (result.isFinal) {
+          // Process final result immediately
           handleSendMessage(transcriptText);
+          setTranscript(''); // Clear transcript after processing
         }
       };
 
@@ -294,6 +308,7 @@ const VoiceBot = () => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
         
+        // Fast error handling without excessive toasts for common errors
         switch (event.error) {
           case 'not-allowed':
             toast({
@@ -303,11 +318,8 @@ const VoiceBot = () => {
             });
             break;
           case 'no-speech':
-            toast({
-              title: "No Speech Detected",
-              description: "Please speak clearly into your microphone.",
-              variant: "default",
-            });
+            // Don't show toast for no-speech, just stop listening
+            console.log('No speech detected, stopping...');
             break;
           case 'audio-capture':
             toast({
@@ -323,12 +335,13 @@ const VoiceBot = () => {
               variant: "destructive",
             });
             break;
+          case 'aborted':
+            // Normal abort, don't show error
+            console.log('Speech recognition aborted');
+            break;
           default:
-            toast({
-              title: "Speech Recognition Error",
-              description: `Error: ${event.error}. Please try again.`,
-              variant: "destructive",
-            });
+            // Only show toast for unexpected errors
+            console.error(`Speech recognition error: ${event.error}`);
         }
       };
 
@@ -355,42 +368,18 @@ const VoiceBot = () => {
       return;
     }
 
-    // Check microphone permission first
-    const hasPermission = await checkMicrophonePermission();
-    if (!hasPermission) {
-      return;
-    }
+    if (isListening) return; // Prevent double-start
 
     try {
-      // Test microphone access before starting recognition
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
-      // Release the stream immediately as we only needed to test access
-      stream.getTracks().forEach(track => track.stop());
-      
-      // Clear any previous transcript and start recognition
+      // Clear any previous transcript and start recognition immediately
       setTranscript('');
       setIsListening(true);
       
-      // Add a small delay to ensure microphone is ready
-      setTimeout(() => {
-        if (recognitionRef.current && !isListening) {
-          try {
-            recognitionRef.current.start();
-          } catch (startError) {
-            console.error('Recognition start error:', startError);
-            setIsListening(false);
-            toast({
-              title: "Speech Recognition Error",
-              description: "Could not start speech recognition. Please try again.",
-              variant: "destructive",
-            });
-          }
-        }
-      }, 150);
+      // Start recognition immediately without delays
+      recognitionRef.current.start();
       
     } catch (error) {
-      console.error('Microphone access error:', error);
+      console.error('Speech recognition start error:', error);
       setIsListening(false);
       
       if (error instanceof DOMException) {
@@ -400,34 +389,26 @@ const VoiceBot = () => {
             description: "Please click the microphone icon in your browser's address bar and allow access.",
             variant: "destructive",
           });
-        } else if (error.name === 'NotFoundError') {
-          toast({
-            title: "Microphone Not Found",
-            description: "No microphone detected. Please check your microphone connection.",
-            variant: "destructive",
-          });
-        } else if (error.name === 'NotReadableError') {
-          toast({
-            title: "Microphone In Use",
-            description: "Your microphone is being used by another application. Please close other apps and try again.",
-            variant: "destructive",
-          });
+        } else if (error.name === 'InvalidStateError') {
+          // Recognition is already running, just ignore
+          console.log('Recognition already running, ignoring start request');
+          return;
         } else {
           toast({
-            title: "Microphone Error",
-            description: `Could not access microphone: ${error.message}`,
+            title: "Speech Recognition Error",
+            description: `Could not start: ${error.message}`,
             variant: "destructive",
           });
         }
       } else {
         toast({
-          title: "Microphone Error",
-          description: "Could not access microphone. Please check your browser permissions.",
+          title: "Speech Recognition Error",
+          description: "Could not start speech recognition. Please try again.",
           variant: "destructive",
         });
       }
     }
-  }, [toast, checkMicrophonePermission, isListening]);
+  }, [isListening, toast]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
