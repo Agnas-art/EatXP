@@ -197,7 +197,7 @@ export function VoiceBot() {
 
   const getAIResponse = async (question: string, conversationHistory: Message[]): Promise<string> => {
     try {
-      // Try Supabase edge function first for better context handling
+      // Use Supabase edge function with Lovable AI Gateway (same as anime-eats-academy)
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       
@@ -212,7 +212,7 @@ export function VoiceBot() {
             },
             body: JSON.stringify({
               message: question,
-              conversationHistory: conversationHistory.slice(-10), // Keep last 10 messages for context
+              conversationHistory: conversationHistory.slice(-10),
             }),
           }
         );
@@ -223,48 +223,15 @@ export function VoiceBot() {
             return data.reply;
           }
         } else {
-          console.log('Supabase function failed, falling back to OpenAI API');
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Request failed: ${response.status}`);
         }
       }
 
-      // Try ChatGPT with full conversation context
-      const openaiKey = import.meta.env.VITE_OPENAI_API_KEY;
-      if (openaiKey) {
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${openaiKey}`,
-          },
-          body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [
-              {
-                role: "system",
-                content: "You are a friendly food education assistant for children. Keep responses brief and encouraging. Remember the conversation history to provide contextually relevant answers.",
-              },
-              ...conversationHistory.slice(-8).map((msg) => ({
-                role: msg.role === 'user' ? 'user' : 'assistant',
-                content: msg.content,
-              })),
-              { role: "user", content: question },
-            ],
-            max_tokens: 150,
-          }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.choices?.[0]?.message?.content) {
-            return data.choices[0].message.content.trim();
-          }
-        }
-      }
-
-      // Fallback to local responses with simple context awareness
+      // Fallback to local responses if Supabase is not available
       return getFallbackResponse(question, conversationHistory);
     } catch (error) {
-      console.error('AI API error:', error);
+      console.error('Voice chat error:', error);
       return getFallbackResponse(question, conversationHistory);
     }
   };

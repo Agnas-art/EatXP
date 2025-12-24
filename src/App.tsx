@@ -10,7 +10,6 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import FeaturesDemo from "./pages/FeaturesDemo";
-import { FloatingVoiceBot } from "@/components/FloatingVoiceBot";
 import { AnimeCharacterFollower } from "@/components/AnimeCharacterFollower";
 import { initializeTheme } from "@/hooks/useThemeStore";
 import "@/i18n/config";
@@ -58,10 +57,7 @@ const AppContent = () => {
   }, [user?.characterId]);
 
   return (
-    <>
-      {/* Global Floating Voice Bot */}
-      <FloatingVoiceBot characterId={characterId} />
-      
+    <>      
       {/* Global Anime Character Follower */}
       <AnimeCharacterFollower characterId={characterId} enabled={true} />
 
