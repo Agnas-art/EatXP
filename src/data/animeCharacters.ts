@@ -79,17 +79,6 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     imageUrl: "", // Add working image URL here
     position: { x: 0, y: 0, z: 0 },
   },
-  ciel: {
-    id: "ciel",
-    name: "Ciel Phantomhive",
-    description: "Young noble with mysterious past",
-    anime: "Black Butler",
-    personality: "Strategic, Cold, Determined",
-    color: "#1a1a2e",
-    emoji: "👑",
-    imageUrl: "https://vignette.wikia.nocookie.net/kuroshitsuji/images/6/60/Ciel_Phantomhive_-_BOM1_1.png/revision/latest?cb=20160828134007&path-prefix=pl",
-    position: { x: 0, y: 0, z: 0 },
-  },
 };
 
 export const DEFAULT_CHARACTER = ANIME_CHARACTERS.naruto;
