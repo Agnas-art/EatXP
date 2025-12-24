@@ -21,6 +21,7 @@ const AnimeCharacterCursor = ({ characterId = 'tanjiro' }: AnimeCharacterCursorP
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
+      // Add more offset to keep cursor away from mouse clicks
       cursorX.set(e.clientX);
       cursorY.set(e.clientY);
       setIsVisible(true);
@@ -281,12 +282,13 @@ const AnimeCharacterCursor = ({ characterId = 'tanjiro' }: AnimeCharacterCursorP
 
   return (
     <motion.div
-      className="fixed pointer-events-none z-[9999]"
+      className="fixed pointer-events-none z-[9999] select-none"
       style={{
         x,
         y,
-        translateX: 20,
-        translateY: -60,
+        translateX: 60, // Increased from 20 to 60 to avoid cursor interference
+        translateY: -120, // Increased from -60 to -120 to move further up and away
+        cursor: 'none', // Ensure no cursor changes
       }}
       initial={{ opacity: 0, scale: 0 }}
       animate={{ 
