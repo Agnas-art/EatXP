@@ -115,6 +115,38 @@ const VoiceBot = () => {
     }
   }, [messages, conversationSummary]);
 
+  // Check microphone availability and permission
+  const checkMicrophonePermission = useCallback(async (): Promise<boolean> => {
+    try {
+      // Check if getUserMedia is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        toast({
+          title: "Microphone Not Available",
+          description: "Your browser does not support microphone access. Please use a modern browser.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Check permission status
+      const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+      
+      if (permission.state === 'denied') {
+        toast({
+          title: "Microphone Permission Denied",
+          description: "Please enable microphone access in your browser settings: Click the lock icon in the address bar.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error checking microphone permission:', error);
+      return true; // Assume permission is available if check fails
+    }
+  }, [toast]);
+
   // Local fallback response generator
   const generateLocalResponse = useCallback(async (userInput: string, messageHistory: Message[]): Promise<string> => {
     const input = userInput.toLowerCase().trim();
@@ -261,12 +293,42 @@ const VoiceBot = () => {
       recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
-        if (event.error === 'not-allowed') {
-          toast({
-            title: "Microphone Access Denied",
-            description: "Please enable microphone access to use voice features.",
-            variant: "destructive",
-          });
+        
+        switch (event.error) {
+          case 'not-allowed':
+            toast({
+              title: "Microphone Access Denied",
+              description: "Please enable microphone access in your browser settings and reload the page.",
+              variant: "destructive",
+            });
+            break;
+          case 'no-speech':
+            toast({
+              title: "No Speech Detected",
+              description: "Please speak clearly into your microphone.",
+              variant: "default",
+            });
+            break;
+          case 'audio-capture':
+            toast({
+              title: "Microphone Not Available",
+              description: "Your microphone is being used by another application or is not working properly.",
+              variant: "destructive",
+            });
+            break;
+          case 'network':
+            toast({
+              title: "Network Error",
+              description: "Speech recognition requires an internet connection.",
+              variant: "destructive",
+            });
+            break;
+          default:
+            toast({
+              title: "Speech Recognition Error",
+              description: `Error: ${event.error}. Please try again.`,
+              variant: "destructive",
+            });
         }
       };
 
@@ -287,33 +349,97 @@ const VoiceBot = () => {
     if (!recognitionRef.current) {
       toast({
         title: "Not Supported",
-        description: "Speech recognition is not supported in your browser.",
+        description: "Speech recognition is not supported in your browser. Please use Chrome or Edge.",
         variant: "destructive",
       });
       return;
     }
 
+    // Check microphone permission first
+    const hasPermission = await checkMicrophonePermission();
+    if (!hasPermission) {
+      return;
+    }
+
     try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Test microphone access before starting recognition
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Release the stream immediately as we only needed to test access
+      stream.getTracks().forEach(track => track.stop());
+      
+      // Clear any previous transcript and start recognition
       setTranscript('');
       setIsListening(true);
-      recognitionRef.current.start();
+      
+      // Add a small delay to ensure microphone is ready
+      setTimeout(() => {
+        if (recognitionRef.current && !isListening) {
+          try {
+            recognitionRef.current.start();
+          } catch (startError) {
+            console.error('Recognition start error:', startError);
+            setIsListening(false);
+            toast({
+              title: "Speech Recognition Error",
+              description: "Could not start speech recognition. Please try again.",
+              variant: "destructive",
+            });
+          }
+        }
+      }, 150);
+      
     } catch (error) {
       console.error('Microphone access error:', error);
-      toast({
-        title: "Microphone Error",
-        description: "Could not access microphone. Please check permissions.",
-        variant: "destructive",
-      });
+      setIsListening(false);
+      
+      if (error instanceof DOMException) {
+        if (error.name === 'NotAllowedError') {
+          toast({
+            title: "Microphone Access Denied",
+            description: "Please click the microphone icon in your browser's address bar and allow access.",
+            variant: "destructive",
+          });
+        } else if (error.name === 'NotFoundError') {
+          toast({
+            title: "Microphone Not Found",
+            description: "No microphone detected. Please check your microphone connection.",
+            variant: "destructive",
+          });
+        } else if (error.name === 'NotReadableError') {
+          toast({
+            title: "Microphone In Use",
+            description: "Your microphone is being used by another application. Please close other apps and try again.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Microphone Error",
+            description: `Could not access microphone: ${error.message}`,
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Microphone Error",
+          description: "Could not access microphone. Please check your browser permissions.",
+          variant: "destructive",
+        });
+      }
     }
-  }, [toast]);
+  }, [toast, checkMicrophonePermission, isListening]);
 
   const stopListening = useCallback(() => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
+    if (recognitionRef.current && isListening) {
+      try {
+        recognitionRef.current.stop();
+      } catch (error) {
+        console.error('Error stopping recognition:', error);
+      }
     }
     setIsListening(false);
-  }, []);
+    setTranscript('');
+  }, [isListening]);
 
   const speakText = useCallback((text: string) => {
     window.speechSynthesis.cancel();
