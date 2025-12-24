@@ -38,14 +38,11 @@ export const AnimeCharacterBackground = ({
       initial={{ opacity: 0 }}
       animate={{ opacity }}
       transition={{ duration: 0.8 }}
-      className={`fixed top-0 bottom-0 pointer-events-none overflow-hidden`}
+      className={`fixed top-0 bottom-0 left-0 right-0 pointer-events-none overflow-hidden`}
       style={{
         zIndex: 1,
-        right: position === "right" ? 0 : "auto",
-        left: position === "left" ? 0 : position === "center" ? "50%" : "auto",
-        transform: position === "center" ? "translateX(-50%)" : undefined,
-        width: "55vw",
-        maxWidth: "700px",
+        width: "100vw",
+        height: "100vh",
         background: `linear-gradient(135deg, ${character.color}20 0%, ${character.color}40 50%, transparent 100%)`,
       }}
     >
