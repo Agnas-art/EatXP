@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, MicOff, Volume2, X, MessageCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useTranslation } from 'react-i18next';
+import { useToast } from '@/hooks/use-toast';
 
 // Web Speech API types
 interface SpeechRecognitionEvent extends Event {
@@ -56,8 +56,7 @@ interface Message {
   content: string;
 }
 
-export function VoiceBot() {
-  const { t, i18n } = useTranslation();
+const VoiceBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -68,6 +67,7 @@ export function VoiceBot() {
   
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const { toast } = useToast();
 
   // Initialize speech recognition
   useEffect(() => {
@@ -77,12 +77,7 @@ export function VoiceBot() {
       recognitionRef.current = new SpeechRecognitionClass();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = i18n.language === "es" ? "es-ES" : 
-                        i18n.language === "fr" ? "fr-FR" :
-                        i18n.language === "ja" ? "ja-JP" :
-                        i18n.language === "hi" ? "hi-IN" :
-                        i18n.language === "ta" ? "ta-IN" :
-                        i18n.language === "te" ? "te-IN" : "en-US";
+      recognitionRef.current.lang = 'en-US';
 
       recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
         const current = event.resultIndex;
@@ -97,6 +92,13 @@ export function VoiceBot() {
       recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
+        if (event.error === 'not-allowed') {
+          toast({
+            title: "Microphone Access Denied",
+            description: "Please enable microphone access to use voice features.",
+            variant: "destructive",
+          });
+        }
       };
 
       recognitionRef.current.onend = () => {
@@ -110,11 +112,15 @@ export function VoiceBot() {
       }
       window.speechSynthesis.cancel();
     };
-  }, [i18n.language]);
+  }, []);
 
   const startListening = useCallback(async () => {
     if (!recognitionRef.current) {
-      console.error('Speech recognition not supported');
+      toast({
+        title: "Not Supported",
+        description: "Speech recognition is not supported in your browser.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -125,8 +131,13 @@ export function VoiceBot() {
       recognitionRef.current.start();
     } catch (error) {
       console.error('Microphone access error:', error);
+      toast({
+        title: "Microphone Error",
+        description: "Could not access microphone. Please check permissions.",
+        variant: "destructive",
+      });
     }
-  }, []);
+  }, [toast]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
@@ -142,12 +153,6 @@ export function VoiceBot() {
     utterance.rate = 1;
     utterance.pitch = 1;
     utterance.volume = 1;
-    utterance.lang = i18n.language === "es" ? "es-ES" : 
-                     i18n.language === "fr" ? "fr-FR" :
-                     i18n.language === "ja" ? "ja-JP" :
-                     i18n.language === "hi" ? "hi-IN" :
-                     i18n.language === "ta" ? "ta-IN" :
-                     i18n.language === "te" ? "te-IN" : "en-US";
     
     // Try to use a good voice
     const voices = window.speechSynthesis.getVoices();
@@ -164,140 +169,55 @@ export function VoiceBot() {
 
     synthRef.current = utterance;
     window.speechSynthesis.speak(utterance);
-  }, [i18n.language]);
+  }, []);
 
   const handleSendMessage = useCallback(async (text: string) => {
     if (!text.trim()) return;
 
     const userMessage: Message = { role: 'user', content: text };
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
+    setMessages(prev => [...prev, userMessage]);
     setTranscript('');
     setIsProcessing(true);
     setCurrentResponse('');
 
     try {
-      // Pass the updated conversation history including the current message
-      const response = await getAIResponse(text, updatedMessages.slice(0, -1)); // Exclude current message since it's already in the prompt
-      const assistantMessage: Message = { role: 'assistant', content: response };
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            message: text,
+            conversationHistory: messages.slice(-10),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const assistantMessage: Message = { role: 'assistant', content: data.reply };
       
       setMessages(prev => [...prev, assistantMessage]);
-      setCurrentResponse(response);
-      speakText(response);
+      setCurrentResponse(data.reply);
+      speakText(data.reply);
     } catch (error) {
       console.error('Voice chat error:', error);
-      const fallbackResponse = "I'm having trouble understanding. Could you ask me again?";
-      const assistantMessage: Message = { role: 'assistant', content: fallbackResponse };
-      setMessages(prev => [...prev, assistantMessage]);
-      speakText(fallbackResponse);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to get response",
+        variant: "destructive",
+      });
     } finally {
       setIsProcessing(false);
     }
-  }, [messages, speakText]);
-
-  const getAIResponse = async (question: string, conversationHistory: Message[]): Promise<string> => {
-    try {
-      // Use Supabase edge function with Lovable AI Gateway (same as anime-eats-academy)
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      
-      if (supabaseUrl && supabaseKey) {
-        const response = await fetch(
-          `${supabaseUrl}/functions/v1/voice-chat`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${supabaseKey}`,
-            },
-            body: JSON.stringify({
-              message: question,
-              conversationHistory: conversationHistory.slice(-10),
-            }),
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.reply) {
-            return data.reply;
-          }
-        } else {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || `Request failed: ${response.status}`);
-        }
-      }
-
-      // Fallback to local responses if Supabase is not available
-      return getFallbackResponse(question, conversationHistory);
-    } catch (error) {
-      console.error('Voice chat error:', error);
-      return getFallbackResponse(question, conversationHistory);
-    }
-  };
-
-  const getFallbackResponse = (question: string, conversationHistory?: Message[]): string => {
-    const lowerQuestion = question.toLowerCase();
-    
-    // Check if we're continuing a conversation about a specific topic
-    const recentMessages = conversationHistory?.slice(-3) || [];
-    const recentTopics = recentMessages.map(msg => msg.content.toLowerCase()).join(' ');
-    
-    const foodResponses: Record<string, string> = {
-      apple: "Apples are full of fiber and vitamin C! They help keep your teeth healthy and give you energy.",
-      banana: "Bananas have potassium which helps your muscles and heart! They're also great for energy.",
-      carrot: "Carrots have beta-carotene which is great for your eyes! Orange veggies are super healthy.",
-      broccoli: "Broccoli is full of vitamins and minerals! It helps your bones grow strong.",
-      spinach: "Spinach is packed with iron and vitamins! It makes you strong!",
-      milk: "Milk has calcium which builds strong bones and teeth! Great for growing kids.",
-      egg: "Eggs have protein and choline which help your brain grow! Perfect for breakfast.",
-      fish: "Fish has omega-3s which are great for your brain! It helps you think better.",
-      water: "Water is super important! It keeps your body cool and helps everything work right.",
-      salad: "Salads have lots of veggies with vitamins and minerals! Eating colorful food is healthy.",
-      recipe: "I can teach you delicious recipes! Ask me about pizza, pasta, cookies, or any food you like!",
-      cook: "Cooking is fun and helps you learn! What food would you like to cook?",
-      healthy: "Eating healthy means lots of fruits, veggies, whole grains, and water! It helps your body grow strong.",
-      exercise: "Exercise is fun and keeps your body healthy! You can run, dance, swim, or play!",
-    };
-
-    // Check current question first
-    for (const [keyword, answer] of Object.entries(foodResponses)) {
-      if (lowerQuestion.includes(keyword)) {
-        return answer;
-      }
-    }
-
-    // Check recent conversation for context
-    for (const [keyword, answer] of Object.entries(foodResponses)) {
-      if (recentTopics.includes(keyword)) {
-        // Provide follow-up information if we're continuing a topic
-        if (lowerQuestion.includes('more') || lowerQuestion.includes('tell') || lowerQuestion.includes('what else')) {
-          return `Here's more about ${keyword}: ${answer}`;
-        }
-      }
-    }
-
-    // Context-aware general responses
-    if (lowerQuestion.includes('more') || lowerQuestion.includes('tell') || lowerQuestion.includes('what else')) {
-      if (recentMessages.length > 0) {
-        return "What specific aspect would you like to know more about? I'm happy to share more details!";
-      }
-    }
-
-    if (lowerQuestion.includes('why') || lowerQuestion.includes('how')) {
-      return "Great question! Understanding how food affects our bodies helps us make better choices. What would you like to learn about?";
-    }
-
-    const generalResponses = [
-      "That's a great question about food! Keep learning about healthy eating!",
-      "I like your interest in food and nutrition! Ask me about specific foods or recipes!",
-      "Good question! Eating well helps your body grow strong and your brain work better!",
-      "That's interesting! Learning about food is a great way to be healthy!",
-      "Keep asking questions about food! The more you know, the healthier you can be!",
-    ];
-
-    return generalResponses[Math.floor(Math.random() * generalResponses.length)];
-  };
+  }, [messages, speakText, toast]);
 
   const stopSpeaking = useCallback(() => {
     window.speechSynthesis.cancel();
@@ -309,7 +229,7 @@ export function VoiceBot() {
       {/* Floating button */}
       <motion.button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg flex items-center justify-center text-white hover:scale-110 transition-transform"
+        className="fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-primary to-accent shadow-lg flex items-center justify-center text-primary-foreground hover:scale-110 transition-transform"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         initial={{ scale: 0 }}
@@ -325,35 +245,35 @@ export function VoiceBot() {
             initial={{ opacity: 0, y: 100, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.9 }}
-            className="fixed bottom-24 right-6 z-50 w-80 bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden"
+            className="fixed bottom-24 right-6 z-50 w-80 bg-card border border-border rounded-2xl shadow-2xl overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 flex items-center justify-between">
+            <div className="bg-gradient-to-r from-primary to-accent p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                  <Volume2 className="w-5 h-5 text-white" />
+                  <Volume2 className="w-5 h-5 text-primary-foreground" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-sm">{t('voice_bot.title') || 'AI Voice Assistant'}</h3>
-                  <p className="text-xs text-white/80">{t('voice_bot.help_text') || 'Tap the mic to speak'}</p>
+                  <h3 className="font-bold text-primary-foreground text-sm">AI Voice Assistant</h3>
+                  <p className="text-xs text-primary-foreground/80">Tap the mic to speak</p>
                 </div>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsOpen(false)}
-                className="text-white hover:bg-white/20"
+                className="text-primary-foreground hover:bg-white/20"
               >
                 <X className="w-5 h-5" />
               </Button>
             </div>
 
             {/* Messages area */}
-            <div className="h-64 overflow-y-auto p-4 space-y-3 bg-white">
+            <div className="h-64 overflow-y-auto p-4 space-y-3 bg-background">
               {messages.length === 0 && (
-                <div className="text-center text-gray-500 text-sm py-8">
-                  <p>👋 {t('voice_bot.welcome') || "Hi! I'm your AI assistant."}</p>
-                  <p className="mt-2">{t('voice_bot.start') || "Tap the microphone and ask me anything!"}</p>
+                <div className="text-center text-muted-foreground text-sm py-8">
+                  <p>👋 Hi! I'm your AI assistant.</p>
+                  <p className="mt-2">Tap the microphone and ask me anything!</p>
                 </div>
               )}
               {messages.map((msg, i) => (
@@ -366,8 +286,8 @@ export function VoiceBot() {
                   <div
                     className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${
                       msg.role === 'user'
-                        ? 'bg-blue-500 text-white rounded-br-md'
-                        : 'bg-gray-100 text-gray-800 rounded-bl-md'
+                        ? 'bg-primary text-primary-foreground rounded-br-md'
+                        : 'bg-muted text-foreground rounded-bl-md'
                     }`}
                   >
                     {msg.content}
@@ -380,9 +300,9 @@ export function VoiceBot() {
                   animate={{ opacity: 1 }}
                   className="flex justify-start"
                 >
-                  <div className="bg-gray-100 px-4 py-2 rounded-2xl rounded-bl-md flex items-center gap-2">
+                  <div className="bg-muted px-4 py-2 rounded-2xl rounded-bl-md flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm text-gray-600">{t('voice_bot.processing') || 'Thinking...'}</span>
+                    <span className="text-sm text-muted-foreground">Thinking...</span>
                   </div>
                 </motion.div>
               )}
@@ -390,13 +310,13 @@ export function VoiceBot() {
 
             {/* Transcript display */}
             {transcript && (
-              <div className="px-4 py-2 bg-yellow-50 border-t border-yellow-200">
-                <p className="text-xs text-yellow-800">{t('voice_bot.listening') || 'Hearing'}: "{transcript}"</p>
+              <div className="px-4 py-2 bg-muted/50 border-t border-border">
+                <p className="text-xs text-muted-foreground">Hearing: "{transcript}"</p>
               </div>
             )}
 
             {/* Controls */}
-            <div className="p-4 border-t border-gray-200 bg-white flex items-center justify-center gap-4">
+            <div className="p-4 border-t border-border bg-card flex items-center justify-center gap-4">
               {isSpeaking && (
                 <Button
                   variant="outline"
@@ -404,7 +324,7 @@ export function VoiceBot() {
                   onClick={stopSpeaking}
                   className="text-xs"
                 >
-                  {t('voice_bot.stop_speaking') || 'Stop Speaking'}
+                  Stop Speaking
                 </Button>
               )}
               
@@ -413,10 +333,10 @@ export function VoiceBot() {
                 disabled={isProcessing || isSpeaking}
                 className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
                   isListening
-                    ? 'bg-red-500 text-white animate-pulse'
+                    ? 'bg-destructive text-destructive-foreground animate-pulse'
                     : isProcessing || isSpeaking
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-purple-600 text-white hover:bg-purple-700'
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                    : 'bg-primary text-primary-foreground hover:bg-primary/90'
                 }`}
                 whileHover={!isProcessing && !isSpeaking ? { scale: 1.05 } : {}}
                 whileTap={!isProcessing && !isSpeaking ? { scale: 0.95 } : {}}
@@ -433,4 +353,6 @@ export function VoiceBot() {
       </AnimatePresence>
     </>
   );
-}
+};
+
+export default VoiceBot;

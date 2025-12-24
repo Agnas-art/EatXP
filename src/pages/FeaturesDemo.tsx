@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { LanguageSelector } from "@/components/LanguageSelector";
-import { VoiceBot } from "@/components/VoiceBot";
+import VoiceBot from "@/components/VoiceBot";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 

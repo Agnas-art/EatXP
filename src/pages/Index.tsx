@@ -23,7 +23,7 @@ import { AnimeThemeSelector } from "@/components/AnimeThemeSelector";
 import { CharacterSelector } from "@/components/CharacterSelector";
 import { VoiceControlButton } from "@/components/VoiceControlButton";
 import { UserProfile } from "@/components/UserProfile";
-import { VoiceBot } from "@/components/VoiceBot";
+import VoiceBot from "@/components/VoiceBot";
 import { AnimeCharacterBackground } from "@/components/AnimeCharacterBackground";
 import { ShokuikuSagaRPG } from "@/components/teen/ShokuikuSagaRPG";
 import { BossBattleChallenges } from "@/components/teen/BossBattleChallenges";
