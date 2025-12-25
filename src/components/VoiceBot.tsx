@@ -715,8 +715,11 @@ Recent conversation context:\n`;
     console.log('Current message count:', updatedMessages.length);
     console.log('Has conversation summary:', !!conversationSummary);
     console.log('Recent messages for context:', recentMessages.length);
+    console.log('Context window size:', CONTEXT_WINDOW);
     console.log('Last 3 messages:', updatedMessages.slice(-3).map(m => ({ role: m.role, content: m.content.substring(0, 50) + '...' })));
     console.log('Conversation summary:', conversationSummary ? conversationSummary.substring(0, 100) + '...' : 'None');
+    console.log('Storage check:', localStorage.getItem(STORAGE_KEY) ? 'Found stored conversation' : 'No stored conversation');
+    console.log('Context payload keys:', Object.keys(contextPayload));
     
     // Validate configuration
     if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
@@ -764,14 +767,24 @@ Recent conversation context:\n`;
         }
       };
       
-      // Add conversation summary for better context if available and conversation is substantial
-      if (conversationSummary && updatedMessages.length > 10) {
+      // Add conversation summary for better context - always include if available
+      if (conversationSummary) {
         contextPayload.conversationSummary = conversationSummary;
         console.log('Including conversation summary in context:', conversationSummary);
       }
       
-      // Generate new summary periodically for long conversations
-      if (updatedMessages.length > 0 && updatedMessages.length % 20 === 0) { // Reduced frequency
+      // Include additional context metadata
+      if (updatedMessages.length > 5) {
+        const lastFewMessages = updatedMessages.slice(-5);
+        const contextSummary = lastFewMessages.map(m => 
+          `${m.role}: ${m.content.substring(0, 100)}`
+        ).join(' | ');
+        contextPayload.recentContext = contextSummary;
+        console.log('Including recent context:', contextSummary);
+      }
+      
+      // Generate new summary more frequently to preserve context better
+      if (updatedMessages.length > 0 && updatedMessages.length % 15 === 0) { // More frequent summary
         console.log('Generating conversation summary at message', updatedMessages.length);
         const newSummary = await generateSummary(updatedMessages);
         if (newSummary) {
@@ -830,8 +843,10 @@ Recent conversation context:\n`;
           localStorage.setItem('voicebot_fallback_notified', 'true');
         }
         
-        // Local fallback response
+        // Local fallback response with enhanced context
+        console.log('Using local fallback - ensuring context is preserved');
         const localResponse = await generateLocalResponse(text, recentMessages);
+        console.log('Local response generated with context from', recentMessages.length, 'recent messages');
         const assistantMessage: Message = { 
           role: 'assistant', 
           content: localResponse,
