@@ -72,20 +72,33 @@ const isSafari = () => {
   return /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
 };
 
+const isWindows = () => {
+  return /Windows/i.test(navigator.userAgent);
+};
+
+const isEdge = () => {
+  return /Edg/i.test(navigator.userAgent);
+};
+
 const isFirefox = () => {
   return /Firefox/.test(navigator.userAgent);
 };
 
 const getSpeechRecognitionSupport = () => {
   const hasAPI = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
-  const platform = isAndroid() ? 'Android' : isIOS() ? 'iOS' : 'Desktop';
-  const browser = isChrome() ? 'Chrome' : isSafari() ? 'Safari' : isFirefox() ? 'Firefox' : 'Other';
+  const platform = isAndroid() ? 'Android' : isIOS() ? 'iOS' : isWindows() ? 'Windows' : 'Desktop';
+  const browser = isChrome() ? 'Chrome' : isEdge() ? 'Edge' : isSafari() ? 'Safari' : isFirefox() ? 'Firefox' : 'Other';
+  
+  // Enhanced support detection for Windows
+  const isWindowsSupported = isWindows() && (isChrome() || isEdge());
+  const isAndroidSupported = isAndroid() && isChrome();
+  const isDesktopSupported = !isMobile() && !isWindows() && isChrome();
   
   return {
     hasAPI,
     platform,
     browser,
-    isSupported: hasAPI && (isChrome() || (isAndroid() && isChrome())),
+    isSupported: hasAPI && (isWindowsSupported || isAndroidSupported || isDesktopSupported),
     requiresHTTPS: true
   };
 };
@@ -384,6 +397,8 @@ Recent conversation context:\n`;
       console.log('Is Supported:', support.isSupported);
       console.log('Is Mobile:', isMobile());
       console.log('Is Android:', isAndroid());
+      console.log('Is Windows:', isWindows());
+      console.log('Is Edge:', isEdge());
       console.log('Is HTTPS:', location.protocol === 'https:');
       
       if (!support.hasAPI) {
@@ -405,6 +420,9 @@ Recent conversation context:\n`;
           if (isAndroid()) {
             recognitionRef.current.continuous = false;
             recognitionRef.current.interimResults = false; // More reliable on Android
+          } else if (isWindows() && isEdge()) {
+            recognitionRef.current.continuous = false;
+            recognitionRef.current.interimResults = true; // Edge on Windows works well with interim results
           } else {
             recognitionRef.current.continuous = false;
             recognitionRef.current.interimResults = true;
@@ -532,7 +550,7 @@ Recent conversation context:\n`;
       toast({
         title: "Not Supported",
         description: isAndroid() 
-          ? "Please use Chrome browser for voice features on Android." 
+          ? "Please use Chrome browser for voice features on Android, or Chrome/Edge on Windows." 
           : message,
         variant: "destructive",
       });
@@ -910,7 +928,7 @@ Recent conversation context:\n`;
                   {!speechSupport.isSupported && (
                     <div className="mt-4 p-3 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-800 rounded-lg">
                       <p className="text-xs text-yellow-800 dark:text-yellow-200">
-                        ⚠️ Voice features work best in Chrome browser
+                        ⚠️ Voice features work best in Chrome or Edge browser
                         {isAndroid() && " on Android devices"}
                       </p>
                     </div>
