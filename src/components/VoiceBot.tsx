@@ -479,6 +479,186 @@ Recent conversation context:\n`;
     return '';
   }, []);
 
+  const handleSendMessage = useCallback(async (text: string) => {
+    if (!text.trim()) return;
+
+    console.log('=== VoiceBot Message Handling Debug ===');
+    console.log('Input text:', text);
+    console.log('Current messages count:', messages.length);
+
+    // Debug: Check configuration
+    console.log('=== VoiceBot Configuration Debug ===');
+    console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
+    console.log('VITE_SUPABASE_PUBLISHABLE_KEY:', import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? 'SET' : 'MISSING');
+
+    setIsProcessing(true);
+    
+    // Add user message first
+    const userMessage: Message = { 
+      role: 'user', 
+      content: text,
+      timestamp: Date.now()
+    };
+    
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    
+    setIsListening(false); // Stop listening while processing
+    
+    try {
+      // Get recent messages for context (limit to last N messages)
+      const recentMessages = updatedMessages.slice(-CONTEXT_WINDOW);
+      
+      // Analyze conversation for better context
+      const allContent = updatedMessages.map(m => m.content.toLowerCase()).join(' ');
+      const userName = allContent.match(/my name is (\w+)|i'm (\w+)|call me (\w+)/);
+      const userNameExtracted = userName ? (userName[1] || userName[2] || userName[3]) : '';
+      
+      let contextPayload: any = {
+        message: text,
+        conversationHistory: recentMessages.slice(0, -1), // Exclude current message
+        conversationMetadata: {
+          messageCount: updatedMessages.length,
+          userName: userNameExtracted,
+          hasLongHistory: updatedMessages.length > 10
+        }
+      };
+      
+      // Add conversation summary for better context - always include if available
+      if (conversationSummary) {
+        contextPayload.conversationSummary = conversationSummary;
+        console.log('Including conversation summary in context:', conversationSummary);
+      }
+      
+      // Include additional context metadata
+      if (updatedMessages.length > 5) {
+        const lastFewMessages = updatedMessages.slice(-5);
+        const contextSummary = lastFewMessages.map(m => 
+          `${m.role}: ${m.content.substring(0, 100)}`
+        ).join(' | ');
+        contextPayload.recentContext = contextSummary;
+        console.log('Including recent context:', contextSummary);
+      }
+      
+      // Generate new summary more frequently to preserve context better
+      if (updatedMessages.length > 0 && updatedMessages.length % 15 === 0) { // More frequent summary
+        console.log('Generating conversation summary at message', updatedMessages.length);
+        const newSummary = await generateSummary(updatedMessages);
+        if (newSummary) {
+          setConversationSummary(newSummary);
+          contextPayload.conversationSummary = newSummary;
+          console.log('Updated conversation summary:', newSummary);
+        }
+      }
+
+      // Try Supabase edge function first, fallback to local implementation
+      console.log('=== API Call Debug ===');
+      console.log('About to call Supabase edge function with payload:', JSON.stringify(contextPayload, null, 2));
+      
+      let response;
+      try {
+        // TEMPORARY: Force local fallback for debugging
+        // throw new Error('FALLBACK_TO_LOCAL');
+        // TEMPORARY: Force local fallback for debugging
+        // throw new Error('FALLBACK_TO_LOCAL');
+        response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify(contextPayload),
+          }
+        );
+
+        console.log('API Response Status:', response.status);
+        console.log('API Response Headers:', Object.fromEntries(response.headers.entries()));
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('API Error Response:', errorText);
+          
+          // If the error is configuration-related, fall back to local response
+          if (response.status === 500 || errorText.includes('LOVABLE_API_KEY')) {
+            throw new Error('FALLBACK_TO_LOCAL');
+          }
+          
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch {
+            errorData = { error: errorText };
+          }
+          
+          throw new Error(errorData.error || `Request failed: ${response.status} - ${errorText}`);
+        }
+
+        // Success case: process the response
+        console.log('API call successful, processing response...');
+        const data = await response.json();
+        console.log('Response data:', data);
+        const assistantMessage: Message = { 
+          role: 'assistant', 
+          content: data.reply,
+          timestamp: Date.now()
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+        setCurrentResponse(data.reply);
+        speakText(data.reply);
+        console.log('Response processed successfully:', data.reply);
+        
+      } catch (fetchError) {
+        console.error('=== API ERROR DETAILS ===');
+        console.error('Error type:', fetchError.constructor.name);
+        console.error('Error message:', fetchError.message);
+        console.error('Full error:', fetchError);
+        console.warn('Supabase edge function not available, using local fallback:', fetchError);
+        
+        // Show a one-time notification about fallback mode
+        if (!localStorage.getItem('voicebot_fallback_notified')) {
+          toast({
+            title: "Local Mode",
+            description: "Using local responses. Configure Supabase for AI-powered chat.",
+            variant: "default",
+          });
+          localStorage.setItem('voicebot_fallback_notified', 'true');
+        }
+        
+        // Local fallback response with enhanced context
+        console.log('Using local fallback - ensuring context is preserved');
+        console.log('=== LOCAL FALLBACK DEBUG ===');
+        console.log('Calling generateLocalResponse with:', { text, recentMessagesCount: recentMessages.length });
+        const localResponse = await generateLocalResponse(text, recentMessages);
+        console.log('Generated local response:', localResponse);
+        console.log('Local response length:', localResponse?.length || 0);
+        const assistantMessage: Message = { 
+          role: 'assistant', 
+          content: localResponse,
+          timestamp: Date.now()
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+        setCurrentResponse(localResponse);
+        speakText(localResponse);
+        setIsProcessing(false);
+        return;
+      }
+
+    } catch (error) {
+      console.error('Voice chat error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to get response",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [messages, conversationSummary, generateSummary, speakText, toast]);
+
   // Initialize speech recognition with platform-specific optimizations
   useEffect(() => {
     const initializeSpeechRecognition = () => {
@@ -797,210 +977,6 @@ Recent conversation context:\n`;
     synthRef.current = utterance;
     window.speechSynthesis.speak(utterance);
   }, []);
-
-  const handleSendMessage = useCallback(async (text: string) => {
-    if (!text.trim()) return;
-
-    console.log('=== VoiceBot Message Handling Debug ===');
-    console.log('Input text:', text);
-    console.log('Current messages count:', messages.length);
-
-    // Debug: Check configuration
-    console.log('=== VoiceBot Configuration Debug ===');
-    console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
-    console.log('VITE_SUPABASE_PUBLISHABLE_KEY:', import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? 'SET' : 'MISSING');
-    
-    // Debug: Conversation context
-    console.log('=== Conversation Context Debug ===');
-    console.log('Current message count:', updatedMessages.length);
-    console.log('Has conversation summary:', !!conversationSummary);
-    console.log('Recent messages for context:', recentMessages.length);
-    console.log('Context window size:', CONTEXT_WINDOW);
-    console.log('Last 3 messages:', updatedMessages.slice(-3).map(m => ({ role: m.role, content: m.content.substring(0, 50) + '...' })));
-    console.log('Conversation summary:', conversationSummary ? conversationSummary.substring(0, 100) + '...' : 'None');
-    console.log('Storage check:', localStorage.getItem(STORAGE_KEY) ? 'Found stored conversation' : 'No stored conversation');
-    console.log('Context payload keys:', Object.keys(contextPayload));
-    
-    // Validate configuration
-    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
-      const missing = [];
-      if (!import.meta.env.VITE_SUPABASE_URL) missing.push('VITE_SUPABASE_URL');
-      if (!import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) missing.push('VITE_SUPABASE_PUBLISHABLE_KEY');
-      
-      toast({
-        title: "Configuration Error",
-        description: `Missing environment variables: ${missing.join(', ')}. Please check your .env file.`,
-        variant: "destructive",
-      });
-      setIsProcessing(false);
-      return;
-    }
-
-    const userMessage: Message = { 
-      role: 'user', 
-      content: text,
-      timestamp: Date.now()
-    };
-    
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    setTranscript('');
-    setIsProcessing(true);
-    setCurrentResponse('');
-
-    try {
-      // Prepare enhanced context with conversation analysis
-      const recentMessages = updatedMessages.slice(-CONTEXT_WINDOW);
-      
-      // Analyze conversation for better context
-      const allContent = updatedMessages.map(m => m.content.toLowerCase()).join(' ');
-      const userName = allContent.match(/my name is (\w+)|i'm (\w+)|call me (\w+)/);
-      const userNameExtracted = userName ? (userName[1] || userName[2] || userName[3]) : '';
-      
-      let contextPayload: any = {
-        message: text,
-        conversationHistory: recentMessages.slice(0, -1), // Exclude current message
-        conversationMetadata: {
-          messageCount: updatedMessages.length,
-          userName: userNameExtracted,
-          hasLongHistory: updatedMessages.length > 10
-        }
-      };
-      
-      // Add conversation summary for better context - always include if available
-      if (conversationSummary) {
-        contextPayload.conversationSummary = conversationSummary;
-        console.log('Including conversation summary in context:', conversationSummary);
-      }
-      
-      // Include additional context metadata
-      if (updatedMessages.length > 5) {
-        const lastFewMessages = updatedMessages.slice(-5);
-        const contextSummary = lastFewMessages.map(m => 
-          `${m.role}: ${m.content.substring(0, 100)}`
-        ).join(' | ');
-        contextPayload.recentContext = contextSummary;
-        console.log('Including recent context:', contextSummary);
-      }
-      
-      // Generate new summary more frequently to preserve context better
-      if (updatedMessages.length > 0 && updatedMessages.length % 15 === 0) { // More frequent summary
-        console.log('Generating conversation summary at message', updatedMessages.length);
-        const newSummary = await generateSummary(updatedMessages);
-        if (newSummary) {
-          setConversationSummary(newSummary);
-          contextPayload.conversationSummary = newSummary;
-          console.log('Updated conversation summary:', newSummary);
-        }
-      }
-
-      // Try Supabase edge function first, fallback to local implementation
-      console.log('=== API Call Debug ===');
-      console.log('About to call Supabase edge function with payload:', JSON.stringify(contextPayload, null, 2));
-      
-      let response;
-      try {
-        // TEMPORARY: Force local fallback for debugging
-        // throw new Error('FALLBACK_TO_LOCAL');
-        // TEMPORARY: Force local fallback for debugging
-        // throw new Error('FALLBACK_TO_LOCAL');
-        response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-            },
-            body: JSON.stringify(contextPayload),
-          }
-        );
-
-        console.log('API Response Status:', response.status);
-        console.log('API Response Headers:', Object.fromEntries(response.headers.entries()));
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('API Error Response:', errorText);
-          
-          // If the error is configuration-related, fall back to local response
-          if (response.status === 500 || errorText.includes('LOVABLE_API_KEY')) {
-            throw new Error('FALLBACK_TO_LOCAL');
-          }
-          
-          let errorData;
-          try {
-            errorData = JSON.parse(errorText);
-          } catch {
-            errorData = { error: errorText };
-          }
-          
-          throw new Error(errorData.error || `Request failed: ${response.status} - ${errorText}`);
-        }
-
-        // Success case: process the response
-        console.log('API call successful, processing response...');
-        const data = await response.json();
-        console.log('Response data:', data);
-        const assistantMessage: Message = { 
-          role: 'assistant', 
-          content: data.reply,
-          timestamp: Date.now()
-        };
-        
-        setMessages(prev => [...prev, assistantMessage]);
-        setCurrentResponse(data.reply);
-        speakText(data.reply);
-        console.log('Response processed successfully:', data.reply);
-        
-      } catch (fetchError) {
-        console.error('=== API ERROR DETAILS ===');
-        console.error('Error type:', fetchError.constructor.name);
-        console.error('Error message:', fetchError.message);
-        console.error('Full error:', fetchError);
-        console.warn('Supabase edge function not available, using local fallback:', fetchError);
-        
-        // Show a one-time notification about fallback mode
-        if (!localStorage.getItem('voicebot_fallback_notified')) {
-          toast({
-            title: "Local Mode",
-            description: "Using local responses. Configure Supabase for AI-powered chat.",
-            variant: "default",
-          });
-          localStorage.setItem('voicebot_fallback_notified', 'true');
-        }
-        
-        // Local fallback response with enhanced context
-        console.log('Using local fallback - ensuring context is preserved');
-        console.log('=== LOCAL FALLBACK DEBUG ===');
-        console.log('Calling generateLocalResponse with:', { text, recentMessagesCount: recentMessages.length });
-        const localResponse = await generateLocalResponse(text, recentMessages);
-        console.log('Generated local response:', localResponse);
-        console.log('Local response length:', localResponse?.length || 0);
-        const assistantMessage: Message = { 
-          role: 'assistant', 
-          content: localResponse,
-          timestamp: Date.now()
-        };
-        
-        setMessages(prev => [...prev, assistantMessage]);
-        setCurrentResponse(localResponse);
-        speakText(localResponse);
-        setIsProcessing(false);
-        return;
-      }
-
-    } catch (error) {
-      console.error('Voice chat error:', error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to get response",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [messages, conversationSummary, generateSummary, speakText, toast]);
 
   const stopSpeaking = useCallback(() => {
     window.speechSynthesis.cancel();
