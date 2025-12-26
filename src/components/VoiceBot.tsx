@@ -92,7 +92,7 @@ const getSpeechRecognitionSupport = () => {
   // Enhanced support detection for Windows
   const isWindowsSupported = isWindows() && (isChrome() || isEdge());
   const isAndroidSupported = isAndroid() && isChrome();
-  const isDesktopSupported = !isMobile() && !isWindows() && isChrome();
+  const isDesktopSupported = !isMobile() && !isWindows() && (isChrome() || isSafari());
   
   return {
     hasAPI,
