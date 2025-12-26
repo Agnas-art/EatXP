@@ -705,6 +705,10 @@ Recent conversation context:\n`;
   const handleSendMessage = useCallback(async (text: string) => {
     if (!text.trim()) return;
 
+    console.log('=== VoiceBot Message Handling Debug ===');
+    console.log('Input text:', text);
+    console.log('Current messages count:', messages.length);
+
     // Debug: Check configuration
     console.log('=== VoiceBot Configuration Debug ===');
     console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
@@ -795,8 +799,15 @@ Recent conversation context:\n`;
       }
 
       // Try Supabase edge function first, fallback to local implementation
+      console.log('=== API Call Debug ===');
+      console.log('About to call Supabase edge function with payload:', JSON.stringify(contextPayload, null, 2));
+      
       let response;
       try {
+        // TEMPORARY: Force local fallback for debugging
+        // throw new Error('FALLBACK_TO_LOCAL');
+        // TEMPORARY: Force local fallback for debugging
+        // throw new Error('FALLBACK_TO_LOCAL');
         response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
           {
@@ -830,7 +841,27 @@ Recent conversation context:\n`;
           
           throw new Error(errorData.error || `Request failed: ${response.status} - ${errorText}`);
         }
+
+        // Success case: process the response
+        console.log('API call successful, processing response...');
+        const data = await response.json();
+        console.log('Response data:', data);
+        const assistantMessage: Message = { 
+          role: 'assistant', 
+          content: data.reply,
+          timestamp: Date.now()
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+        setCurrentResponse(data.reply);
+        speakText(data.reply);
+        console.log('Response processed successfully:', data.reply);
+        
       } catch (fetchError) {
+        console.error('=== API ERROR DETAILS ===');
+        console.error('Error type:', fetchError.constructor.name);
+        console.error('Error message:', fetchError.message);
+        console.error('Full error:', fetchError);
         console.warn('Supabase edge function not available, using local fallback:', fetchError);
         
         // Show a one-time notification about fallback mode
@@ -845,8 +876,11 @@ Recent conversation context:\n`;
         
         // Local fallback response with enhanced context
         console.log('Using local fallback - ensuring context is preserved');
+        console.log('=== LOCAL FALLBACK DEBUG ===');
+        console.log('Calling generateLocalResponse with:', { text, recentMessagesCount: recentMessages.length });
         const localResponse = await generateLocalResponse(text, recentMessages);
-        console.log('Local response generated with context from', recentMessages.length, 'recent messages');
+        console.log('Generated local response:', localResponse);
+        console.log('Local response length:', localResponse?.length || 0);
         const assistantMessage: Message = { 
           role: 'assistant', 
           content: localResponse,
@@ -860,16 +894,6 @@ Recent conversation context:\n`;
         return;
       }
 
-      const data = await response.json();
-      const assistantMessage: Message = { 
-        role: 'assistant', 
-        content: data.reply,
-        timestamp: Date.now()
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
-      setCurrentResponse(data.reply);
-      speakText(data.reply);
     } catch (error) {
       console.error('Voice chat error:', error);
       toast({
