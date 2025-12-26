@@ -1,0 +1,27 @@
+<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- This is a placeholder for Tanjiro Kamado image -->
+  <!-- In production, replace with actual image file -->
+  <defs>
+    <pattern id="pattern" patternUnits="userSpaceOnUse" width="20" height="20">
+      <circle cx="10" cy="10" r="1" fill="#D4A574"/>
+    </pattern>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="500" fill="#F5E6D3"/>
+  
+  <!-- Decorative pattern -->
+  <rect width="400" height="500" fill="url(#pattern)"/>
+  
+  <!-- Character silhouette indicator -->
+  <circle cx="200" cy="120" r="50" fill="#C41E3A" opacity="0.1"/>
+  <text x="200" y="320" font-size="40" text-anchor="middle" fill="#C41E3A">
+    🗡️
+  </text>
+  <text x="200" y="380" font-size="24" text-anchor="middle" fill="#333" font-weight="bold">
+    Tanjiro Kamado
+  </text>
+  <text x="200" y="420" font-size="16" text-anchor="middle" fill="#666">
+    Demon Slayer
+  </text>
+</svg>

@@ -3,10 +3,11 @@ import { Lightbulb, X } from "lucide-react";
 
 interface FoodFactBubbleProps {
   fact: string;
+  title?: string;
   onDismiss?: () => void;
 }
 
-const FoodFactBubble = ({ fact, onDismiss }: FoodFactBubbleProps) => {
+const FoodFactBubble = ({ fact, title = "Did You Know?", onDismiss }: FoodFactBubbleProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -25,7 +26,7 @@ const FoodFactBubble = ({ fact, onDismiss }: FoodFactBubbleProps) => {
         </motion.div>
         <div className="flex-1">
           <p className="font-display font-bold text-sm text-foreground mb-1">
-            Did You Know?
+            {title}
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {fact}

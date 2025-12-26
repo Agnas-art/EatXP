@@ -6,9 +6,10 @@ import { Users } from "lucide-react";
 
 interface CharacterSelectorProps {
   onSelect?: () => void;
+  ageGroup?: "kids" | "tweens" | "teens";
 }
 
-export const CharacterSelector = ({ onSelect }: CharacterSelectorProps) => {
+export const CharacterSelector = ({ onSelect, ageGroup }: CharacterSelectorProps) => {
   const { user, setUserCharacter } = useAuth();
   const currentCharacterId = user?.characterId || "tanjiro";
 
@@ -16,6 +17,11 @@ export const CharacterSelector = ({ onSelect }: CharacterSelectorProps) => {
     setUserCharacter(characterId);
     onSelect?.();
   };
+
+  // Hide anime characters for kids and tweens age groups
+  if (ageGroup === "kids" || ageGroup === "tweens") {
+    return null;
+  }
 
   return (
     <div className="w-full max-w-5xl mx-auto p-6">

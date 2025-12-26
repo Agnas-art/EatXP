@@ -275,7 +275,7 @@ const Index = () => {
           </div>
         </header>
         <main className="px-4 py-6">
-          <CharacterSelector onSelect={() => setShowCharacterSelector(false)} />
+          <CharacterSelector onSelect={() => setShowCharacterSelector(false)} ageGroup={selectedAge as "kids" | "tweens" | "teens"} />
         </main>
       </div>
     );
@@ -557,8 +557,8 @@ const Index = () => {
                       className="bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl p-3 text-left relative overflow-hidden"
                     >
                       <span className="text-2xl mb-1 inline-block">⚔️</span>
-                      <p className="font-display font-bold text-xs text-white">Shokuiku Saga</p>
-                      <p className="text-xs text-white/80">RPG Quest</p>
+                      <p className="font-display font-bold text-xs text-white">{t("teen_features.shokuiku_saga")}</p>
+                      <p className="text-xs text-white/80">{t("teen_features.shokuiku_desc")}</p>
                     </motion.button>
 
                     <motion.button
@@ -568,8 +568,8 @@ const Index = () => {
                       className="bg-gradient-to-br from-red-500 to-red-700 rounded-2xl p-3 text-left relative overflow-hidden"
                     >
                       <span className="text-2xl mb-1 inline-block">⚡</span>
-                      <p className="font-display font-bold text-xs text-white">Boss Battles</p>
-                      <p className="text-xs text-white/80">Weekly Fight</p>
+                      <p className="font-display font-bold text-xs text-white">{t("teen_features.boss_battles")}</p>
+                      <p className="text-xs text-white/80">{t("teen_features.boss_desc")}</p>
                     </motion.button>
 
                     <motion.button
@@ -579,8 +579,8 @@ const Index = () => {
                       className="bg-gradient-to-br from-orange-500 to-orange-700 rounded-2xl p-3 text-left relative overflow-hidden"
                     >
                       <span className="text-2xl mb-1 inline-block">🍽️</span>
-                      <p className="font-display font-bold text-xs text-white">Meal Master</p>
-                      <p className="text-xs text-white/80">Design Plan</p>
+                      <p className="font-display font-bold text-xs text-white">{t("teen_features.meal_mastery")}</p>
+                      <p className="text-xs text-white/80">{t("teen_features.meal_desc")}</p>
                     </motion.button>
 
                     <motion.button
@@ -590,8 +590,8 @@ const Index = () => {
                       className="bg-gradient-to-br from-pink-500 to-pink-700 rounded-2xl p-3 text-left relative overflow-hidden"
                     >
                       <span className="text-2xl mb-1 inline-block">📚</span>
-                      <p className="font-display font-bold text-xs text-white">Manga Builder</p>
-                      <p className="text-xs text-white/80">Create Story</p>
+                      <p className="font-display font-bold text-xs text-white">{t("teen_features.manga_builder")}</p>
+                      <p className="text-xs text-white/80">{t("teen_features.manga_desc")}</p>
                     </motion.button>
 
                     <motion.button
@@ -601,15 +601,15 @@ const Index = () => {
                       className="bg-gradient-to-br from-yellow-500 to-yellow-700 rounded-2xl p-3 text-left relative overflow-hidden"
                     >
                       <span className="text-2xl mb-1 inline-block">🎯</span>
-                      <p className="font-display font-bold text-xs text-white">Real Missions</p>
-                      <p className="text-xs text-white/80">Earn XP</p>
+                      <p className="font-display font-bold text-xs text-white">{t("teen_features.real_missions")}</p>
+                      <p className="text-xs text-white/80">{t("teen_features.missions_desc")}</p>
                     </motion.button>
                   </div>
                 </>
               )}
 
               {/* Fun Fact */}
-              <FoodFactBubble fact={currentFact} />
+              <FoodFactBubble fact={currentFact} title={t("did_you_know.title")} />
 
               {/* Daily Challenge */}
               <motion.div
@@ -854,7 +854,7 @@ const Index = () => {
                 {[
                   { label: "Change Age Group", icon: "👤" },
                   { label: "Notifications", icon: "🔔" },
-                  { label: "About YummyLearn", icon: "ℹ️" },
+                  { label: "About EatXP", icon: "ℹ️" },
                 ].map((item, i) => (
                   <button
                     key={i}
