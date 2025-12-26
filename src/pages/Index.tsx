@@ -28,6 +28,7 @@ import { AnimeCharacterBackground } from "@/components/AnimeCharacterBackground"
 import { ShokuikuSagaRPG } from "@/components/teen/ShokuikuSagaRPG";
 import { BossBattleChallenges } from "@/components/teen/BossBattleChallenges";
 import { MealMasterySimulator } from "@/components/teen/MealMasterySimulator";
+import { AboutEatXP } from "@/components/AboutEatXP";
 import { AnimeMangaBuilder } from "@/components/teen/AnimeMangaBuilder";
 import { RealLifeMissions } from "@/components/teen/RealLifeMissions";
 import { useAuth } from "@/hooks/useAuth";
@@ -56,6 +57,7 @@ const Index = () => {
   const [showMealMastery, setShowMealMastery] = useState(false);
   const [showMangaBuilder, setShowMangaBuilder] = useState(false);
   const [showRealMissions, setShowRealMissions] = useState(false);
+  const [showAboutEatXP, setShowAboutEatXP] = useState(false);
   const { transcript, isListening } = useVoiceRecognition();
 
   useEffect(() => {
@@ -279,6 +281,10 @@ const Index = () => {
         </main>
       </div>
     );
+  }
+
+  if (showAboutEatXP) {
+    return <AboutEatXP onClose={() => setShowAboutEatXP(false)} />;
   }
 
   if (showGames) {
@@ -862,6 +868,8 @@ const Index = () => {
                       if (item.label === "Change Age Group") {
                         setShowWelcome(true);
                         setSelectedAge(null);
+                      } else if (item.label === "About EatXP") {
+                        setShowAboutEatXP(true);
                       }
                     }}
                     className="w-full bg-card rounded-2xl p-4 flex items-center gap-3 shadow-card hover:shadow-float transition-shadow"
