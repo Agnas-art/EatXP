@@ -132,6 +132,81 @@ const VoiceBot = () => {
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
   const { toast } = useToast();
 
+  // Check microphone permission status
+  const checkMicrophonePermission = useCallback(async () => {
+    if (!navigator.permissions || !navigator.permissions.query) {
+      return 'prompt'; // Unknown, will need to request
+    }
+    
+    try {
+      const result = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+      return result.state; // 'granted', 'denied', or 'prompt'
+    } catch (error) {
+      console.log('Permission check failed:', error);
+      return 'prompt'; // Fallback to request
+    }
+  }, []);
+
+  // Request microphone permission explicitly
+  const requestMicrophonePermission = useCallback(async () => {
+    try {
+      console.log('Requesting microphone access...');
+      
+      // This will trigger the browser popup if permission not granted
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          ...(isAndroid() ? {
+            sampleRate: 16000,
+            channelCount: 1
+          } : {})
+        }
+      });
+      
+      // Stop the stream immediately after getting permission
+      stream.getTracks().forEach(track => track.stop());
+      setMicPermissionGranted(true);
+      
+      toast({
+        title: "Microphone Access Granted",
+        description: "Voice features are now available!",
+        variant: "default",
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Microphone access error:', error);
+      setMicPermissionGranted(false);
+      
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      if (errorMessage.includes('Permission denied') || errorMessage.includes('NotAllowedError')) {
+        toast({
+          title: "Microphone Access Denied",
+          description: isAndroid() 
+            ? "Please enable microphone access in your browser settings, then refresh the page." 
+            : "Please allow microphone access to use voice features. Click the microphone icon in your browser's address bar.",
+          variant: "destructive",
+        });
+      } else if (errorMessage.includes('NotFoundError')) {
+        toast({
+          title: "No Microphone Found",
+          description: "Please connect a microphone and try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Microphone Error",
+          description: `Could not access microphone: ${errorMessage}`,
+          variant: "destructive",
+        });
+      }
+      return false;
+    }
+  }, [toast]);
+
   // Storage key for conversation persistence
   const STORAGE_KEY = 'voicebot_conversation';
   const MAX_STORED_MESSAGES = 50;
@@ -153,6 +228,26 @@ const VoiceBot = () => {
       console.error('Failed to load conversation history:', error);
     }
   }, []);
+
+  // Check microphone permission on mount
+  useEffect(() => {
+    const initPermissions = async () => {
+      const permissionStatus = await checkMicrophonePermission();
+      if (permissionStatus === 'granted') {
+        setMicPermissionGranted(true);
+      } else if (permissionStatus === 'denied') {
+        setMicPermissionGranted(false);
+        toast({
+          title: "Microphone Access Required",
+          description: "Please enable microphone access in browser settings to use voice features.",
+          variant: "default",
+        });
+      }
+      // If 'prompt', we'll request when user tries to use voice features
+    };
+    
+    initPermissions();
+  }, [checkMicrophonePermission, toast]);
 
   // Save conversation to localStorage
   useEffect(() => {
@@ -567,26 +662,27 @@ Recent conversation context:\n`;
     }
 
     try {
-      console.log('Requesting microphone access...');
+      // Check permission first, request if needed
+      const permissionStatus = await checkMicrophonePermission();
       
-      // Request microphone permission first
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          ...(isAndroid() ? {
-            sampleRate: 16000,
-            channelCount: 1
-          } : {})
+      if (permissionStatus === 'denied') {
+        toast({
+          title: "Microphone Access Denied",
+          description: "Please enable microphone access in browser settings to use voice features.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // If permission not granted yet, request it (this will show browser popup)
+      if (!micPermissionGranted || permissionStatus === 'prompt') {
+        const granted = await requestMicrophonePermission();
+        if (!granted) {
+          return; // Permission request failed, error already shown
         }
-      });
+      }
       
-      // Stop the stream immediately after getting permission
-      stream.getTracks().forEach(track => track.stop());
-      setMicPermissionGranted(true);
-      
-      console.log('Microphone permission granted, starting recognition...');
+      console.log('Microphone permission confirmed, starting recognition...');
       
       // Clear previous transcript
       setTranscript('');
@@ -973,10 +1069,24 @@ Recent conversation context:\n`;
                     </div>
                   )}
                   {!micPermissionGranted && speechSupport.hasAPI && (
-                    <div className="mt-2 p-2 bg-blue-100 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-800 rounded-lg">
-                      <p className="text-xs text-blue-800 dark:text-blue-200">
-                        🎤 Microphone access required for voice chat
-                      </p>
+                    <div className="mt-2 p-3 bg-blue-100 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-800 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-xs text-blue-800 dark:text-blue-200 font-medium">
+                            🎤 Microphone access required for voice chat
+                          </p>
+                          <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
+                            Click to enable voice features
+                          </p>
+                        </div>
+                        <Button
+                          onClick={requestMicrophonePermission}
+                          size="sm"
+                          className="ml-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1"
+                        >
+                          Enable Mic
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
