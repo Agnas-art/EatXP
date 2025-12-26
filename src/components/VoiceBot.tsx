@@ -479,6 +479,31 @@ Recent conversation context:\n`;
     return '';
   }, []);
 
+  const speakText = useCallback((text: string) => {
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    
+    // Try to use a good voice
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(v => 
+      v.name.includes('Google') || v.name.includes('Samantha') || v.lang === 'en-US'
+    );
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    synthRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  }, []);
+
   const handleSendMessage = useCallback(async (text: string) => {
     if (!text.trim()) return;
 
@@ -953,30 +978,7 @@ Recent conversation context:\n`;
     setTranscript('');
   }, [isListening]);
 
-  const speakText = useCallback((text: string) => {
-    window.speechSynthesis.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-    
-    // Try to use a good voice
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(v => 
-      v.name.includes('Google') || v.name.includes('Samantha') || v.lang === 'en-US'
-    );
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-
-    synthRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-  }, []);
 
   const stopSpeaking = useCallback(() => {
     window.speechSynthesis.cancel();
