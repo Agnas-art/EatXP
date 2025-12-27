@@ -13,7 +13,7 @@ const FoodFactBubble = ({ fact, title = "Did You Know?", onDismiss }: FoodFactBu
       initial={{ opacity: 0, y: 20, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -20, scale: 0.9 }}
-      className="bg-gradient-to-r from-kawaii-yellow/30 to-primary/20 rounded-3xl p-4 relative overflow-hidden"
+      className="bg-gradient-to-r from-yellow-100 to-amber-100 rounded-3xl p-4 relative overflow-hidden border-2 border-yellow-300 shadow-sm"
     >
       <div className="absolute top-0 right-0 w-20 h-20 bg-kawaii-yellow/30 rounded-full blur-2xl" />
       <div className="relative flex gap-3">
