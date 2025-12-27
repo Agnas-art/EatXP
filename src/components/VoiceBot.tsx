@@ -306,11 +306,18 @@ const VoiceBot = () => {
       // INSTANT processing: Only check the very last message
       const lastMessage = messageHistory[messageHistory.length - 2]?.content?.toLowerCase() || '';
       
+      console.log('🔍 CONTEXTUAL REFERENCE DEBUG:', {
+        hasContextualReference,
+        messageHistoryLength: messageHistory.length,
+        lastMessage,
+        lastMessageExists: !!lastMessage
+      });
+      
       // Super simple food detection - no RegEx, just includes check
       const foods = ['avocado', 'pasta', 'rice', 'chicken', 'salmon', 'egg', 'apple', 'banana'];
       referencedItems = foods.filter(food => lastMessage.includes(food));
       
-      console.log('INSTANT CONTEXT:', referencedItems);
+      console.log('🥑 REFERENCED ITEMS:', referencedItems);
     }
     
     // Find previous discussions about similar topics
