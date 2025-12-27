@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Search, AlertCircle, CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Search, AlertCircle, CheckCircle2, Plus, Trash2, Barcode, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { ANIME_CHARACTERS } from "../data/animeCharacters";
 
@@ -138,6 +138,94 @@ const FOOD_DATABASE: Record<string, MealItem> = {
   },
 };
 
+// Barcode Database - maps UPC/EAN codes to food items
+const BARCODE_DATABASE: Record<string, MealItem> = {
+  "5901234123457": { // Sample Coca-Cola
+    id: "barcode_coke",
+    name: "Coca-Cola (12oz)",
+    calories: 140,
+    protein: 0,
+    sugar: 39,
+    additives: ["high fructose corn syrup", "caramel color"],
+    healthScore: 15,
+  },
+  "5901234567890": { // Sample Apple
+    id: "barcode_apple",
+    name: "Organic Apple (Whole Foods)",
+    calories: 95,
+    protein: 0.5,
+    sugar: 19,
+    additives: [],
+    healthScore: 95,
+  },
+  "5051234567890": { // Sample Banana
+    id: "barcode_banana",
+    name: "Chiquita Banana",
+    calories: 105,
+    protein: 1.3,
+    sugar: 27,
+    additives: [],
+    healthScore: 90,
+  },
+  "4006381333931": { // Sample Greek Yogurt
+    id: "barcode_yogurt",
+    name: "Fage Total Greek Yogurt (7oz)",
+    calories: 100,
+    protein: 17,
+    sugar: 7,
+    additives: [],
+    healthScore: 88,
+  },
+  "4011999999999": { // Sample Broccoli
+    id: "barcode_broccoli",
+    name: "Fresh Broccoli Bunch",
+    calories: 34,
+    protein: 2.8,
+    sugar: 2.2,
+    additives: [],
+    healthScore: 98,
+  },
+  "5000230110627": { // Sample Salmon
+    id: "barcode_salmon",
+    name: "Wild Alaskan Salmon Fillet",
+    calories: 280,
+    protein: 25,
+    sugar: 0,
+    additives: [],
+    healthScore: 95,
+  },
+  "5449000050127": { // Sample Sprite
+    id: "barcode_sprite",
+    name: "Sprite (12oz)",
+    calories: 140,
+    protein: 0,
+    sugar: 38,
+    additives: ["high fructose corn syrup", "natural flavor"],
+    healthScore: 20,
+  },
+  "4006885006113": { // Sample Chocolate
+    id: "barcode_chocolate",
+    name: "Lindt Lindor Truffles",
+    calories: 250,
+    protein: 3,
+    sugar: 27,
+    additives: ["artificial flavor", "emulsifier"],
+    healthScore: 35,
+  },
+};
+
+// Sample barcodes for demo - user can copy these to test
+export const SAMPLE_BARCODES = [
+  { barcode: "5901234123457", name: "Coca-Cola" },
+  { barcode: "5901234567890", name: "Organic Apple" },
+  { barcode: "5051234567890", name: "Banana" },
+  { barcode: "4006381333931", name: "Greek Yogurt" },
+  { barcode: "4011999999999", name: "Broccoli" },
+  { barcode: "5000230110627", name: "Salmon" },
+  { barcode: "5449000050127", name: "Sprite" },
+  { barcode: "4006885006113", name: "Lindor Chocolate" },
+];
+
 const calculateGrade = (healthScore: number, sugar: number, additives: number): string => {
   let score = healthScore;
   
@@ -172,7 +260,11 @@ const FoodNutritionTracker = ({ onBack }: FoodNutritionTrackerProps) => {
   const [currentMealItems, setCurrentMealItems] = useState<MealItem[]>([]);
   const [mealName, setMealName] = useState("My Meal");
   const [searchQuery, setSearchQuery] = useState("");
+  const [barcodeInput, setBarcodeInput] = useState("");
+  const [barcodeMessage, setBarcodeMessage] = useState("");
   const [showFoodDatabase, setShowFoodDatabase] = useState(false);
+  const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
+  const [showSampleBarcodes, setShowSampleBarcodes] = useState(false);
   const characterData = ANIME_CHARACTERS.tanjiro;
 
   const filteredFoods = Object.values(FOOD_DATABASE).filter(food =>
@@ -182,6 +274,25 @@ const FoodNutritionTracker = ({ onBack }: FoodNutritionTrackerProps) => {
   const addFoodToMeal = (food: MealItem) => {
     setCurrentMealItems([...currentMealItems, { ...food, id: `${food.id}-${Date.now()}` }]);
     setSearchQuery("");
+  };
+
+  const scanBarcode = (barcode: string) => {
+    const product = BARCODE_DATABASE[barcode];
+    if (product) {
+      addFoodToMeal(product);
+      setBarcodeMessage(`✅ Added: ${product.name}`);
+      setBarcodeInput("");
+      setTimeout(() => setBarcodeMessage(""), 3000);
+    } else {
+      setBarcodeMessage(`❌ Barcode not found: ${barcode}`);
+      setTimeout(() => setBarcodeMessage(""), 3000);
+    }
+  };
+
+  const handleBarcodeKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && barcodeInput.trim()) {
+      scanBarcode(barcodeInput.trim());
+    }
   };
 
   const removeFoodFromMeal = (id: string) => {
@@ -264,15 +375,97 @@ const FoodNutritionTracker = ({ onBack }: FoodNutritionTrackerProps) => {
           />
 
           {/* Add Food Button */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setShowFoodDatabase(!showFoodDatabase)}
-            className="w-full bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-lg font-semibold mb-3"
-          >
-            <Plus className="w-4 h-4 inline mr-2" />
-            Add Food
-          </motion.button>
+          <div className="flex gap-2 mb-3">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowFoodDatabase(!showFoodDatabase)}
+              className="flex-1 bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-lg font-semibold"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              Browse Foods
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowBarcodeScanner(!showBarcodeScanner)}
+              className="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-4 py-2 rounded-lg font-semibold"
+            >
+              <Barcode className="w-4 h-4 inline mr-2" />
+              Scan
+            </motion.button>
+          </div>
+
+          {/* Barcode Scanner */}
+          <AnimatePresence>
+            {showBarcodeScanner && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-3 space-y-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 p-3"
+              >
+                <div>
+                  <p className="text-xs font-semibold text-cyan-700 mb-2">📱 Barcode Scanner</p>
+                  <input
+                    type="text"
+                    value={barcodeInput}
+                    onChange={(e) => setBarcodeInput(e.target.value)}
+                    onKeyPress={handleBarcodeKeyPress}
+                    placeholder="Scan or paste barcode... (press Enter)"
+                    autoFocus
+                    className="w-full px-3 py-2 rounded-lg bg-background text-foreground border border-border text-sm font-mono"
+                  />
+                </div>
+
+                {barcodeMessage && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-xs font-semibold text-cyan-700"
+                  >
+                    {barcodeMessage}
+                  </motion.p>
+                )}
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowSampleBarcodes(!showSampleBarcodes)}
+                  className="text-xs text-cyan-700 hover:text-cyan-600 font-semibold"
+                >
+                  {showSampleBarcodes ? "Hide Sample Barcodes" : "Show Sample Barcodes"}
+                </motion.button>
+
+                {showSampleBarcodes && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-1 mt-2 max-h-40 overflow-y-auto"
+                  >
+                    <p className="text-xs text-muted-foreground font-semibold mb-2">Try these barcodes:</p>
+                    {SAMPLE_BARCODES.map((item) => (
+                      <motion.button
+                        key={item.barcode}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          setBarcodeInput(item.barcode);
+                          scanBarcode(item.barcode);
+                        }}
+                        className="w-full text-left text-xs px-2 py-1 rounded bg-card hover:bg-muted transition-colors flex items-center justify-between group"
+                      >
+                        <span>{item.name}</span>
+                        <Copy className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </motion.button>
+                    ))}
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Food Database Search */}
           <AnimatePresence>
