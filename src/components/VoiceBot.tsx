@@ -300,6 +300,13 @@ const VoiceBot = () => {
       input.includes('these') || input.includes('which one') || input.includes('both') ||
       input.includes('them') || input.includes('it');
     
+    console.log('📋 MESSAGE HISTORY DEBUG:', {
+      hasContextualReference,
+      messageHistoryLength: messageHistory.length,
+      fullMessageHistory: messageHistory.map(m => ({ role: m.role, content: m.content.substring(0, 50) + '...' })),
+      willCheckContext: hasContextualReference && messageHistory.length > 1
+    });
+    
     let referencedItems = [];
     
     if (hasContextualReference && messageHistory.length > 1) {
