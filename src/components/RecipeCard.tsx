@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { Clock, ChefHat, Star, Users } from "lucide-react";
+import { Clock, ChefHat, Star, Users, AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { usePreferences } from "@/context/PreferencesContext";
 
 interface RecipeCardProps {
   title: string;
@@ -10,6 +11,7 @@ interface RecipeCardProps {
   servings: number;
   ageGroup: string;
   image?: string;
+  ingredients?: string[];
   onClick?: () => void;
 }
 
@@ -26,18 +28,31 @@ const RecipeCard = ({
   difficulty,
   servings,
   ageGroup,
+  ingredients = [],
   onClick,
 }: RecipeCardProps) => {
   const { t } = useTranslation();
+  const { canEat } = usePreferences();
   const config = difficultyConfig(t)[difficulty];
+  
+  const canEatRecipe = canEat(ingredients);
 
   return (
     <motion.div
       whileHover={{ y: -4 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="bg-card rounded-3xl shadow-card overflow-hidden cursor-pointer"
+      className={`bg-card rounded-3xl shadow-card overflow-hidden cursor-pointer ${
+        !canEatRecipe ? "opacity-60 relative" : ""
+      }`}
     >
+      {/* Allergen Badge */}
+      {!canEatRecipe && (
+        <div className="absolute top-2 left-2 bg-red-500 text-white rounded-full p-1 z-10">
+          <AlertCircle className="w-4 h-4" />
+        </div>
+      )}
+
       <div className="bg-gradient-to-br from-kawaii-yellow/40 to-primary/30 p-6 flex items-center justify-center relative">
         <motion.span
           className="text-6xl"

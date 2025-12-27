@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Zap, Heart, Leaf, Award, CheckCircle, Play, BookOpen } from "lucide-react";
+import { ChevronLeft, Zap, Heart, Leaf, Award, CheckCircle, Play, BookOpen, AlertCircle } from "lucide-react";
+import { usePreferences } from "@/context/PreferencesContext";
 
 interface FoodHero {
   name: string;
@@ -909,6 +910,7 @@ export default function HealthyFoodHeroesDetail({
   selectedAge = "kids",
 }: HealthyFoodHeroesDetailProps) {
   const food = FOOD_HEROES_DATA[foodKey.toLowerCase()];
+  const { preferences, canEatFood } = usePreferences();
   const [completedChallenge, setCompletedChallenge] = useState(false);
   const [unlockedRecipe, setUnlockedRecipe] = useState(false);
   const [showTrivia, setShowTrivia] = useState(false);
@@ -930,6 +932,8 @@ export default function HealthyFoodHeroesDetail({
       </div>
     );
   }
+
+  const canEatThisFood = canEatFood(food.name);
 
   const handleTriviaAnswer = (index: number) => {
     setTriviaAnswered(true);
@@ -957,6 +961,40 @@ export default function HealthyFoodHeroesDetail({
       </div>
 
       <div className="p-6 max-w-4xl mx-auto space-y-6">
+        {/* Allergen Warning */}
+        {!canEatThisFood && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-100 border-2 border-red-500 rounded-xl p-4 flex items-start gap-3"
+          >
+            <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-bold text-red-800">⚠️ Dietary Restriction Alert</h3>
+              <p className="text-sm text-red-700 mt-1">
+                This food may contain ingredients that don't match your dietary preferences.
+                Check with a parent or guardian before consuming.
+              </p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Dietary Info Banner */}
+        {preferences.allergies.length > 0 || preferences.dietaryPreference !== 'non-vegetarian' && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-blue-50 border border-blue-200 rounded-xl p-4"
+          >
+            <p className="text-sm text-blue-800">
+              <span className="font-semibold">Your Preferences:</span>{" "}
+              {preferences.dietaryPreference === 'vegetarian' && '🥬 Vegetarian | '}
+              {preferences.dietaryPreference === 'eggtarian' && '🥚 Eggtarian | '}
+              {preferences.allergies.length > 0 && `⚠️ Allergic to: ${preferences.allergies.join(', ')}`}
+            </p>
+          </motion.div>
+        )}
+
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
