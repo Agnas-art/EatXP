@@ -361,6 +361,22 @@ const VoiceBot = () => {
       return `Based on our recent discussion about ${previousContext}, what specific aspect interests you?`;
     }
     
+    // Direct food comparison detection (for questions like "is avocado better than pasta")
+    const foods = ['avocado', 'pasta', 'rice', 'chicken', 'salmon', 'egg', 'apple', 'banana', 'bread', 'cheese', 'milk'];
+    const mentionedFoods = foods.filter(food => input.includes(food));
+    
+    if (mentionedFoods.length >= 2 && (input.includes('better') || input.includes('vs') || input.includes('versus') || input.includes('compare'))) {
+      const food1 = mentionedFoods[0];
+      const food2 = mentionedFoods[1];
+      
+      // Specific comparisons
+      if ((food1 === 'avocado' || food2 === 'avocado') && (food1 === 'pasta' || food2 === 'pasta')) {
+        return `Great question! Avocado and pasta serve different nutritional purposes. 🥑 Avocado is rich in healthy fats, fiber, and vitamins, while pasta provides energy through carbohydrates. For overall nutrition density, avocado wins with its heart-healthy monounsaturated fats and potassium. But pasta is perfect for quick energy! What specific aspect interests you - calories, nutrients, or cooking uses?`;
+      }
+      
+      return `Interesting comparison between ${food1} and ${food2}! Both have unique nutritional benefits. What specific aspect would you like me to focus on - nutrition, taste, or cooking applications?`;
+    }
+    
     // Context-aware responses based on conversation flow
     if (input.includes('food') || input.includes('cook') || input.includes('recipe') || input.includes('eat')) {
       if (userPreferences.anime && userPreferences.food) {
