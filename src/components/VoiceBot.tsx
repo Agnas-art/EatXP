@@ -210,7 +210,7 @@ const VoiceBot = () => {
   // Storage key for conversation persistence
   const STORAGE_KEY = 'voicebot_conversation';
   const MAX_STORED_MESSAGES = 50;
-  const CONTEXT_WINDOW = 30; // Increased for better context carryover
+  const CONTEXT_WINDOW = 15; // Reduced for better performance
 
   // Load conversation from localStorage on mount
   useEffect(() => {
