@@ -135,7 +135,7 @@ const Index = () => {
 
     // Map benefit names to translation keys
     const benefitMap: {[key: string]: string} = {
-      "Energy boost": "food_info.banana_benefit_1",
+      "Energy boost": "seasonal_produce.energy_boost",
       "Happy tummy": "food_info.banana_benefit_2",
       "Super eyes": "food_info.carrot_benefit_1",
       "Crunchy fun": "food_info.carrot_benefit_2",
@@ -144,13 +144,19 @@ const Index = () => {
       "Strong bones": "food_info.apple_benefit_1",
       "Tasty treat": "food_info.apple_benefit_2",
       "Brain power": "food_info.banana_benefit_1",
-      "Healthy fats": "food_info.banana_benefit_2",
-      "Omega-3": "food_info.carrot_benefit_1",
-      "Strong muscles": "food_info.apple_benefit_1",
-      "Iron boost": "food_info.carrot_benefit_1",
-      "Energy": "food_info.banana_benefit_1",
-      "Complete protein": "food_info.apple_benefit_1",
-      "Brain food": "food_info.apple_benefit_2",
+      "Healthy fats": "seasonal_produce.healthy_fats",
+      "Omega-3": "seasonal_produce.omega_3",
+      "Strong muscles": "seasonal_produce.strong_muscles",
+      "Iron boost": "seasonal_produce.iron_boost",
+      "Energy": "seasonal_produce.energy",
+      "Complete protein": "seasonal_produce.complete_protein",
+      "Brain food": "seasonal_produce.brain_food",
+      "Probiotics": "seasonal_produce.probiotics",
+      "Muscle recovery": "seasonal_produce.muscle_recovery",
+      "Vitamin A": "seasonal_produce.vitamin_a",
+      "Complex carbs": "seasonal_produce.complex_carbs",
+      "Lean protein": "seasonal_produce.lean_protein",
+      "B vitamins": "seasonal_produce.b_vitamins",
     };
 
     // Map fun fact keys
