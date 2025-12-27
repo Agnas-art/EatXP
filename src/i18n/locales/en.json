@@ -42,8 +42,6 @@
     "food_map_desc": "Explore regions!",
     "cutscenes": "Cutscenes",
     "cutscenes_desc": "Watch anime!",
-    "manga": "Manga",
-    "manga_desc": "Comic strips!",
     "daily_challenge": "Daily Challenge",
     "challenge_desc": "Try a new veggie today! 🥦",
     "challenge_text": "Earn 10 points by trying a vegetable you've never had before!",
@@ -70,8 +68,6 @@
     "boss_desc": "Weekly anime boss fights",
     "meal_mastery": "Meal Mastery",
     "meal_desc": "Design balanced meal plans",
-    "manga_builder": "Manga Builder",
-    "manga_desc": "Create food-themed stories",
     "real_missions": "Real-Life Missions",
     "missions_desc": "Complete tasks to power up your character"
   },

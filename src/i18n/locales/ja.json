@@ -42,8 +42,6 @@
     "food_map_desc": "地域を探索!",
     "cutscenes": "カットシーン",
     "cutscenes_desc": "アニメを見る!",
-    "manga": "マンガ",
-    "manga_desc": "コミックストリップ!",
     "daily_challenge": "毎日のチャレンジ",
     "challenge_desc": "今日は新しい野菜に挑戦! 🥦",
     "challenge_text": "今まで食べたことのない野菜を食べて10ポイント獲得!",
@@ -70,8 +68,6 @@
     "boss_desc": "週ごとのアニメボス戦",
     "meal_mastery": "食事習得",
     "meal_desc": "バランスの取れた食事計画を設計する",
-    "manga_builder": "マンガビルダー",
-    "manga_desc": "食べ物テーマの物語を作成",
     "real_missions": "実際のミッション",
     "missions_desc": "キャラクターを強化するためにミッションを完了"
   },

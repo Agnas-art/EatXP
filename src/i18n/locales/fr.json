@@ -42,8 +42,7 @@
     "food_map_desc": "Explore les régions!",
     "cutscenes": "Cinématiques",
     "cutscenes_desc": "Regarde l'anime!",
-    "manga": "Manga",
-    "manga_desc": "Bandes dessinées!",
+
     "daily_challenge": "Défi Quotidien",
     "challenge_desc": "Essaie un nouveau légume aujourd'hui! 🥦",
     "challenge_text": "Gagne 10 points en essayant un légume que tu n'as jamais mangé!",
@@ -70,8 +69,6 @@
     "boss_desc": "Combats hebdomadaires de boss anime",
     "meal_mastery": "Maîtrise des Repas",
     "meal_desc": "Conçois des plans de repas équilibrés",
-    "manga_builder": "Constructeur de Manga",
-    "manga_desc": "Crée des histoires à thème alimentaire",
     "real_missions": "Missions de Vie Réelle",
     "missions_desc": "Complète les tâches pour renforcer ton personnage"
   },

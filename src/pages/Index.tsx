@@ -18,7 +18,6 @@ import ComicStories from "@/components/ComicStories";
 import StoryMode from "@/components/StoryMode";
 import FoodKingdomMap from "@/components/FoodKingdomMap";
 import AnimeCutscenes from "@/components/AnimeCutscenes";
-import MangaPanels from "@/components/MangaPanels";
 import SeasonalProduce from "@/components/SeasonalProduce";
 import FoodNutritionTracker from "@/components/FoodNutritionTracker";
 import CommunitySpace from "@/components/CommunitySpace";
@@ -31,7 +30,6 @@ import { ShokuikuSagaRPG } from "@/components/teen/ShokuikuSagaRPG";
 import { BossBattleChallenges } from "@/components/teen/BossBattleChallenges";
 import { MealMasterySimulator } from "@/components/teen/MealMasterySimulator";
 import { AboutEatXP } from "@/components/AboutEatXP";
-import { AnimeMangaBuilder } from "@/components/teen/AnimeMangaBuilder";
 import { RealLifeMissions } from "@/components/teen/RealLifeMissions";
 import HealthyFoodHeroesDetail from "@/components/HealthyFoodHeroesDetail";
 import { DietaryPreferencesModal } from "@/components/DietaryPreferencesModal";
@@ -55,14 +53,12 @@ const Index = () => {
   const [showStoryMode, setShowStoryMode] = useState(false);
   const [showFoodKingdomMap, setShowFoodKingdomMap] = useState(false);
   const [showAnimeCutscenes, setShowAnimeCutscenes] = useState(false);
-  const [showMangaPanels, setShowMangaPanels] = useState(false);
   const [showSeasonalProduce, setShowSeasonalProduce] = useState(false);
   const [showFoodNutritionTracker, setShowFoodNutritionTracker] = useState(false);
   const [showCommunitySpace, setShowCommunitySpace] = useState(false);
   const [showShokuikuSaga, setShowShokuikuSaga] = useState(false);
   const [showBossBattles, setShowBossBattles] = useState(false);
   const [showMealMastery, setShowMealMastery] = useState(false);
-  const [showMangaBuilder, setShowMangaBuilder] = useState(false);
   const [showRealMissions, setShowRealMissions] = useState(false);
   const [showAboutEatXP, setShowAboutEatXP] = useState(false);
   const [selectedFoodHero, setSelectedFoodHero] = useState<string | null>(null);
@@ -93,8 +89,6 @@ const Index = () => {
       setShowFoodKingdomMap(true);
     } else if (lower.includes("cutscene") || lower.includes("animation") || lower.includes("anime")) {
       setShowAnimeCutscenes(true);
-    } else if (lower.includes("manga") || lower.includes("comic") || lower.includes("panel")) {
-      setShowMangaPanels(true);
     } else if (lower.includes("seasonal") || lower.includes("produce") || lower.includes("vegetables") || lower.includes("fruits")) {
       setShowSeasonalProduce(true);
     } else if (lower.includes("nutrition") || lower.includes("tracker") || lower.includes("meal") || lower.includes("analyze")) {
@@ -108,7 +102,6 @@ const Index = () => {
       setShowStoryMode(false);
       setShowFoodKingdomMap(false);
       setShowAnimeCutscenes(false);
-      setShowMangaPanels(false);
       setShowSeasonalProduce(false);
       setShowFoodNutritionTracker(false);
       setShowCommunitySpace(false);
@@ -350,15 +343,6 @@ const Index = () => {
     );
   }
 
-  if (showMangaPanels) {
-    return (
-      <MangaPanels
-        completedChapters={user?.completedStoryChapters || []}
-        onBack={() => setShowMangaPanels(false)}
-      />
-    );
-  }
-
   if (showSeasonalProduce) {
     return (
       <SeasonalProduce
@@ -408,16 +392,6 @@ const Index = () => {
       <div className="min-h-screen bg-background pb-8">
         <main className="px-4 py-4">
           <MealMasterySimulator onBack={() => setShowMealMastery(false)} />
-        </main>
-      </div>
-    );
-  }
-
-  if (showMangaBuilder) {
-    return (
-      <div className="min-h-screen bg-background pb-8">
-        <main className="px-4 py-4">
-          <AnimeMangaBuilder onBack={() => setShowMangaBuilder(false)} />
         </main>
       </div>
     );
@@ -500,7 +474,7 @@ const Index = () => {
               {/* Weather-based Food Suggestions */}
               <WeatherFoodSuggestion />
 
-              {/* Quick Actions - Games, Comics, Story, Map, Cutscenes, Manga */}
+              {/* Quick Actions - Games, Comics, Story, Map, Cutscenes */}
               <div className="grid grid-cols-3 gap-3">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -555,17 +529,6 @@ const Index = () => {
                   <span className="text-2xl mb-1 inline-block">🎬</span>
                   <p className="font-display font-bold text-xs text-primary-foreground">{t("home.cutscenes")}</p>
                   <p className="text-xs text-primary-foreground/80">{t("home.cutscenes_desc")}</p>
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowMangaPanels(true)}
-                  className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-3 text-left relative overflow-hidden"
-                >
-                  <span className="text-2xl mb-1 inline-block">📖</span>
-                  <p className="font-display font-bold text-xs text-primary-foreground">{t("home.manga")}</p>
-                  <p className="text-xs text-primary-foreground/80">{t("home.manga_desc")}</p>
                 </motion.button>
 
                 <motion.button
@@ -645,17 +608,6 @@ const Index = () => {
                       <span className="text-2xl mb-1 inline-block">🍽️</span>
                       <p className="font-display font-bold text-xs text-white">{t("teen_features.meal_mastery")}</p>
                       <p className="text-xs text-white/80">{t("teen_features.meal_desc")}</p>
-                    </motion.button>
-
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowMangaBuilder(true)}
-                      className="bg-gradient-to-br from-pink-500 to-pink-700 rounded-2xl p-3 text-left relative overflow-hidden"
-                    >
-                      <span className="text-2xl mb-1 inline-block">📚</span>
-                      <p className="font-display font-bold text-xs text-white">{t("teen_features.manga_builder")}</p>
-                      <p className="text-xs text-white/80">{t("teen_features.manga_desc")}</p>
                     </motion.button>
 
                     <motion.button
