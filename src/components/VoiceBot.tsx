@@ -797,6 +797,7 @@ Conversation to summarize:\n`;
         console.log('Using enhanced local fallback with persistent context');
         console.log('=== ENHANCED LOCAL FALLBACK DEBUG ===');
         console.log('Current context summary:', contextSummary);
+        console.log('🔧 ABOUT TO CALL generateLocalResponse with:', { text, recentMessagesLength: recentMessages.length, hasContext: !!currentContext });
         const localResponse = await generateLocalResponse(text, recentMessages, currentContext);
         console.log('Generated enhanced local response:', localResponse);
         
