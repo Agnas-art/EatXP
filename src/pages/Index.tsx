@@ -673,7 +673,7 @@ const Index = () => {
               )}
 
               {/* Fun Fact */}
-              <FoodFactBubble fact={currentFact} title={t("did_you_know.title")} />
+              <FoodFactBubble fact={t(currentFact)} title={t("did_you_know.title")} />
 
               {/* Daily Challenge */}
               <motion.div

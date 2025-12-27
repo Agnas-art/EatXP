@@ -275,16 +275,16 @@ export const recipes = {
 };
 
 export const foodFacts = [
-  "Honey never spoils! Archaeologists have found 3000-year-old honey in Egyptian tombs that was still edible.",
-  "Strawberries aren't actually berries, but bananas are!",
-  "Carrots can help you see better in the dark because they're full of vitamin A.",
-  "Your brain is about 75% water, so drinking water helps you think better!",
-  "Eating breakfast helps you do better in school and sports.",
-  "Different colored vegetables have different superpowers for your body!",
-  "Broccoli has more protein per calorie than steak!",
-  "Lemons contain more sugar than strawberries.",
-  "Eating slowly helps your body know when it's full.",
-  "Dark chocolate can be good for your heart!",
+  "did_you_know.honey_fact",
+  "did_you_know.strawberry_fact",
+  "did_you_know.carrot_fact",
+  "did_you_know.water_fact",
+  "did_you_know.breakfast_fact",
+  "did_you_know.veggie_colors_fact",
+  "did_you_know.broccoli_fact",
+  "did_you_know.lemon_fact",
+  "did_you_know.eating_slow_fact",
+  "did_you_know.chocolate_fact",
 ];
 
 export const achievements = [
