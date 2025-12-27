@@ -226,7 +226,10 @@
     "water_fact": "¡Tu cerebro es aproximadamente 75% agua, así que beber agua te ayuda a pensar mejor!",
     "breakfast_fact": "¡Comer desayuno te ayuda a ir mejor en la escuela y los deportes!",
     "veggie_colors_fact": "¡Las verduras de diferentes colores tienen superpoderes diferentes para tu cuerpo!",
-    "broccoli_fact": "¡El brócoli tiene más proteína por caloría que la carne!"
+    "broccoli_fact": "¡El brócoli tiene más proteína por caloría que el bistec!",
+    "lemon_fact": "Los limones contienen más azúcar que las fresas.",
+    "eating_slow_fact": "Comer lentamente ayuda a tu cuerpo a saber cuándo está lleno.",
+    "chocolate_fact": "¡El chocolate oscuro puede ser bueno para tu corazón!"
   },
   "recipes_section": {
     "title": "Colección de Recetas",

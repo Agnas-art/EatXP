@@ -226,7 +226,10 @@
     "water_fact": "Your brain is about 75% water, so drinking water helps you think better!",
     "breakfast_fact": "Eating breakfast helps you do better in school and sports.",
     "veggie_colors_fact": "Different colored vegetables have different superpowers for your body!",
-    "broccoli_fact": "Broccoli has more protein per calorie than steak!"
+    "broccoli_fact": "Broccoli has more protein per calorie than steak!",
+    "lemon_fact": "Lemons contain more sugar than strawberries.",
+    "eating_slow_fact": "Eating slowly helps your body know when it's full.",
+    "chocolate_fact": "Dark chocolate can be good for your heart!"
   },
   "recipes_section": {
     "title": "Recipe Collection",

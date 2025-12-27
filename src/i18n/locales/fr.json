@@ -226,7 +226,10 @@
     "water_fact": "Ton cerveau est environ 75% eau, donc boire de l'eau t'aide à mieux réfléchir!",
     "breakfast_fact": "Manger le petit-déjeuner t'aide à mieux réussir à l'école et dans les sports!",
     "veggie_colors_fact": "Les légumes de différentes couleurs ont des superpouvoirs différents pour ton corps!",
-    "broccoli_fact": "Le brocoli contient plus de protéines par calorie que la viande!"
+    "broccoli_fact": "Le brocoli contient plus de protéines par calorie que le steak !",
+    "lemon_fact": "Les citrons contiennent plus de sucre que les fraises.",
+    "eating_slow_fact": "Manger lentement aide votre corps à savoir quand il est rassasié.",
+    "chocolate_fact": "Le chocolat noir peut être bon pour votre cœur !"
   },
   "recipes_section": {
     "title": "Collection de Recettes",
