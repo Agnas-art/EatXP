@@ -733,10 +733,12 @@ Conversation to summarize:\n`;
       
       let response;
       try {
-        // TEMPORARY: Force local fallback for debugging
-        throw new Error('FALLBACK_TO_LOCAL');
-        // TEMPORARY: Force local fallback for debugging
-        throw new Error('FALLBACK_TO_LOCAL');
+        // Check if Supabase is properly configured before making API call
+        if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
+          console.log('Supabase not configured, using local fallback');
+          throw new Error('FALLBACK_TO_LOCAL');
+        }
+        
         response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
           {
@@ -758,6 +760,7 @@ Conversation to summarize:\n`;
           
           // If the error is configuration-related, fall back to local response
           if (response.status === 500 || errorText.includes('LOVABLE_API_KEY')) {
+            console.log('Configuration issue detected, falling back to local response');
             throw new Error('FALLBACK_TO_LOCAL');
           }
           
@@ -787,11 +790,17 @@ Conversation to summarize:\n`;
         console.log('Response processed successfully:', data.reply);
         
       } catch (fetchError) {
-        console.error('=== API ERROR DETAILS ===');
-        console.error('Error type:', fetchError.constructor.name);
-        console.error('Error message:', fetchError.message);
-        console.error('Full error:', fetchError);
-        console.warn('Supabase edge function not available, using local fallback:', fetchError);
+        // Handle FALLBACK_TO_LOCAL as normal flow, not an error
+        if (fetchError.message === 'FALLBACK_TO_LOCAL') {
+          console.log('Using local fallback mode');
+        } else {
+          console.error('=== API ERROR DETAILS ===');
+          console.error('Error type:', fetchError.constructor.name);
+          console.error('Error message:', fetchError.message);
+          console.error('Full error:', fetchError);
+        }
+        
+        console.log('Supabase edge function not available, using local fallback');
         
         // Show a one-time notification about fallback mode
         if (!localStorage.getItem('voicebot_fallback_notified')) {
