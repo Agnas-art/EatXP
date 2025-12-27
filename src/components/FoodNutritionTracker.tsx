@@ -82,15 +82,6 @@ const FOOD_DATABASE: Record<string, MealItem> = {
     additives: ["artificial flavor", "emulsifier", "preservative"],
     healthScore: 35,
   },
-  soda: {
-    id: "soda",
-    name: "Soft Drink",
-    calories: 140,
-    protein: 0,
-    sugar: 39,
-    additives: ["high fructose corn syrup", "artificial sweetener", "caramel color"],
-    healthScore: 15,
-  },
   pizza_slice: {
     id: "pizza_slice",
     name: "Pizza Slice",
@@ -136,13 +127,32 @@ const FOOD_DATABASE: Record<string, MealItem> = {
     additives: [],
     healthScore: 88,
   },
+  // Soft Drinks Category
+  soft_drink_cola: {
+    id: "soft_drink_cola",
+    name: "Soft Drinks - Cola",
+    calories: 140,
+    protein: 0,
+    sugar: 39,
+    additives: ["high fructose corn syrup", "caramel color"],
+    healthScore: 15,
+  },
+  soft_drink_lemon_lime: {
+    id: "soft_drink_lemon_lime",
+    name: "Soft Drinks - Lemon-Lime",
+    calories: 140,
+    protein: 0,
+    sugar: 38,
+    additives: ["high fructose corn syrup", "natural flavor"],
+    healthScore: 20,
+  },
 };
 
 // Barcode Database - maps UPC/EAN codes to food items
 const BARCODE_DATABASE: Record<string, MealItem> = {
   "5901234123457": { // Sample Cola Soft Drink
-    id: "barcode_cola",
-    name: "Cola Soft Drink (12oz)",
+    id: "soft_drink_cola",
+    name: "Soft Drinks - Cola (12oz)",
     calories: 140,
     protein: 0,
     sugar: 39,
@@ -195,8 +205,8 @@ const BARCODE_DATABASE: Record<string, MealItem> = {
     healthScore: 95,
   },
   "5449000050127": { // Sample Lemon-Lime Soft Drink
-    id: "barcode_lemon_soda",
-    name: "Lemon-Lime Soft Drink (12oz)",
+    id: "soft_drink_lemon_lime",
+    name: "Soft Drinks - Lemon-Lime (12oz)",
     calories: 140,
     protein: 0,
     sugar: 38,
@@ -216,13 +226,13 @@ const BARCODE_DATABASE: Record<string, MealItem> = {
 
 // Sample barcodes for demo - user can copy these to test
 export const SAMPLE_BARCODES = [
-  { barcode: "5901234123457", name: "Cola Soft Drink" },
+  { barcode: "5901234123457", name: "Soft Drinks - Cola" },
   { barcode: "5901234567890", name: "Apple" },
   { barcode: "5051234567890", name: "Banana" },
   { barcode: "4006381333931", name: "Greek Yogurt" },
   { barcode: "4011999999999", name: "Broccoli" },
   { barcode: "5000230110627", name: "Salmon" },
-  { barcode: "5449000050127", name: "Lemon-Lime Soft Drink" },
+  { barcode: "5449000050127", name: "Soft Drinks - Lemon-Lime" },
   { barcode: "4006885006113", name: "Chocolate Truffles" },
 ];
 
