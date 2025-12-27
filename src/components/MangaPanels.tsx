@@ -21,6 +21,10 @@ export default function MangaPanels({
   const selectedChar = ANIME_CHARACTERS[selectedCharacter] || ANIME_CHARACTERS["deku"];
 
   const isMangaUnlocked = (strip: MangaStrip): boolean => {
+    // First manga panel is always unlocked
+    if (strip.id === "fruit_forest_adventure") {
+      return true;
+    }
     return completedChapters.includes(strip.unlockedAt);
   };
 
