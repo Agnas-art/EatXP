@@ -165,9 +165,9 @@ const ADDITIVES_INFO: Record<string, string> = {
 
 // Barcode Database - maps UPC/EAN codes to food items
 const BARCODE_DATABASE: Record<string, MealItem> = {
-  "5901234123457": { // Sample Cola Soft Drink
-    id: "soft_drink_cola",
-    name: "Soft Drinks - Cola (12oz)",
+  "5000000000001": { // Generic Soft Drinks
+    id: "soft_drinks_generic",
+    name: "Soft Drinks (12oz)",
     calories: 140,
     protein: 0,
     sugar: 39,
@@ -219,15 +219,6 @@ const BARCODE_DATABASE: Record<string, MealItem> = {
     additives: [],
     healthScore: 95,
   },
-  "5449000050127": { // Sample Lemon-Lime Soft Drink
-    id: "soft_drink_lemon_lime",
-    name: "Soft Drinks - Lemon-Lime (12oz)",
-    calories: 140,
-    protein: 0,
-    sugar: 38,
-    additives: ["high fructose corn syrup", "natural flavor"],
-    healthScore: 20,
-  },
   "4006885006113": { // Sample Chocolate
     id: "barcode_chocolate",
     name: "Chocolate Truffles",
@@ -241,13 +232,12 @@ const BARCODE_DATABASE: Record<string, MealItem> = {
 
 // Sample barcodes for demo - user can copy these to test
 export const SAMPLE_BARCODES = [
-  { barcode: "5901234123457", name: "Soft Drinks - Cola" },
+  { barcode: "5000000000001", name: "Soft Drinks" },
   { barcode: "5901234567890", name: "Apple" },
   { barcode: "5051234567890", name: "Banana" },
   { barcode: "4006381333931", name: "Greek Yogurt" },
   { barcode: "4011999999999", name: "Broccoli" },
   { barcode: "5000230110627", name: "Salmon" },
-  { barcode: "5449000050127", name: "Soft Drinks - Lemon-Lime" },
   { barcode: "4006885006113", name: "Chocolate Truffles" },
 ];
 
