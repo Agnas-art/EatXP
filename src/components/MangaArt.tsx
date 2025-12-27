@@ -1,14 +1,14 @@
 // Professional manga-style SVG artwork with authentic comic styling
 
-export const MangaArtwork = {
-  // Forest scene with fruits - detailed manga background
-  fruit_forest: () => (
-    <svg viewBox="0 0 300 300" className="w-full h-full">
-      <defs>
-        <pattern id="leafPattern" patternUnits="userSpaceOnUse" width="20" height="20">
-          <path d="M 5 0 Q 10 5 15 10 Q 10 15 5 20 Q 0 15 5 10 Z" fill="#1a8f1a" opacity="0.3" />
-        </pattern>
-      </defs>
+import React from "react";
+
+const FruitForest = () => (
+  <svg viewBox="0 0 300 300" className="w-full h-full">
+    <defs>
+      <pattern id="leafPattern" patternUnits="userSpaceOnUse" width="20" height="20">
+        <path d="M 5 0 Q 10 5 15 10 Q 10 15 5 20 Q 0 15 5 10 Z" fill="#1a8f1a" opacity="0.3" />
+      </pattern>
+    </defs>
       
       {/* Sky gradient */}
       <rect width="300" height="180" fill="#6BA3D0" />
@@ -48,12 +48,11 @@ export const MangaArtwork = {
       <line x1="250" y1="10" x2="250" y2="0" stroke="#FFD54F" strokeWidth="3" />
       <line x1="280" y1="40" x2="295" y2="40" stroke="#FFD54F" strokeWidth="3" />
       <line x1="270" y1="20" x2="280" y2="10" stroke="#FFD54F" strokeWidth="2.5" />
-    </svg>
-  ),
+  </svg>
+);
 
-  // Apple character - anime style with proper proportions
-  apple_character: () => (
-    <svg viewBox="0 0 280 320" className="w-full h-full">
+const AppleCharacter = () => (
+  <svg viewBox="0 0 280 320" className="w-full h-full">
       <defs>
         <linearGradient id="appleShade" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style={{ stopColor: "#FF5555", stopOpacity: 1 }} />
@@ -97,12 +96,11 @@ export const MangaArtwork = {
       {/* Shine effects */}
       <circle cx="220" cy="100" r="8" fill="#FFE082" />
       <circle cx="60" cy="200" r="6" fill="#FFE082" opacity="0.6" />
-    </svg>
-  ),
+  </svg>
+);
 
-  // Character transformation - excited pose
-  character_happy: () => (
-    <svg viewBox="0 0 280 360" className="w-full h-full">
+const CharacterHappy = () => (
+  <svg viewBox="0 0 280 360" className="w-full h-full">
       <defs>
         <linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style={{ stopColor: "#F7B563", stopOpacity: 1 }} />
@@ -169,11 +167,10 @@ export const MangaArtwork = {
       <path d="M 240 80 L 243 77 L 246 80 L 246 88 Q 243 91 240 88 Q 237 91 234 88 L 234 80 L 237 77 Z" fill="#FFB6D9" stroke="#FF1493" strokeWidth="1" />
       <path d="M 260 150 L 263 147 L 266 150 L 266 158 Q 263 161 260 158 Q 257 161 254 158 L 254 150 L 257 147 Z" fill="#FFB6D9" stroke="#FF1493" strokeWidth="1" />
     </svg>
-  ),
+  );
 
-  // Power transformation - dynamic action pose
-  nutrition_power: () => (
-    <svg viewBox="0 0 300 300" className="w-full h-full">
+const NutritionPower = () => (
+  <svg viewBox="0 0 300 300" className="w-full h-full">
       {/* Energy aura rings */}
       <circle cx="150" cy="150" r="100" fill="none" stroke="#FFD700" strokeWidth="4" opacity="0.8" />
       <circle cx="150" cy="150" r="85" fill="none" stroke="#FFA500" strokeWidth="3" opacity="0.6" />
@@ -208,12 +205,11 @@ export const MangaArtwork = {
       {/* Explosion clouds */}
       <circle cx="120" cy="120" r="25" fill="#FFA500" opacity="0.5" />
       <circle cx="180" cy="130" r="20" fill="#FF8C00" opacity="0.5" />
-    </svg>
-  ),
+  </svg>
+);
 
-  // Battle/confrontation scene
-  battle_scene: () => (
-    <svg viewBox="0 0 300 300" className="w-full h-full">
+const BattleScene = () => (
+  <svg viewBox="0 0 300 300" className="w-full h-full">
       {/* Background explosion bloom */}
       <circle cx="150" cy="150" r="80" fill="#FFE082" opacity="0.4" />
       <circle cx="140" cy="130" r="60" fill="#FFA500" opacity="0.5" />
@@ -242,9 +238,8 @@ export const MangaArtwork = {
       
       {/* Impact star shape */}
       <polygon points="150,100 160,130 190,130 165,150 175,180 150,160 125,180 135,150 110,130 140,130" fill="#FFF" stroke="#000" strokeWidth="2" />
-    </svg>
-  ),
-};
+  </svg>
+);
 
 interface MangaPanelArtProps {
   panelIndex: number;
@@ -255,17 +250,15 @@ export const MangaPanelArt: React.FC<MangaPanelArtProps> = ({ panelIndex, image 
   // Map emoji to manga artwork
   const getArtwork = () => {
     if (image === "🌳" || image === "🌲") {
-      return MangaArtwork.fruit_forest();
+      return <FruitForest />;
     } else if (image === "🍎") {
-      return MangaArtwork.apple_character();
-    } else if (image === "🍊") {
-      return MangaArtwork.orange_character();
+      return <AppleCharacter />;
     } else if (image === "😋" || image === "😍" || image.includes("happy")) {
-      return MangaArtwork.character_happy();
+      return <CharacterHappy />;
     } else if (image === "⚡" || image === "💪" || image === "🚀") {
-      return MangaArtwork.nutrition_power();
+      return <NutritionPower />;
     } else if (image === "⚔️" || image.includes("battle")) {
-      return MangaArtwork.battle_scene();
+      return <BattleScene />;
     }
     
     // Fallback to simple emoji with manga frame
