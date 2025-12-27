@@ -1,10 +1,18 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, Leaf, Thermometer } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ANIME_CHARACTERS } from "../data/animeCharacters";
 
 interface SeasonalProduceProps {
   onBack: () => void;
+}
+
+interface ProduceItem {
+  name: string;
+  emoji: string;
+  benefits: { key: string; label: string }[];
+  funFact: string;
 }
 
 // Seasonal produce data organized by season
@@ -17,25 +25,25 @@ const SEASONAL_PRODUCE = {
       {
         name: "Strawberries",
         emoji: "🍓",
-        benefits: ["Vitamin C boost", "Sweet & juicy"],
+        benefits: [{ key: "food_benefits.vitamin_c_boost", label: "Vitamin C boost" }, { key: "food_benefits.sweet_juicy", label: "Sweet & juicy" }],
         funFact: "Strawberries have their seeds on the outside!",
       },
       {
         name: "Asparagus",
         emoji: "🌱",
-        benefits: ["Super nutrients", "Crunchy texture"],
+        benefits: [{ key: "food_benefits.super_nutrients", label: "Super nutrients" }, { key: "food_benefits.crunchy_texture", label: "Crunchy texture" }],
         funFact: "Asparagus can grow up to 10 inches in a day!",
       },
       {
         name: "Peas",
         emoji: "💚",
-        benefits: ["Protein power", "Sweet taste"],
+        benefits: [{ key: "food_benefits.protein_power", label: "Protein power" }, { key: "food_benefits.sweet_taste", label: "Sweet taste" }],
         funFact: "Peas were one of the first frozen vegetables!",
       },
       {
         name: "Spinach",
         emoji: "🥬",
-        benefits: ["Iron rich", "Super strength"],
+        benefits: [{ key: "food_benefits.iron_rich", label: "Iron rich" }, { key: "food_benefits.super_strength", label: "Super strength" }],
         funFact: "Spinach contains oxalates that can coat your teeth!",
       },
     ],
@@ -48,25 +56,25 @@ const SEASONAL_PRODUCE = {
       {
         name: "Watermelon",
         emoji: "🍉",
-        benefits: ["Stay hydrated", "Natural coolness"],
+        benefits: [{ key: "food_benefits.stay_hydrated", label: "Stay hydrated" }, { key: "food_benefits.natural_coolness", label: "Natural coolness" }],
         funFact: "Watermelon is 92% water!",
       },
       {
         name: "Tomato",
         emoji: "🍅",
-        benefits: ["Heart healthy", "Juicy goodness"],
+        benefits: [{ key: "food_benefits.heart_healthy", label: "Heart healthy" }, { key: "food_benefits.juicy_goodness", label: "Juicy goodness" }],
         funFact: "Tomatoes are technically berries, not vegetables!",
       },
       {
         name: "Corn",
         emoji: "🌽",
-        benefits: ["Energy boost", "Sweet kernels"],
+        benefits: [{ key: "food_benefits.energy_boost", label: "Energy boost" }, { key: "food_benefits.sweet_kernels", label: "Sweet kernels" }],
         funFact: "Each corn cob has about 800 kernels!",
       },
       {
         name: "Blueberries",
         emoji: "🫐",
-        benefits: ["Brain boost", "Antioxidants"],
+        benefits: [{ key: "food_benefits.brain_boost", label: "Brain boost" }, { key: "food_benefits.antioxidants", label: "Antioxidants" }],
         funFact: "Blueberries are the only food that's naturally blue!",
       },
     ],
@@ -79,25 +87,25 @@ const SEASONAL_PRODUCE = {
       {
         name: "Pumpkin",
         emoji: "🎃",
-        benefits: ["Vitamin A power", "Warm comfort"],
+        benefits: [{ key: "food_benefits.vitamin_a_power", label: "Vitamin A power" }, { key: "food_benefits.warm_comfort", label: "Warm comfort" }],
         funFact: "Pumpkins are 90% water!",
       },
       {
         name: "Apple",
         emoji: "🍎",
-        benefits: ["Fiber rich", "Crispy crunch"],
+        benefits: [{ key: "food_benefits.fiber_rich", label: "Fiber rich" }, { key: "food_benefits.crispy_crunch", label: "Crispy crunch" }],
         funFact: "It takes 36 apples to make one gallon of apple juice!",
       },
       {
         name: "Grape",
         emoji: "🍇",
-        benefits: ["Antioxidants", "Sweet clusters"],
+        benefits: [{ key: "food_benefits.antioxidants", label: "Antioxidants" }, { key: "food_benefits.sweet_clusters", label: "Sweet clusters" }],
         funFact: "Grapes have been grown for over 8000 years!",
       },
       {
         name: "Carrot",
         emoji: "🥕",
-        benefits: ["Eye health", "Natural sweetness"],
+        benefits: [{ key: "food_benefits.eye_health", label: "Eye health" }, { key: "food_benefits.natural_sweetness", label: "Natural sweetness" }],
         funFact: "Orange carrots weren't popular until the 1600s!",
       },
     ],
@@ -110,25 +118,25 @@ const SEASONAL_PRODUCE = {
       {
         name: "Orange",
         emoji: "🍊",
-        benefits: ["Vitamin C", "Citrus brightness"],
+        benefits: [{ key: "food_benefits.vitamin_c", label: "Vitamin C" }, { key: "food_benefits.citrus_brightness", label: "Citrus brightness" }],
         funFact: "Oranges were originally green!",
       },
       {
         name: "Broccoli",
         emoji: "🥦",
-        benefits: ["Immune boost", "Tree-shaped yum"],
+        benefits: [{ key: "food_benefits.immune_boost", label: "Immune boost" }, { key: "food_benefits.tree_shaped_yum", label: "Tree-shaped yum" }],
         funFact: "Broccoli is technically a flower!",
       },
       {
         name: "Potato",
         emoji: "🥔",
-        benefits: ["Energy fuel", "Versatile veggie"],
+        benefits: [{ key: "food_benefits.energy_fuel", label: "Energy fuel" }, { key: "food_benefits.versatile_veggie", label: "Versatile veggie" }],
         funFact: "Potatoes were the first vegetable to be grown in space!",
       },
       {
         name: "Kale",
         emoji: "🥬",
-        benefits: ["Super nutrient", "Leafy power"],
+        benefits: [{ key: "food_benefits.super_nutrient", label: "Super nutrient" }, { key: "food_benefits.leafy_power", label: "Leafy power" }],
         funFact: "Kale is packed with more nutrients than most vegetables!",
       },
     ],
@@ -137,6 +145,7 @@ const SEASONAL_PRODUCE = {
 
 const SeasonalProduce = ({ onBack }: SeasonalProduceProps) => {
   const [selectedSeason, setSelectedSeason] = useState<keyof typeof SEASONAL_PRODUCE>("spring");
+  const { t } = useTranslation();
   const characterData = ANIME_CHARACTERS.tanjiro;
 
   const currentSeason = SEASONAL_PRODUCE[selectedSeason];
@@ -252,7 +261,7 @@ const SeasonalProduce = ({ onBack }: SeasonalProduceProps) => {
                             className="inline-block px-3 py-1 rounded-full text-xs font-semibold text-white"
                             style={{ backgroundColor: currentSeason.color }}
                           >
-                            ✨ {benefit}
+                            ✨ {typeof benefit === 'string' ? benefit : t(benefit.key)}
                           </span>
                         ))}
                       </div>
