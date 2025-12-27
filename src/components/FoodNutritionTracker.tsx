@@ -140,9 +140,9 @@ const FOOD_DATABASE: Record<string, MealItem> = {
 
 // Barcode Database - maps UPC/EAN codes to food items
 const BARCODE_DATABASE: Record<string, MealItem> = {
-  "5901234123457": { // Sample Coca-Cola
-    id: "barcode_coke",
-    name: "Coca-Cola (12oz)",
+  "5901234123457": { // Sample Cola
+    id: "barcode_cola",
+    name: "Cola (12oz)",
     calories: 140,
     protein: 0,
     sugar: 39,
@@ -160,7 +160,7 @@ const BARCODE_DATABASE: Record<string, MealItem> = {
   },
   "5051234567890": { // Sample Banana
     id: "barcode_banana",
-    name: "Chiquita Banana",
+    name: "Fresh Banana",
     calories: 105,
     protein: 1.3,
     sugar: 27,
@@ -169,7 +169,7 @@ const BARCODE_DATABASE: Record<string, MealItem> = {
   },
   "4006381333931": { // Sample Greek Yogurt
     id: "barcode_yogurt",
-    name: "Fage Total Greek Yogurt (7oz)",
+    name: "Plain Greek Yogurt (7oz)",
     calories: 100,
     protein: 17,
     sugar: 7,
@@ -187,16 +187,16 @@ const BARCODE_DATABASE: Record<string, MealItem> = {
   },
   "5000230110627": { // Sample Salmon
     id: "barcode_salmon",
-    name: "Wild Alaskan Salmon Fillet",
+    name: "Wild Salmon Fillet",
     calories: 280,
     protein: 25,
     sugar: 0,
     additives: [],
     healthScore: 95,
   },
-  "5449000050127": { // Sample Sprite
-    id: "barcode_sprite",
-    name: "Sprite (12oz)",
+  "5449000050127": { // Sample Lemon-Lime Soda
+    id: "barcode_lemon_soda",
+    name: "Lemon-Lime Soda (12oz)",
     calories: 140,
     protein: 0,
     sugar: 38,
@@ -205,7 +205,7 @@ const BARCODE_DATABASE: Record<string, MealItem> = {
   },
   "4006885006113": { // Sample Chocolate
     id: "barcode_chocolate",
-    name: "Lindt Lindor Truffles",
+    name: "Chocolate Truffles",
     calories: 250,
     protein: 3,
     sugar: 27,
@@ -216,14 +216,14 @@ const BARCODE_DATABASE: Record<string, MealItem> = {
 
 // Sample barcodes for demo - user can copy these to test
 export const SAMPLE_BARCODES = [
-  { barcode: "5901234123457", name: "Coca-Cola" },
-  { barcode: "5901234567890", name: "Organic Apple" },
+  { barcode: "5901234123457", name: "Cola" },
+  { barcode: "5901234567890", name: "Apple" },
   { barcode: "5051234567890", name: "Banana" },
   { barcode: "4006381333931", name: "Greek Yogurt" },
   { barcode: "4011999999999", name: "Broccoli" },
   { barcode: "5000230110627", name: "Salmon" },
-  { barcode: "5449000050127", name: "Sprite" },
-  { barcode: "4006885006113", name: "Lindor Chocolate" },
+  { barcode: "5449000050127", name: "Lemon-Lime Soda" },
+  { barcode: "4006885006113", name: "Chocolate Truffles" },
 ];
 
 const calculateGrade = (healthScore: number, sugar: number, additives: number): string => {
