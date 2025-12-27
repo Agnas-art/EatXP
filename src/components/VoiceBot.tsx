@@ -812,7 +812,20 @@ Conversation to summarize:\n`;
         console.log('=== ENHANCED LOCAL FALLBACK DEBUG ===');
         console.log('Current context summary:', contextSummary);
         console.log('🔧 ABOUT TO CALL generateLocalResponse with:', { text, recentMessagesLength: recentMessages.length, hasContext: !!currentContext });
-        const localResponse = await generateLocalResponse(text, recentMessages, currentContext);
+        
+        // FIXED: Use complete stored conversation history, not just current session
+        const storedContext = JSON.parse(localStorage.getItem('voicebot_conversation') || '{}');
+        const fullMessageHistory = storedContext.messages || [];
+        const completeHistory = [...fullMessageHistory, ...updatedMessages];
+        
+        console.log('💾 COMPLETE HISTORY DEBUG:', {
+          storedMessages: fullMessageHistory.length,
+          currentSession: updatedMessages.length,
+          totalForContext: completeHistory.length,
+          lastStoredMessage: fullMessageHistory[fullMessageHistory.length - 1]?.content?.substring(0, 50)
+        });
+        
+        const localResponse = await generateLocalResponse(text, completeHistory, currentContext);
         console.log('Generated enhanced local response:', localResponse);
         
         const assistantMessage: Message = { 
