@@ -5,6 +5,7 @@ import { usePreferences } from "@/context/PreferencesContext";
 
 interface RecipeCardProps {
   title: string;
+  i18nKey?: string;
   emoji: string;
   time: string;
   difficulty: "easy" | "medium" | "challenging";
@@ -23,6 +24,7 @@ const difficultyConfig = (t: any) => ({
 
 const RecipeCard = ({
   title,
+  i18nKey,
   emoji,
   time,
   difficulty,
@@ -36,6 +38,7 @@ const RecipeCard = ({
   const config = difficultyConfig(t)[difficulty];
   
   const canEatRecipe = canEat(ingredients);
+  const displayTitle = i18nKey ? t(i18nKey) : title;
 
   return (
     <motion.div
@@ -68,7 +71,7 @@ const RecipeCard = ({
       
       <div className="p-4 space-y-3">
         <h4 className="font-display font-bold text-lg text-foreground leading-tight">
-          {title}
+          {displayTitle}
         </h4>
         
         <div className="flex items-center gap-3 text-sm text-muted-foreground">

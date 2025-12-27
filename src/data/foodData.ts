@@ -118,6 +118,7 @@ export const recipes = {
   kids: [
     {
       title: "Rainbow Fruit Kabobs",
+      i18nKey: "recipes_section.rainbow_fruit_kabobs",
       emoji: "🌈",
       time: "10 min",
       difficulty: "easy" as const,
@@ -133,6 +134,7 @@ export const recipes = {
     },
     {
       title: "Funny Face Sandwich",
+      i18nKey: "recipes_section.funny_face_sandwich",
       emoji: "😊",
       time: "15 min",
       difficulty: "easy" as const,
@@ -149,6 +151,7 @@ export const recipes = {
     },
     {
       title: "Apple Donuts",
+      i18nKey: "recipes_section.apple_donuts",
       emoji: "🍩",
       time: "10 min",
       difficulty: "easy" as const,
@@ -166,6 +169,7 @@ export const recipes = {
   tweens: [
     {
       title: "Veggie Quesadilla",
+      i18nKey: "recipes_section.veggie_quesadilla",
       emoji: "🌮",
       time: "20 min",
       difficulty: "medium" as const,
@@ -182,6 +186,7 @@ export const recipes = {
     },
     {
       title: "Pasta Primavera",
+      i18nKey: "recipes_section.pasta_primavera",
       emoji: "🍝",
       time: "25 min",
       difficulty: "medium" as const,
@@ -198,6 +203,7 @@ export const recipes = {
     },
     {
       title: "Smoothie Bowl",
+      i18nKey: "recipes_section.smoothie_bowl",
       emoji: "🥣",
       time: "10 min",
       difficulty: "easy" as const,
@@ -216,6 +222,7 @@ export const recipes = {
   teens: [
     {
       title: "Stir-Fry Noodles",
+      i18nKey: "recipes_section.stir_fry_noodles",
       emoji: "🍜",
       time: "30 min",
       difficulty: "medium" as const,
@@ -232,6 +239,7 @@ export const recipes = {
     },
     {
       title: "Homemade Pizza",
+      i18nKey: "recipes_section.homemade_pizza",
       emoji: "🍕",
       time: "45 min",
       difficulty: "challenging" as const,
@@ -248,6 +256,7 @@ export const recipes = {
     },
     {
       title: "Buddha Bowl",
+      i18nKey: "recipes_section.buddha_bowl",
       emoji: "🥗",
       time: "35 min",
       difficulty: "medium" as const,
