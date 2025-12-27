@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { MANGA_PANELS, MangaStrip } from "../data/mangaPanels";
 import { ANIME_CHARACTERS } from "../data/animeCharacters";
+import { MangaPanelArt } from "./MangaArt";
 
 interface MangaPanelsProps {
   completedChapters: string[];
@@ -103,9 +104,9 @@ export default function MangaPanels({
                     <div className="absolute bottom-0 left-0 w-4 h-4 border-b-3 border-l-3 border-black"></div>
                     <div className="absolute bottom-0 right-0 w-4 h-4 border-b-3 border-r-3 border-black"></div>
 
-                    {/* Panel image/emoji - large and centered */}
+                    {/* Panel image/artwork - large and centered */}
                     <div className="flex items-center justify-center flex-1 mb-3 drop-shadow-lg group-hover:scale-110 transition">
-                      {panel.image}
+                      <MangaPanelArt panelIndex={idx} image={panel.image} />
                     </div>
 
                     {/* Speech bubble with dialogue */}
