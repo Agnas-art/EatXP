@@ -605,15 +605,42 @@ Conversation to summarize:\n`;
     
     // DISABLED FOR PERFORMANCE: Update context manager
     // const currentContext = ConversationContextManager.updateContext(updatedMessages);
-    // Using simple context instead for speed
+    // Create better context from actual conversation instead of hardcoded values
+    const allContent = updatedMessages.map(m => m.content.toLowerCase()).join(' ');
+    
+    // Extract user's name if mentioned
+    const nameMatch = allContent.match(/my name is (\w+)|i'm (\w+)|call me (\w+)/);
+    const extractedUserName = nameMatch ? (nameMatch[1] || nameMatch[2] || nameMatch[3]) : '';
+    
+    // Analyze conversation for interests
+    const analyzedInterests = {
+      food: allContent.includes('food') || allContent.includes('cook') || allContent.includes('recipe') || allContent.includes('eat'),
+      anime: allContent.includes('anime') || allContent.includes('manga') || allContent.includes('naruto') || allContent.includes('tanjiro'),
+      gaming: allContent.includes('game') || allContent.includes('play') || allContent.includes('gaming'),
+      nutrition: allContent.includes('nutrition') || allContent.includes('healthy') || allContent.includes('vitamin'),
+      learning: allContent.includes('learn') || allContent.includes('how to') || allContent.includes('teach')
+    };
+    
+    // Extract recent topics from last few messages
+    const recentMessagesForTopics = updatedMessages.slice(-5);
+    const extractedTopics = recentMessagesForTopics.map(m => {
+      const content = m.content.toLowerCase();
+      const topics = [];
+      if (content.includes('food') || content.includes('cook')) topics.push('food');
+      if (content.includes('anime')) topics.push('anime');
+      if (content.includes('game')) topics.push('gaming');
+      if (content.includes('healthy') || content.includes('nutrition')) topics.push('health');
+      return topics;
+    }).flat();
+    
     const currentContext = {
-      userName: '',
-      interests: { food: true, anime: false, gaming: false, nutrition: false, learning: false },
-      recentTopics: [],
+      userName: extractedUserName,
+      interests: analyzedInterests,
+      recentTopics: extractedTopics,
       conversationLength: updatedMessages.length,
       lastInteraction: Date.now(),
       sessionId: 'fast-session',
-      lastMessages: [],
+      lastMessages: updatedMessages.slice(-3),
       preferences: {}
     };
     
