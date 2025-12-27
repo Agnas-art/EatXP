@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Heart, MessageCircle, Share2, Users, Trophy, Utensils, TrendingUp, Plus, Trash2, Award, Flame, Zap } from "lucide-react";
+import { ArrowLeft, Heart, MessageCircle, Share2, Users, Trophy, Utensils, TrendingUp, Plus, Trash2, Award, Flame, Zap, Shield, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { ANIME_CHARACTERS } from "../data/animeCharacters";
 
@@ -44,7 +44,39 @@ interface ForumPost {
 }
 
 const CommunitySpace = ({ onBack }: { onBack: () => void }) => {
+  // Content Moderation System
+  const ABUSIVE_KEYWORDS = [
+    "hate", "stupid", "idiot", "dumb", "trash", "useless", "garbage",
+    "pathetic", "loser", "noob", "die", "kill", "racist", "sexist"
+  ];
+
+  const IRRELEVANT_KEYWORDS = [
+    "crypto", "stocks", "marketing", "casino", "gambling", "forex",
+    "bitcoin", "nft", "click here", "buy now", "limited offer"
+  ];
+
+  // Content moderation function
+  const isContentClean = (text: string): boolean => {
+    const lowerText = text.toLowerCase();
+    const hasAbusive = ABUSIVE_KEYWORDS.some(keyword => lowerText.includes(keyword));
+    const hasIrrelevant = IRRELEVANT_KEYWORDS.some(keyword => lowerText.includes(keyword));
+    return !hasAbusive && !hasIrrelevant;
+  };
+
+  // Get moderation status
+  const getModerationStatus = (text: string): { clean: boolean; reason: string } => {
+    const lowerText = text.toLowerCase();
+    const abusiveMatch = ABUSIVE_KEYWORDS.find(keyword => lowerText.includes(keyword));
+    if (abusiveMatch) return { clean: false, reason: "Abusive language detected" };
+    
+    const irrelevantMatch = IRRELEVANT_KEYWORDS.find(keyword => lowerText.includes(keyword));
+    if (irrelevantMatch) return { clean: false, reason: "Irrelevant spam content detected" };
+    
+    return { clean: true, reason: "" };
+  };
+
   const [activeTab, setActiveTab] = useState<"social" | "challenges" | "forum">("social");
+  const [showModerationFilter, setShowModerationFilter] = useState(true);
   const [friends, setFriends] = useState<Friend[]>([
     { id: "1", name: "Chef Yamada", avatar: "👨‍🍳", level: 15, recipesShared: 8 },
     { id: "2", name: "Sakura123", avatar: "👩‍🍳", level: 12, recipesShared: 5 },
@@ -485,6 +517,35 @@ const CommunitySpace = ({ onBack }: { onBack: () => void }) => {
               exit={{ opacity: 0, y: -20 }}
               className="space-y-4"
             >
+              {/* Moderation Controls */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="rounded-lg bg-blue-500/10 border border-blue-500/30 p-3"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-blue-600" />
+                    <p className="text-xs font-semibold text-blue-700">Content Safety</p>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowModerationFilter(!showModerationFilter)}
+                    className={`text-xs font-semibold px-3 py-1 rounded transition-all ${
+                      showModerationFilter
+                        ? "bg-blue-600 text-white"
+                        : "bg-blue-500/20 text-blue-700 border border-blue-500/50"
+                    }`}
+                  >
+                    {showModerationFilter ? "✓ Filter ON" : "⊗ Filter OFF"}
+                  </motion.button>
+                </div>
+                <p className="text-xs text-blue-600 mt-2">
+                  Automatically filters abusive language and spam content to keep the community safe for everyone.
+                </p>
+              </motion.div>
+
               <div className="flex gap-2 mb-4">
                 <div className="flex-1 relative">
                   <input
@@ -503,58 +564,88 @@ const CommunitySpace = ({ onBack }: { onBack: () => void }) => {
               </div>
 
               <div className="space-y-3">
-                {forumPosts.map((post, idx) => (
-                  <motion.div
-                    key={post.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="p-4 bg-card rounded-lg border border-border hover:border-primary/50 transition-all group cursor-pointer"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-2">
-                          <h3 className="font-bold text-sm group-hover:text-primary transition-colors truncate">
-                            {post.title}
-                          </h3>
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ${getCategoryColor(post.category)}`}>
-                            {post.category}
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          by <span className="font-semibold">{post.author}</span> • {post.timestamp}
-                        </p>
-                      </div>
-                      <div className="flex gap-3 flex-shrink-0">
-                        <div className="text-right">
-                          <p className="text-xs text-muted-foreground">💬</p>
-                          <p className="text-sm font-bold">{post.replies}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xs text-muted-foreground">❤️</p>
-                          <p className="text-sm font-bold">{post.likes}</p>
-                        </div>
-                      </div>
-                    </div>
+                {forumPosts.map((post, idx) => {
+                  const modStatus = getModerationStatus(post.title);
+                  const shouldDisplay = showModerationFilter ? modStatus.clean : true;
 
-                    <div className="mt-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="text-xs px-3 py-1 bg-primary/20 text-primary rounded hover:bg-primary/30 transition-colors"
+                  if (showModerationFilter && !shouldDisplay) {
+                    return (
+                      <motion.div
+                        key={post.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className="p-4 bg-card rounded-lg border border-red-500/30 bg-red-500/5"
                       >
-                        Reply
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="text-xs px-3 py-1 bg-muted text-muted-foreground rounded hover:bg-muted/80 transition-colors"
-                      >
-                        Save
-                      </motion.button>
-                    </div>
-                  </motion.div>
-                ))}
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs font-semibold text-red-700">Content Flagged</p>
+                            <p className="text-xs text-red-600">{modStatus.reason}</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  }
+
+                  return (
+                    <motion.div
+                      key={post.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.1 }}
+                      className="p-4 bg-card rounded-lg border border-border hover:border-primary/50 transition-all group cursor-pointer"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-2">
+                            <h3 className="font-bold text-sm group-hover:text-primary transition-colors truncate">
+                              {post.title}
+                            </h3>
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ${getCategoryColor(post.category)}`}>
+                              {post.category}
+                            </span>
+                            {!modStatus.clean && (
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-700 font-semibold flex-shrink-0">
+                                ⚠️ Review
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            by <span className="font-semibold">{post.author}</span> • {post.timestamp}
+                          </p>
+                        </div>
+                        <div className="flex gap-3 flex-shrink-0">
+                          <div className="text-right">
+                            <p className="text-xs text-muted-foreground">💬</p>
+                            <p className="text-sm font-bold">{post.replies}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs text-muted-foreground">❤️</p>
+                            <p className="text-sm font-bold">{post.likes}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="text-xs px-3 py-1 bg-primary/20 text-primary rounded hover:bg-primary/30 transition-colors"
+                        >
+                          Reply
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="text-xs px-3 py-1 bg-muted text-muted-foreground rounded hover:bg-muted/80 transition-colors"
+                        >
+                          Save
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             </motion.div>
           )}
