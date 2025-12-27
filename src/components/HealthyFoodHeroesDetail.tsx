@@ -980,7 +980,7 @@ export default function HealthyFoodHeroesDetail({
         )}
 
         {/* Dietary Info Banner */}
-        {preferences.allergies.length > 0 || preferences.dietaryPreference !== 'non-vegetarian' && (
+        {(preferences.allergies.length > 0 || preferences.dietaryPreference !== 'non-vegetarian') && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}

@@ -73,7 +73,7 @@ export const ANIME_CHARACTERS: Record<string, AnimeCharacter> = {
     personality: "Compassionate, Graceful, Protective",
     color: "#E91E63",
     emoji: "💜",
-    imageUrl: "https://images.unsplash.com/photo-1495474472645-4c71bcdd2fa4?w=500&h=600&fit=crop",
+    imageUrl: "https://th.bing.com/th/id/OIP.7dV0ENgKMroHO_qbW0YDtgHaHS?w=201&h=199&c=7&r=0&o=7&dpr=2.2&pid=1.7&rm=3",
     position: { x: 0, y: 0, z: 0 },
   },
 };
