@@ -1,4 +1,5 @@
-// Professional anime/manga style - cinematic, detailed, mature
+// Professional webtoon style (inspired by luacomic.org aesthetic)
+// Sophisticated character design with dynamic poses, professional proportions, cinematic lighting
 
 import React from "react";
 
