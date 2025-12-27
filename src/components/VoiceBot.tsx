@@ -210,7 +210,7 @@ const VoiceBot = () => {
   // Storage key for conversation persistence
   const STORAGE_KEY = 'voicebot_conversation';
   const MAX_STORED_MESSAGES = 50;
-  const CONTEXT_WINDOW = 15; // Reduced for better performance
+  const CONTEXT_WINDOW = 8; // Minimal context for maximum speed
 
   // Load conversation from localStorage on mount
   useEffect(() => {
@@ -295,40 +295,22 @@ const VoiceBot = () => {
       lastInteraction
     } = context;
     
-    // OPTIMIZED: Fast contextual reference detection - only check recent messages
+    // ULTRA-FAST contextual reference detection - minimal processing
     const hasContextualReference = 
-      input.includes('these') || input.includes('those') || input.includes('them') ||
-      input.includes('which one') || input.includes('which of') || input.includes('between them') ||
-      input.includes('the 2') || input.includes('these 2') || input.includes('both') ||
-      input.includes('compared to') || input.includes('difference') || input.includes('versus') ||
-      input.includes('it') || input.includes('this') || input.includes('that');
+      input.includes('these') || input.includes('which one') || input.includes('both') ||
+      input.includes('them') || input.includes('it');
     
-    let previousContext = '';
     let referencedItems = [];
     
     if (hasContextualReference && messageHistory.length > 1) {
-      // PERFORMANCE FIX: Only look at last 3 messages instead of 6 for speed
-      const recentContent = messageHistory.slice(-3).map(m => m.content).join(' ');
+      // INSTANT processing: Only check the very last message
+      const lastMessage = messageHistory[messageHistory.length - 2]?.content?.toLowerCase() || '';
       
-      // OPTIMIZED: Simplified food item detection - common items only
-      const foodItems = recentContent.toLowerCase().match(/\b(avocado|pasta|rice|chicken|salmon|beef|apple|banana|egg|cheese|bread|nuts|fish|meat|vegetable|fruit)\b/g) || [];
+      // Super simple food detection - no RegEx, just includes check
+      const foods = ['avocado', 'pasta', 'rice', 'chicken', 'salmon', 'egg', 'apple', 'banana'];
+      referencedItems = foods.filter(food => lastMessage.includes(food));
       
-      // Remove duplicates quickly
-      referencedItems = [...new Set(foodItems)];
-      
-      console.log('FAST CONTEXTUAL CHECK:', { hasRef: hasContextualReference, items: referencedItems });
-      
-      if (referencedItems.length >= 2) {
-        previousContext = `${referencedItems[0]} and ${referencedItems[1]}`;
-      } else if (referencedItems.length === 1) {
-        previousContext = referencedItems[0];
-      } else {
-        // Quick fallback: just use the previous user message
-        const lastUserMsg = messageHistory.slice(-2).find(m => m.role === 'user' && m.content !== userInput);
-        if (lastUserMsg) {
-          previousContext = lastUserMsg.content.substring(0, 50) + '...';
-        }
-      }
+      console.log('INSTANT CONTEXT:', referencedItems);
     }
     
     // Find previous discussions about similar topics
@@ -621,8 +603,19 @@ Conversation to summarize:\n`;
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
     
-    // Update context manager with new conversation state
-    const currentContext = ConversationContextManager.updateContext(updatedMessages);
+    // DISABLED FOR PERFORMANCE: Update context manager
+    // const currentContext = ConversationContextManager.updateContext(updatedMessages);
+    // Using simple context instead for speed
+    const currentContext = {
+      userName: '',
+      interests: { food: true, anime: false, gaming: false, nutrition: false, learning: false },
+      recentTopics: [],
+      conversationLength: updatedMessages.length,
+      lastInteraction: Date.now(),
+      sessionId: 'fast-session',
+      lastMessages: [],
+      preferences: {}
+    };
     
     setIsListening(false); // Stop listening while processing
     
@@ -630,8 +623,9 @@ Conversation to summarize:\n`;
       // Get recent messages for context (limit to last N messages)
       const recentMessages = updatedMessages.slice(-CONTEXT_WINDOW);
       
-      // Get comprehensive conversation summary
-      const contextSummary = ConversationContextManager.getConversationSummary();
+      // DISABLED FOR PERFORMANCE: Heavy context summary
+      // const contextSummary = ConversationContextManager.getConversationSummary();
+      const contextSummary = 'Context disabled for performance';
       
       let contextPayload: any = {
         message: text,
