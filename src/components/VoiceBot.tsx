@@ -363,6 +363,14 @@ const VoiceBot = () => {
     const foods = ['avocado', 'pasta', 'rice', 'chicken', 'salmon', 'egg', 'apple', 'banana', 'bread', 'cheese', 'milk'];
     const mentionedFoods = foods.filter(food => input.includes(food));
     
+    console.log('🔍 FOOD COMPARISON DEBUG:', {
+      input,
+      mentionedFoods,
+      hasEnoughFoods: mentionedFoods.length >= 2,
+      hasBetter: input.includes('better'),
+      shouldTrigger: mentionedFoods.length >= 2 && (input.includes('better') || input.includes('vs') || input.includes('versus') || input.includes('compare'))
+    });
+    
     if (mentionedFoods.length >= 2 && (input.includes('better') || input.includes('vs') || input.includes('versus') || input.includes('compare'))) {
       const food1 = mentionedFoods[0];
       const food2 = mentionedFoods[1];
