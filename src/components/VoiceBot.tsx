@@ -281,29 +281,19 @@ const VoiceBot = () => {
     }
   }, [messages, conversationSummary]);
 
-  // Local fallback response generator with enhanced context awareness
-  const generateLocalResponse = useCallback(async (userInput: string, messageHistory: Message[]): Promise<string> => {
+  // Enhanced local response generator with comprehensive context awareness
+  const generateLocalResponse = useCallback(async (userInput: string, messageHistory: Message[], context: ConversationContext): Promise<string> => {
     const input = userInput.toLowerCase().trim();
     
-    // Analyze conversation history for context
-    const recentMessages = messageHistory.slice(-10); // Look at more recent context
-    const allTopics = messageHistory.map(m => m.content.toLowerCase()).join(' ');
-    const userPreferences = {
-      food: allTopics.includes('food') || allTopics.includes('cook') || allTopics.includes('recipe'),
-      anime: allTopics.includes('anime') || allTopics.includes('manga') || allTopics.includes('naruto') || allTopics.includes('tanjiro'),
-      gaming: allTopics.includes('game') || allTopics.includes('play') || allTopics.includes('gaming'),
-    };
-    
-    // Extract user's name if mentioned in conversation
-    const nameMatch = allTopics.match(/my name is (\w+)|i'm (\w+)|call me (\w+)/);
-    const userName = nameMatch ? (nameMatch[1] || nameMatch[2] || nameMatch[3]) : '';
-    
-    // Check for repeated questions or similar topics
-    const isRepeatedQuestion = recentMessages.some(m => 
-      m.role === 'user' && 
-      m.content.toLowerCase().includes(input.substring(0, 20)) && 
-      m.content !== userInput
-    );
+    // Use the provided context instead of parsing from localStorage
+    const {
+      userName,
+      interests: userPreferences,
+      recentTopics: contextTopics,
+      conversationLength,
+      lastMessages,
+      lastInteraction
+    } = context;
     
     // Find previous discussions about similar topics
     const previousUserMessages = recentMessages.filter(m => m.role === 'user').slice(-3);
@@ -546,7 +536,7 @@ Conversation to summarize:\n`;
 
     setIsProcessing(true);
     
-    // Add user message first
+    // Update conversation context with new message
     const userMessage: Message = { 
       role: 'user', 
       content: text,
@@ -556,48 +546,46 @@ Conversation to summarize:\n`;
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
     
+    // Update context manager with new conversation state
+    const currentContext = ConversationContextManager.updateContext(updatedMessages);
+    
     setIsListening(false); // Stop listening while processing
     
     try {
       // Get recent messages for context (limit to last N messages)
       const recentMessages = updatedMessages.slice(-CONTEXT_WINDOW);
       
-      // Analyze conversation for better context
-      const allContent = updatedMessages.map(m => m.content.toLowerCase()).join(' ');
-      const userName = allContent.match(/my name is (\w+)|i'm (\w+)|call me (\w+)/);
-      const userNameExtracted = userName ? (userName[1] || userName[2] || userName[3]) : '';
+      // Get comprehensive conversation summary
+      const contextSummary = ConversationContextManager.getConversationSummary();
       
       let contextPayload: any = {
         message: text,
         conversationHistory: recentMessages.slice(0, -1), // Exclude current message
         conversationMetadata: {
           messageCount: updatedMessages.length,
-          userName: userNameExtracted,
+          userName: currentContext.userName,
           hasLongHistory: updatedMessages.length > 10,
-          sessionId: localStorage.getItem('voicebot_session_id') || 'default',
+          sessionId: currentContext.sessionId,
           contextWindow: CONTEXT_WINDOW,
-          totalStoredMessages: messages.length
+          totalStoredMessages: messages.length,
+          interests: currentContext.interests,
+          recentTopics: currentContext.recentTopics
+        },
+        conversationSummary: contextSummary,
+        persistentContext: {
+          userPreferences: currentContext.interests,
+          conversationContinuity: true,
+          lastInteractionTime: currentContext.lastInteraction
         }
       };
       
-      console.log('=== CONTEXT DEBUG ===');
+      console.log('=== ENHANCED CONTEXT DEBUG ===');
       console.log('Total messages in conversation:', updatedMessages.length);
       console.log('Recent messages being sent:', recentMessages.length);
-      console.log('Conversation summary length:', conversationSummary?.length || 0);
+      console.log('Context summary:', contextSummary);
+      console.log('User interests:', currentContext.interests);
+      console.log('Recent topics:', currentContext.recentTopics);
       console.log('Context payload size:', JSON.stringify(contextPayload).length);
-      
-      // Always include conversation summary for better context - ensure it's not empty
-      if (conversationSummary && conversationSummary.trim().length > 0) {
-        contextPayload.conversationSummary = conversationSummary;
-        console.log('Including conversation summary in context:', conversationSummary.substring(0, 100) + '...');
-      } else if (updatedMessages.length > 2) {
-        // Create a basic context even for short conversations
-        const recentTopics = updatedMessages.slice(-8).map(m => 
-          `${m.role}: ${m.content.substring(0, 80)}...`
-        ).join(' | ');
-        contextPayload.recentContext = recentTopics;
-        console.log('No summary available, including recent context:', recentTopics);
-      }
       
       // Generate new summary more frequently to preserve context better
       if (updatedMessages.length > 0 && updatedMessages.length % 6 === 0) { // Much more frequent summary
@@ -686,22 +674,34 @@ Conversation to summarize:\n`;
           localStorage.setItem('voicebot_fallback_notified', 'true');
         }
         
-        // Local fallback response with enhanced context
-        console.log('Using local fallback - ensuring context is preserved');
-        console.log('=== LOCAL FALLBACK DEBUG ===');
-        console.log('Calling generateLocalResponse with:', { text, recentMessagesCount: recentMessages.length });
-        const localResponse = await generateLocalResponse(text, recentMessages);
-        console.log('Generated local response:', localResponse);
-        console.log('Local response length:', localResponse?.length || 0);
+        // Enhanced local fallback with comprehensive context
+        console.log('Using enhanced local fallback with persistent context');
+        console.log('=== ENHANCED LOCAL FALLBACK DEBUG ===');
+        console.log('Current context summary:', contextSummary);
+        const localResponse = await generateLocalResponse(text, recentMessages, currentContext);
+        console.log('Generated enhanced local response:', localResponse);
+        
         const assistantMessage: Message = { 
           role: 'assistant', 
           content: localResponse,
           timestamp: Date.now()
         };
         
-        setMessages(prev => [...prev, assistantMessage]);
+        // Update context with assistant response too
+        const finalMessages = [...updatedMessages, assistantMessage];
+        ConversationContextManager.updateContext(finalMessages);
+        
+        setMessages(finalMessages);
         setCurrentResponse(localResponse);
         speakText(localResponse);
+        
+        // Generate summary more frequently for better context continuity
+        if (finalMessages.length >= 4 && finalMessages.length % 4 === 0) {
+          console.log('Generating context summary for continuity at message', finalMessages.length);
+          const newSummary = ConversationContextManager.getConversationSummary();
+          setConversationSummary(newSummary);
+        }
+        
         setIsProcessing(false);
         return;
       }
