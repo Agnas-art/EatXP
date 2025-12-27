@@ -148,6 +148,21 @@ const FOOD_DATABASE: Record<string, MealItem> = {
   },
 };
 
+// Additives information with disadvantages
+const ADDITIVES_INFO: Record<string, string> = {
+  "high fructose corn syrup": "Can cause blood sugar spikes and liver damage",
+  "artificial sweetener": "May disrupt gut bacteria and metabolism",
+  "caramel color": "Linked to potential cancer risk in animal studies",
+  "artificial flavor": "May cause headaches and allergic reactions",
+  "emulsifier": "Can damage intestinal lining and cause inflammation",
+  "preservative": "May increase risk of heart disease",
+  "sodium phosphate": "Excessive sodium can raise blood pressure",
+  "dough conditioner": "May contain harmful chemicals",
+  "trans fat": "Increases bad cholesterol and heart disease risk",
+  "sodium": "Excess intake linked to high blood pressure",
+  "natural flavor": "Often contains hidden additives and chemicals",
+};
+
 // Barcode Database - maps UPC/EAN codes to food items
 const BARCODE_DATABASE: Record<string, MealItem> = {
   "5901234123457": { // Sample Cola Soft Drink
@@ -615,16 +630,26 @@ const FoodNutritionTracker = ({ onBack }: FoodNutritionTrackerProps) => {
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="rounded-lg bg-orange-500/10 border border-orange-500/30 p-2 mb-3"
+                      className="rounded-lg bg-orange-500/10 border border-orange-500/30 p-3 mb-3 space-y-2"
                     >
                       <div className="flex gap-2 items-start">
                         <AlertCircle className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 text-xs text-orange-700">
+                        <div className="flex-1 text-xs text-orange-700 space-y-1">
                           {totalSugar > 50 && (
                             <p>⚠️ High sugar content ({Math.round(totalSugar)}g)</p>
                           )}
                           {allAdditives.size > 0 && (
-                            <p>⚠️ Contains {allAdditives.size} additives</p>
+                            <div>
+                              <p className="font-semibold mb-1">⚠️ Additives detected:</p>
+                              <div className="space-y-1 ml-2">
+                                {Array.from(allAdditives).map((additive) => (
+                                  <div key={additive} className="text-xs">
+                                    <p className="font-semibold text-orange-800">• {additive}</p>
+                                    <p className="text-orange-700 ml-3">{ADDITIVES_INFO[additive] || "Unknown additive"}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           )}
                         </div>
                       </div>
