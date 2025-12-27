@@ -34,6 +34,7 @@ import { AboutEatXP } from "@/components/AboutEatXP";
 import { AnimeMangaBuilder } from "@/components/teen/AnimeMangaBuilder";
 import { RealLifeMissions } from "@/components/teen/RealLifeMissions";
 import HealthyFoodHeroesDetail from "@/components/HealthyFoodHeroesDetail";
+import { DietaryPreferencesModal } from "@/components/DietaryPreferencesModal";
 import { useAuth } from "@/hooks/useAuth";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import { foodCategories, healthyFoods, recipes, foodFacts, achievements } from "@/data/foodData";
@@ -46,6 +47,7 @@ const Index = () => {
   const [activeCategory, setActiveCategory] = useState("fruits");
   const [currentFact, setCurrentFact] = useState(foodFacts[0]);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [showDietaryPreferences, setShowDietaryPreferences] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
   const [showGames, setShowGames] = useState(false);
   const [showComics, setShowComics] = useState(false);
@@ -916,6 +918,7 @@ const Index = () => {
               <div className="space-y-2">
                 <h4 className="font-display font-bold text-foreground">Settings</h4>
                 {[
+                  { label: "Dietary Preferences", icon: "🍽️" },
                   { label: "Change Age Group", icon: "👤" },
                   { label: "Notifications", icon: "🔔" },
                   { label: "About EatXP", icon: "ℹ️" },
@@ -923,7 +926,9 @@ const Index = () => {
                   <button
                     key={i}
                     onClick={() => {
-                      if (item.label === "Change Age Group") {
+                      if (item.label === "Dietary Preferences") {
+                        setShowDietaryPreferences(true);
+                      } else if (item.label === "Change Age Group") {
                         setShowWelcome(true);
                         setSelectedAge(null);
                       } else if (item.label === "About EatXP") {
@@ -939,10 +944,83 @@ const Index = () => {
               </div>
             </motion.div>
           )}
+
+          {activeTab === "settings" && (
+            <motion.div
+              key="settings"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="space-y-6"
+            >
+              <div className="text-center py-6">
+                <h2 className="font-display text-3xl font-bold text-foreground mb-2">⚙️ Settings</h2>
+                <p className="text-muted-foreground">Customize your experience</p>
+              </div>
+
+              {/* Dietary Preferences Button */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowDietaryPreferences(true)}
+                className="w-full bg-gradient-to-r from-primary/20 to-secondary/20 border-2 border-primary rounded-2xl p-6 shadow-card hover:shadow-float transition-all"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="text-left">
+                    <h3 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
+                      <span className="text-2xl">🍽️</span>
+                      Dietary Preferences
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">Set allergies & dietary choices</p>
+                  </div>
+                  <span className="text-2xl">→</span>
+                </div>
+              </motion.button>
+
+              {/* Other Settings */}
+              <div className="space-y-3">
+                <h3 className="font-display font-bold text-foreground">More Options</h3>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    setShowWelcome(true);
+                    setSelectedAge(null);
+                  }}
+                  className="w-full bg-card rounded-2xl p-4 flex items-center justify-between shadow-card hover:shadow-float transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">👤</span>
+                    <span className="font-semibold text-foreground">Change Age Group</span>
+                  </div>
+                  <span className="text-muted-foreground">→</span>
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowAboutEatXP(true)}
+                  className="w-full bg-card rounded-2xl p-4 flex items-center justify-between shadow-card hover:shadow-float transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">ℹ️</span>
+                    <span className="font-semibold text-foreground">About EatXP</span>
+                  </div>
+                  <span className="text-muted-foreground">→</span>
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
         </main>
 
         <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+
+        {/* Dietary Preferences Modal */}
+        <DietaryPreferencesModal
+          isOpen={showDietaryPreferences}
+          onClose={() => setShowDietaryPreferences(false)}
+        />
       </div>
     </div>
   );

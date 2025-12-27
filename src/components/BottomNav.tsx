@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Home, Search, BookOpen, Trophy, User } from "lucide-react";
+import { Home, Search, BookOpen, Trophy, User, Settings } from "lucide-react";
 
 interface BottomNavProps {
   activeTab: string;
@@ -11,6 +11,7 @@ const tabs = [
   { id: "discover", icon: Search, label: "Discover" },
   { id: "recipes", icon: BookOpen, label: "Recipes" },
   { id: "achievements", icon: Trophy, label: "Badges" },
+  { id: "settings", icon: Settings, label: "Settings" },
   { id: "profile", icon: User, label: "Profile" },
 ];
 
