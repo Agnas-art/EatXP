@@ -669,15 +669,11 @@ Conversation to summarize:\n`;
       return topics;
     }).flat();
     
-    const currentContext = {
-      userName: extractedUserName,
-      interests: analyzedInterests,
-      recentTopics: extractedTopics,
-      conversationLength: updatedMessages.length,
-      lastInteraction: Date.now(),
-      sessionId: 'fast-session',
-      lastMessages: updatedMessages.slice(-3),
-      preferences: {}
+    // Create proper ConversationContext for local fallback
+    const currentContext: ConversationContext = {
+      messages: updatedMessages,
+      summary: conversationSummary || `User: ${extractedUserName || 'Guest'}, Topics: ${extractedTopics.join(', ') || 'General conversation'}`,
+      lastActiveTime: Date.now()
     };
     
     setIsListening(false); // Stop listening while processing
@@ -818,6 +814,13 @@ Conversation to summarize:\n`;
         const fullMessageHistory = storedContext.messages || [];
         const completeHistory = [...fullMessageHistory, ...updatedMessages];
         
+        // Create context with complete history for better conversation continuity
+        const enhancedContext: ConversationContext = {
+          messages: completeHistory,
+          summary: storedContext.summary || currentContext.summary,
+          lastActiveTime: Date.now()
+        };
+        
         console.log('💾 COMPLETE HISTORY DEBUG:', {
           storedMessages: fullMessageHistory.length,
           currentSession: updatedMessages.length,
@@ -825,7 +828,7 @@ Conversation to summarize:\n`;
           lastStoredMessage: fullMessageHistory[fullMessageHistory.length - 1]?.content?.substring(0, 50)
         });
         
-        const localResponse = await generateLocalResponse(text, completeHistory, currentContext);
+        const localResponse = await generateLocalResponse(text, completeHistory, enhancedContext);
         console.log('Generated enhanced local response:', localResponse);
         
         const assistantMessage: Message = { 
