@@ -285,15 +285,33 @@ const VoiceBot = () => {
   const generateLocalResponse = useCallback(async (userInput: string, messageHistory: Message[], context: ConversationContext): Promise<string> => {
     const input = userInput.toLowerCase().trim();
     
-    // Use the provided context instead of parsing from localStorage
-    const {
-      userName,
-      interests: userPreferences,
-      recentTopics: contextTopics,
-      conversationLength,
-      lastMessages,
-      lastInteraction
-    } = context;
+    // Extract information from the context and messages properly
+    const allContent = messageHistory.map(m => m.content.toLowerCase()).join(' ');
+    
+    // Extract user's name if mentioned
+    const nameMatch = allContent.match(/my name is (\w+)|i'm (\w+)|call me (\w+)/);
+    const userName = nameMatch ? (nameMatch[1] || nameMatch[2] || nameMatch[3]) : '';
+    
+    // Analyze conversation for interests
+    const userPreferences = {
+      food: allContent.includes('food') || allContent.includes('cook') || allContent.includes('recipe') || allContent.includes('eat'),
+      anime: allContent.includes('anime') || allContent.includes('manga') || allContent.includes('naruto'),
+      gaming: allContent.includes('game') || allContent.includes('gaming')
+    };
+    
+    // Extract recent topics from last few messages
+    const recentMessages = messageHistory.slice(-5);
+    const contextTopics = [];
+    recentMessages.forEach(m => {
+      const content = m.content.toLowerCase();
+      if (content.includes('food') || content.includes('cook')) contextTopics.push('food');
+      if (content.includes('anime')) contextTopics.push('anime');
+      if (content.includes('game')) contextTopics.push('gaming');
+    });
+    
+    const conversationLength = messageHistory.length;
+    const lastMessages = messageHistory.slice(-3);
+    const lastInteraction = Date.now();
     
     // ULTRA-FAST contextual reference detection - minimal processing
     const hasContextualReference = 

@@ -1,224 +1,247 @@
-// Manga-style SVG artwork for different panels
+// Professional manga-style SVG artwork with authentic comic styling
 
 export const MangaArtwork = {
-  // Forest scene with fruits
+  // Forest scene with fruits - detailed manga background
   fruit_forest: () => (
-    <svg viewBox="0 0 200 200" className="w-full h-full">
+    <svg viewBox="0 0 300 300" className="w-full h-full">
       <defs>
-        <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" style={{ stopColor: "#87CEEB", stopOpacity: 1 }} />
-          <stop offset="100%" style={{ stopColor: "#E0F6FF", stopOpacity: 1 }} />
-        </linearGradient>
-        <linearGradient id="treeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style={{ stopColor: "#228B22", stopOpacity: 1 }} />
-          <stop offset="100%" style={{ stopColor: "#32CD32", stopOpacity: 1 }} />
-        </linearGradient>
+        <pattern id="leafPattern" patternUnits="userSpaceOnUse" width="20" height="20">
+          <path d="M 5 0 Q 10 5 15 10 Q 10 15 5 20 Q 0 15 5 10 Z" fill="#1a8f1a" opacity="0.3" />
+        </pattern>
       </defs>
       
-      {/* Sky */}
-      <rect width="200" height="200" fill="url(#skyGrad)" />
-      
-      {/* Sun */}
-      <circle cx="170" cy="30" r="20" fill="#FFD700" />
-      <line x1="170" y1="5" x2="170" y2="0" stroke="#FFD700" strokeWidth="2" />
-      <line x1="170" y1="55" x2="170" y2="60" stroke="#FFD700" strokeWidth="2" />
-      <line x1="145" y1="30" x2="140" y2="30" stroke="#FFD700" strokeWidth="2" />
-      <line x1="195" y1="30" x2="200" y2="30" stroke="#FFD700" strokeWidth="2" />
+      {/* Sky gradient */}
+      <rect width="300" height="180" fill="#6BA3D0" />
       
       {/* Ground */}
-      <rect y="140" width="200" height="60" fill="#90EE90" />
+      <rect y="180" width="300" height="120" fill="#7CB342" />
       
-      {/* Tree trunk */}
-      <rect x="80" y="80" width="40" height="60" fill="#8B4513" />
+      {/* Far trees (background detail) */}
+      <ellipse cx="50" cy="120" rx="40" ry="50" fill="#2E7D32" opacity="0.6" />
+      <ellipse cx="250" cy="130" rx="45" ry="55" fill="#2E7D32" opacity="0.6" />
       
-      {/* Tree foliage */}
-      <circle cx="80" cy="60" r="35" fill="url(#treeGrad)" stroke="#000" strokeWidth="2" />
-      <circle cx="120" cy="60" r="35" fill="url(#treeGrad)" stroke="#000" strokeWidth="2" />
-      <circle cx="100" cy="30" r="40" fill="url(#treeGrad)" stroke="#000" strokeWidth="2" />
+      {/* Main tree trunks */}
+      <rect x="80" y="110" width="35" height="120" fill="#5D4037" stroke="#000" strokeWidth="2" />
+      <rect x="185" y="100" width="35" height="130" fill="#5D4037" stroke="#000" strokeWidth="2" />
       
-      {/* Apples */}
-      <circle cx="70" cy="45" r="8" fill="#FF0000" stroke="#000" strokeWidth="1.5" />
-      <circle cx="130" cy="50" r="8" fill="#FF6347" stroke="#000" strokeWidth="1.5" />
-      <circle cx="100" cy="15" r="7" fill="#DC143C" stroke="#000" strokeWidth="1.5" />
+      {/* Left tree foliage - layered for depth */}
+      <path d="M 60 90 Q 75 50 97 60 Q 110 70 97 100 Q 75 110 60 90" fill="#388E3C" stroke="#1B5E20" strokeWidth="2" />
+      <path d="M 70 120 Q 85 80 110 95 Q 120 110 100 140 Q 75 145 70 120" fill="#43A047" stroke="#1B5E20" strokeWidth="2" />
       
-      {/* Speed lines (manga effect) */}
-      <line x1="30" y1="50" x2="10" y2="50" stroke="#000" strokeWidth="2" />
-      <line x1="35" y1="65" x2="15" y2="65" stroke="#000" strokeWidth="2" />
-      <line x1="32" y1="80" x2="12" y2="80" stroke="#000" strokeWidth="2" />
+      {/* Right tree foliage */}
+      <path d="M 165 85 Q 180 45 210 65 Q 225 80 210 120 Q 180 130 165 85" fill="#388E3C" stroke="#1B5E20" strokeWidth="2" />
+      <path d="M 175 130 Q 195 90 225 110 Q 235 125 215 150 Q 185 150 175 130" fill="#43A047" stroke="#1B5E20" strokeWidth="2" />
+      
+      {/* Fruits on tree 1 */}
+      <circle cx="85" cy="80" r="10" fill="#D32F2F" stroke="#000" strokeWidth="2" />
+      <circle cx="105" cy="75" r="9" fill="#E53935" stroke="#000" strokeWidth="2" />
+      <circle cx="90" cy="105" r="8" fill="#C62828" stroke="#000" strokeWidth="2" />
+      
+      {/* Fruits on tree 2 */}
+      <circle cx="195" cy="85" r="10" fill="#D32F2F" stroke="#000" strokeWidth="2" />
+      <circle cx="215" cy="92" r="9" fill="#E53935" stroke="#000" strokeWidth="2" />
+      <circle cx="205" cy="115" r="8" fill="#C62828" stroke="#000" strokeWidth="2" />
+      
+      {/* Sun with manga rays */}
+      <circle cx="250" cy="40" r="18" fill="#FFD54F" stroke="#000" strokeWidth="2" />
+      <circle cx="250" cy="40" r="25" fill="none" stroke="#FFD54F" strokeWidth="1" opacity="0.4" />
+      <line x1="250" y1="10" x2="250" y2="0" stroke="#FFD54F" strokeWidth="3" />
+      <line x1="280" y1="40" x2="295" y2="40" stroke="#FFD54F" strokeWidth="3" />
+      <line x1="270" y1="20" x2="280" y2="10" stroke="#FFD54F" strokeWidth="2.5" />
     </svg>
   ),
 
-  // Apple character
+  // Apple character - anime style with proper proportions
   apple_character: () => (
-    <svg viewBox="0 0 200 200" className="w-full h-full">
+    <svg viewBox="0 0 280 320" className="w-full h-full">
       <defs>
-        <linearGradient id="appleBg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style={{ stopColor: "#FF6B6B", stopOpacity: 1 }} />
-          <stop offset="100%" style={{ stopColor: "#FF0000", stopOpacity: 1 }} />
+        <linearGradient id="appleShade" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{ stopColor: "#FF5555", stopOpacity: 1 }} />
+          <stop offset="50%" style={{ stopColor: "#DD2222", stopOpacity: 1 }} />
+          <stop offset="100%" style={{ stopColor: "#BB0000", stopOpacity: 1 }} />
         </linearGradient>
       </defs>
       
-      {/* Background glow */}
-      <circle cx="100" cy="100" r="85" fill="#FFE5E5" />
-      
-      {/* Apple body */}
-      <ellipse cx="100" cy="110" rx="50" ry="55" fill="url(#appleBg)" stroke="#000" strokeWidth="3" />
-      <ellipse cx="75" cy="95" rx="35" ry="40" fill="#FF8888" stroke="#000" strokeWidth="2" />
-      <ellipse cx="125" cy="95" rx="35" ry="40" fill="#DD0000" stroke="#000" strokeWidth="2" />
+      {/* Shine on apple body */}
+      <ellipse cx="140" cy="140" rx="65" ry="70" fill="url(#appleShade)" stroke="#000" strokeWidth="3" />
+      <ellipse cx="120" cy="110" rx="25" ry="30" fill="#FF9999" stroke="none" opacity="0.5" />
       
       {/* Stem */}
-      <rect x="95" y="50" width="10" height="25" fill="#8B4513" stroke="#000" strokeWidth="1" />
+      <rect x="130" y="50" width="20" height="50" fill="#6D4C41" stroke="#000" strokeWidth="2" />
       
-      {/* Leaf */}
-      <ellipse cx="115" cy="55" rx="15" ry="8" fill="#228B22" stroke="#000" strokeWidth="1" transform="rotate(-30 115 55)" />
+      {/* Leaf - detailed manga style */}
+      <ellipse cx="165" cy="70" rx="28" ry="15" fill="#4CAF50" stroke="#000" strokeWidth="2" transform="rotate(-35 165 70)" />
+      <path d="M 145 75 Q 165 70 185 75" stroke="#2E7D32" strokeWidth="1" fill="none" />
       
-      {/* Eyes */}
-      <circle cx="85" cy="100" r="6" fill="#000" />
-      <circle cx="115" cy="100" r="6" fill="#000" />
-      <circle cx="87" cy="98" r="2" fill="#fff" />
-      <circle cx="117" cy="98" r="2" fill="#fff" />
+      {/* Face - anime style */}
+      {/* Left eye (large, expressive) */}
+      <ellipse cx="105" cy="130" rx="16" ry="24" fill="#000" stroke="#000" strokeWidth="2" />
+      <ellipse cx="108" cy="125" rx="8" ry="12" fill="#fff" />
+      <circle cx="110" cy="130" r="4" fill="#4A90E2" />
+      <circle cx="111" cy="128" r="2" fill="#fff" />
       
-      {/* Smile */}
-      <path d="M 85 120 Q 100 130 115 120" stroke="#000" strokeWidth="2" fill="none" strokeLinecap="round" />
+      {/* Right eye */}
+      <ellipse cx="175" cy="130" rx="16" ry="24" fill="#000" stroke="#000" strokeWidth="2" />
+      <ellipse cx="172" cy="125" rx="8" ry="12" fill="#fff" />
+      <circle cx="170" cy="130" r="4" fill="#4A90E2" />
+      <circle cx="169" cy="128" r="2" fill="#fff" />
       
-      {/* Sparkle effect */}
-      <circle cx="140" cy="70" r="4" fill="#FFD700" />
-      <circle cx="60" cy="140" r="3" fill="#FFD700" />
+      {/* Rosy cheeks - manga style */}
+      <ellipse cx="70" cy="145" rx="15" ry="12" fill="#FFB6D9" opacity="0.7" />
+      <ellipse cx="210" cy="145" rx="15" ry="12" fill="#FFB6D9" opacity="0.7" />
+      
+      {/* Happy smile */}
+      <path d="M 105 165 Q 140 185 175 165" stroke="#000" strokeWidth="3" fill="none" strokeLinecap="round" />
+      <path d="M 105 168 Q 140 180 175 168" stroke="#fff" strokeWidth="1" fill="none" opacity="0.5" />
+      
+      {/* Shine effects */}
+      <circle cx="220" cy="100" r="8" fill="#FFE082" />
+      <circle cx="60" cy="200" r="6" fill="#FFE082" opacity="0.6" />
     </svg>
   ),
 
-  // Orange character
-  orange_character: () => (
-    <svg viewBox="0 0 200 200" className="w-full h-full">
-      <defs>
-        <radialGradient id="orangeGrad" cx="40%" cy="40%">
-          <stop offset="0%" style={{ stopColor: "#FFA500", stopOpacity: 1 }} />
-          <stop offset="100%" style={{ stopColor: "#FF8C00", stopOpacity: 1 }} />
-        </radialGradient>
-      </defs>
-      
-      {/* Background */}
-      <rect width="200" height="200" fill="#FFEBCD" />
-      
-      {/* Orange body */}
-      <circle cx="100" cy="110" r="60" fill="url(#orangeGrad)" stroke="#000" strokeWidth="3" />
-      
-      {/* Orange segments (texture) */}
-      <line x1="100" y1="50" x2="100" y2="170" stroke="#000" strokeWidth="1" opacity="0.3" />
-      <line x1="60" y1="110" x2="140" y2="110" stroke="#000" strokeWidth="1" opacity="0.3" />
-      <line x1="75" y1="65" x2="125" y2="155" stroke="#000" strokeWidth="1" opacity="0.3" />
-      <line x1="125" y1="65" x2="75" y2="155" stroke="#000" strokeWidth="1" opacity="0.3" />
-      
-      {/* Leaf on top */}
-      <ellipse cx="100" cy="45" rx="12" ry="20" fill="#228B22" stroke="#000" strokeWidth="2" transform="rotate(-20 100 45)" />
-      
-      {/* Eyes */}
-      <circle cx="80" cy="100" r="7" fill="#000" />
-      <circle cx="120" cy="100" r="7" fill="#000" />
-      <circle cx="82" cy="97" r="2.5" fill="#fff" />
-      <circle cx="122" cy="97" r="2.5" fill="#fff" />
-      
-      {/* Big smile */}
-      <path d="M 75 125 Q 100 140 125 125" stroke="#000" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-      
-      {/* Blush marks */}
-      <ellipse cx="50" cy="105" rx="8" ry="6" fill="#FFB6C1" opacity="0.7" />
-      <ellipse cx="150" cy="105" rx="8" ry="6" fill="#FFB6C1" opacity="0.7" />
-    </svg>
-  ),
-
-  // Character transformation panel
+  // Character transformation - excited pose
   character_happy: () => (
-    <svg viewBox="0 0 200 200" className="w-full h-full">
+    <svg viewBox="0 0 280 360" className="w-full h-full">
       <defs>
-        <linearGradient id="skinTone" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" style={{ stopColor: "#F4A460", stopOpacity: 1 }} />
-          <stop offset="100%" style={{ stopColor: "#E89860", stopOpacity: 1 }} />
+        <linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{ stopColor: "#F7B563", stopOpacity: 1 }} />
+          <stop offset="100%" style={{ stopColor: "#E8A040", stopOpacity: 1 }} />
         </linearGradient>
       </defs>
       
-      {/* Background */}
-      <circle cx="100" cy="100" r="95" fill="#FFE4B5" stroke="#000" strokeWidth="2" />
-      
       {/* Head */}
-      <circle cx="100" cy="70" r="35" fill="url(#skinTone)" stroke="#000" strokeWidth="2" />
+      <circle cx="140" cy="80" r="48" fill="url(#skinGrad)" stroke="#000" strokeWidth="3" />
       
-      {/* Hair */}
-      <path d="M 65 50 Q 65 20 100 20 Q 135 20 135 50" fill="#8B4513" stroke="#000" strokeWidth="2" />
+      {/* Hair - dynamic manga style */}
+      <path d="M 92 65 Q 75 50 75 30 Q 75 20 92 15 L 140 10 L 188 15 Q 205 20 205 30 Q 205 50 168 65 Z" fill="#2C1810" stroke="#000" strokeWidth="2.5" />
       
-      {/* Eyes wide and happy */}
-      <ellipse cx="80" cy="65" rx="8" ry="12" fill="#000" stroke="#000" strokeWidth="1" />
-      <ellipse cx="120" cy="65" rx="8" ry="12" fill="#000" stroke="#000" strokeWidth="1" />
-      <ellipse cx="82" cy="62" rx="3" ry="5" fill="#fff" />
-      <ellipse cx="122" cy="62" rx="3" ry="5" fill="#fff" />
+      {/* Hair shine */}
+      <path d="M 110 30 Q 130 20 150 25" stroke="#3D2817" strokeWidth="2" fill="none" />
       
-      {/* Big happy smile */}
-      <path d="M 80 85 Q 100 100 120 85" stroke="#000" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      {/* Eyes - large, expressive anime eyes */}
+      <ellipse cx="110" cy="75" rx="14" ry="22" fill="#000" stroke="#000" strokeWidth="2" />
+      <ellipse cx="170" cy="75" rx="14" ry="22" fill="#000" stroke="#000" strokeWidth="2" />
       
-      {/* Body */}
-      <ellipse cx="100" cy="140" rx="25" ry="35" fill="#FF6B9D" stroke="#000" strokeWidth="2" />
+      {/* Eye shine */}
+      <ellipse cx="113" cy="68" rx="7" ry="11" fill="#fff" />
+      <ellipse cx="173" cy="68" rx="7" ry="11" fill="#fff" />
       
-      {/* Arms */}
-      <rect x="50" y="130" width="15" height="40" rx="7" fill="url(#skinTone)" stroke="#000" strokeWidth="1.5" />
-      <rect x="135" y="130" width="15" height="40" rx="7" fill="url(#skinTone)" stroke="#000" strokeWidth="1.5" />
+      {/* Pupils */}
+      <circle cx="110" cy="80" r="5" fill="#8B4513" />
+      <circle cx="170" cy="80" r="5" fill="#8B4513" />
       
-      {/* Heart effect */}
-      <path d="M 160 50 L 165 45 L 170 50 L 170 60 Q 165 65 160 60 Q 155 65 150 60 L 150 50 L 155 45 Z" fill="#FFB6C1" stroke="#FF1493" strokeWidth="1" />
-      <path d="M 40 50 L 45 45 L 50 50 L 50 60 Q 45 65 40 60 Q 35 65 30 60 L 30 50 L 35 45 Z" fill="#FFB6C1" stroke="#FF1493" strokeWidth="1" />
+      {/* Eyelashes - manga detail */}
+      <line x1="95" y1="75" x2="85" y2="70" stroke="#000" strokeWidth="1.5" />
+      <line x1="97" y1="82" x2="87" y2="85" stroke="#000" strokeWidth="1.5" />
+      <line x1="185" y1="75" x2="195" y2="70" stroke="#000" strokeWidth="1.5" />
+      <line x1="183" y1="82" x2="193" y2="85" stroke="#000" strokeWidth="1.5" />
+      
+      {/* Blush marks */}
+      <ellipse cx="60" cy="95" rx="12" ry="10" fill="#FF89B0" opacity="0.6" />
+      <ellipse cx="220" cy="95" rx="12" ry="10" fill="#FF89B0" opacity="0.6" />
+      
+      {/* Big excited smile */}
+      <path d="M 100 105 Q 140 125 180 105" stroke="#000" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      
+      {/* Open mouth shine */}
+      <path d="M 105 110 Q 140 118 175 110" stroke="#fff" strokeWidth="1" fill="none" opacity="0.4" />
+      
+      {/* Neck */}
+      <rect x="120" y="125" width="40" height="20" fill="url(#skinGrad)" stroke="#000" strokeWidth="2" />
+      
+      {/* Body - excited pose */}
+      <ellipse cx="140" cy="210" rx="55" ry="65" fill="#FF6B9D" stroke="#000" strokeWidth="3" />
+      
+      {/* Arms - raised in celebration */}
+      <g transform="translate(80, 180) rotate(-25)">
+        <ellipse cx="0" cy="0" rx="18" ry="45" fill="url(#skinGrad)" stroke="#000" strokeWidth="2.5" />
+        <circle cx="0" cy="-50" r="16" fill="url(#skinGrad)" stroke="#000" strokeWidth="2" />
+      </g>
+      
+      <g transform="translate(200, 180) rotate(25)">
+        <ellipse cx="0" cy="0" rx="18" ry="45" fill="url(#skinGrad)" stroke="#000" strokeWidth="2.5" />
+        <circle cx="0" cy="-50" r="16" fill="url(#skinGrad)" stroke="#000" strokeWidth="2" />
+      </g>
+      
+      {/* Heart effects around character */}
+      <path d="M 40 60 L 43 57 L 46 60 L 46 68 Q 43 71 40 68 Q 37 71 34 68 L 34 60 L 37 57 Z" fill="#FFB6D9" stroke="#FF1493" strokeWidth="1" />
+      <path d="M 240 80 L 243 77 L 246 80 L 246 88 Q 243 91 240 88 Q 237 91 234 88 L 234 80 L 237 77 Z" fill="#FFB6D9" stroke="#FF1493" strokeWidth="1" />
+      <path d="M 260 150 L 263 147 L 266 150 L 266 158 Q 263 161 260 158 Q 257 161 254 158 L 254 150 L 257 147 Z" fill="#FFB6D9" stroke="#FF1493" strokeWidth="1" />
     </svg>
   ),
 
-  // Nutrition/Power effect
+  // Power transformation - dynamic action pose
   nutrition_power: () => (
-    <svg viewBox="0 0 200 200" className="w-full h-full">
-      {/* Aura/energy effect */}
-      <circle cx="100" cy="100" r="85" fill="none" stroke="#FFD700" strokeWidth="3" opacity="0.6" />
-      <circle cx="100" cy="100" r="70" fill="none" stroke="#FF6B00" strokeWidth="2" opacity="0.4" />
-      <circle cx="100" cy="100" r="55" fill="none" stroke="#FFD700" strokeWidth="2" opacity="0.3" />
+    <svg viewBox="0 0 300 300" className="w-full h-full">
+      {/* Energy aura rings */}
+      <circle cx="150" cy="150" r="100" fill="none" stroke="#FFD700" strokeWidth="4" opacity="0.8" />
+      <circle cx="150" cy="150" r="85" fill="none" stroke="#FFA500" strokeWidth="3" opacity="0.6" />
+      <circle cx="150" cy="150" r="70" fill="none" stroke="#FFD700" strokeWidth="2" opacity="0.4" />
       
       {/* Center glow */}
-      <circle cx="100" cy="100" r="40" fill="#FFFF00" opacity="0.2" />
+      <circle cx="150" cy="150" r="50" fill="#FFFF99" opacity="0.3" />
       
-      {/* Lightning bolts (power effect) */}
-      <path d="M 100 50 L 95 75 L 105 75 L 100 100 Z" fill="#FFD700" stroke="#FF8C00" strokeWidth="2" />
-      <path d="M 150 85 L 140 100 L 155 105 L 145 120 Z" fill="#FFD700" stroke="#FF8C00" strokeWidth="2" />
-      <path d="M 50 85 L 60 100 L 45 105 L 55 120 Z" fill="#FFD700" stroke="#FF8C00" strokeWidth="2" />
+      {/* Power lines (manga speed effects) */}
+      <line x1="150" y1="50" x2="150" y2="20" stroke="#000" strokeWidth="3" />
+      <line x1="200" y1="100" x2="230" y2="70" stroke="#000" strokeWidth="2.5" />
+      <line x1="200" y1="200" x2="230" y2="230" stroke="#000" strokeWidth="2.5" />
+      <line x1="100" y1="100" x2="70" y2="70" stroke="#000" strokeWidth="2.5" />
+      <line x1="100" y1="200" x2="70" y2="230" stroke="#000" strokeWidth="2.5" />
       
-      {/* Stars */}
-      <circle cx="130" cy="60" r="5" fill="#FFD700" />
-      <circle cx="70" cy="60" r="5" fill="#FFD700" />
-      <circle cx="150" cy="130" r="4" fill="#FFD700" />
-      <circle cx="50" cy="130" r="4" fill="#FFD700" />
+      {/* Lightning bolts - dramatic */}
+      <path d="M 150 60 L 145 100 L 155 105 L 140 150 Z" fill="#FFD700" stroke="#000" strokeWidth="2" />
+      <path d="M 200 110 L 185 130 L 200 135 L 175 165 Z" fill="#FFD700" stroke="#000" strokeWidth="2" />
+      <path d="M 100 110 L 115 130 L 100 135 L 125 165 Z" fill="#FFD700" stroke="#000" strokeWidth="2" />
       
-      {/* Center text effect area */}
-      <text x="100" y="100" textAnchor="middle" dominantBaseline="middle" fill="#FF6B00" stroke="#000" strokeWidth="0.5" fontSize="32" fontWeight="bold">
-        ⚡
-      </text>
+      {/* Radiating impact lines */}
+      <line x1="150" y1="150" x2="150" y2="250" stroke="#FFD700" strokeWidth="2" opacity="0.6" />
+      <line x1="220" y1="150" x2="280" y2="150" stroke="#FFD700" strokeWidth="2" opacity="0.6" />
+      <line x1="80" y1="150" x2="20" y2="150" stroke="#FFD700" strokeWidth="2" opacity="0.6" />
+      <line x1="210" y1="210" x2="260" y2="260" stroke="#FFD700" strokeWidth="1.5" opacity="0.5" />
+      
+      {/* Central impact shape */}
+      <g transform="translate(150, 150)">
+        <polygon points="0,-30 12,-12 30,-8 15,8 20,30 0,18 -20,30 -15,8 -30,-8 -12,-12" fill="#FFF" stroke="#000" strokeWidth="2" />
+      </g>
+      
+      {/* Explosion clouds */}
+      <circle cx="120" cy="120" r="25" fill="#FFA500" opacity="0.5" />
+      <circle cx="180" cy="130" r="20" fill="#FF8C00" opacity="0.5" />
     </svg>
   ),
 
-  // Battle scene
+  // Battle/confrontation scene
   battle_scene: () => (
-    <svg viewBox="0 0 200 200" className="w-full h-full">
-      {/* Background explosion effect */}
-      <circle cx="100" cy="100" r="60" fill="#FFD700" opacity="0.6" />
-      <circle cx="85" cy="85" r="50" fill="#FF8C00" opacity="0.7" />
-      <circle cx="115" cy="115" r="45" fill="#FFA500" opacity="0.6" />
+    <svg viewBox="0 0 300 300" className="w-full h-full">
+      {/* Background explosion bloom */}
+      <circle cx="150" cy="150" r="80" fill="#FFE082" opacity="0.4" />
+      <circle cx="140" cy="130" r="60" fill="#FFA500" opacity="0.5" />
+      <circle cx="160" cy="160" r="55" fill="#FF8C00" opacity="0.5" />
       
-      {/* Explosion clouds */}
-      <path d="M 50 80 Q 40 70 50 60 Q 60 65 70 60 Q 80 75 70 85 Q 60 90 50 80" fill="#FF6347" opacity="0.8" />
-      <path d="M 130 80 Q 140 70 150 60 Q 160 65 170 60 Q 180 75 170 85 Q 160 90 150 80" fill="#FF6347" opacity="0.8" />
+      {/* Explosion clouds - organic shapes */}
+      <path d="M 80 120 Q 70 100 90 90 Q 110 85 120 105 Q 115 125 95 130 Z" fill="#FF6347" opacity="0.7" stroke="#000" strokeWidth="1.5" />
+      <path d="M 210 140 Q 230 120 245 135 Q 250 155 230 165 Q 210 160 210 140 Z" fill="#FF4500" opacity="0.8" stroke="#000" strokeWidth="1.5" />
+      <path d="M 150 220 Q 140 240 160 250 Q 180 245 185 230 Q 175 215 150 220 Z" fill="#FF5722" opacity="0.7" stroke="#000" strokeWidth="1.5" />
       
-      {/* Action lines (manga effect) */}
-      <line x1="30" y1="40" x2="10" y2="20" stroke="#000" strokeWidth="2" />
-      <line x1="50" y1="30" x2="25" y2="10" stroke="#000" strokeWidth="2" />
-      <line x1="170" y1="40" x2="190" y2="20" stroke="#000" strokeWidth="2" />
-      <line x1="150" y1="30" x2="175" y2="10" stroke="#000" strokeWidth="2" />
+      {/* Manga action lines radiating from center */}
+      <line x1="150" y1="0" x2="150" y2="30" stroke="#000" strokeWidth="3" />
+      <line x1="150" y1="270" x2="150" y2="300" stroke="#000" strokeWidth="3" />
+      <line x1="30" y1="150" x2="0" y2="150" stroke="#000" strokeWidth="3" />
+      <line x1="270" y1="150" x2="300" y2="150" stroke="#000" strokeWidth="3" />
       
-      {/* Impact effect */}
-      <g transform="translate(100, 100)">
-        <polygon points="0,-30 8,-8 30,0 8,8 0,30 -8,8 -30,0 -8,-8" fill="#FFF" stroke="#000" strokeWidth="2" />
-      </g>
+      {/* Diagonal action lines */}
+      <line x1="50" y1="50" x2="20" y2="20" stroke="#000" strokeWidth="2.5" />
+      <line x1="250" y1="50" x2="280" y2="20" stroke="#000" strokeWidth="2.5" />
+      <line x1="50" y1="250" x2="20" y2="280" stroke="#000" strokeWidth="2.5" />
+      <line x1="250" y1="250" x2="280" y2="280" stroke="#000" strokeWidth="2.5" />
+      
+      {/* Central impact cross */}
+      <line x1="130" y1="150" x2="170" y2="150" stroke="#fff" strokeWidth="3" opacity="0.8" />
+      <line x1="150" y1="130" x2="150" y2="170" stroke="#fff" strokeWidth="3" opacity="0.8" />
+      
+      {/* Impact star shape */}
+      <polygon points="150,100 160,130 190,130 165,150 175,180 150,160 125,180 135,150 110,130 140,130" fill="#FFF" stroke="#000" strokeWidth="2" />
     </svg>
   ),
 };
