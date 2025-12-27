@@ -619,13 +619,14 @@ Conversation to summarize:\n`;
     
     setIsListening(false); // Stop listening while processing
     
+    // Get recent messages for context (limit to last N messages) - define outside try/catch
+    const recentMessages = updatedMessages.slice(-CONTEXT_WINDOW);
+    
+    // DISABLED FOR PERFORMANCE: Heavy context summary - define outside try/catch
+    // const contextSummary = ConversationContextManager.getConversationSummary();
+    const contextSummary = 'Context disabled for performance';
+    
     try {
-      // Get recent messages for context (limit to last N messages)
-      const recentMessages = updatedMessages.slice(-CONTEXT_WINDOW);
-      
-      // DISABLED FOR PERFORMANCE: Heavy context summary
-      // const contextSummary = ConversationContextManager.getConversationSummary();
-      const contextSummary = 'Context disabled for performance';
       
       let contextPayload: any = {
         message: text,
