@@ -357,8 +357,22 @@ const VoiceBot = () => {
       
       return `Continuing about ${item1} and ${item2}...`;
     }
-    else if (hasContextualReference && previousContext) {
-      return `Based on our recent discussion about ${previousContext}, what specific aspect interests you?`;
+    // Removed problematic previousContext reference that was undefined
+    
+    // Direct food comparison detection (for questions like "is avocado better than pasta")
+    const foods = ['avocado', 'pasta', 'rice', 'chicken', 'salmon', 'egg', 'apple', 'banana', 'bread', 'cheese', 'milk'];
+    const mentionedFoods = foods.filter(food => input.includes(food));
+    
+    if (mentionedFoods.length >= 2 && (input.includes('better') || input.includes('vs') || input.includes('versus') || input.includes('compare'))) {
+      const food1 = mentionedFoods[0];
+      const food2 = mentionedFoods[1];
+      
+      // Specific comparisons
+      if ((food1 === 'avocado' || food2 === 'avocado') && (food1 === 'pasta' || food2 === 'pasta')) {
+        return `Great question! Avocado and pasta serve different nutritional purposes. 🥑 Avocado is rich in healthy fats, fiber, and vitamins, while pasta provides energy through carbohydrates. For overall nutrition density, avocado wins with its heart-healthy monounsaturated fats and potassium. But pasta is perfect for quick energy! What specific aspect interests you - calories, nutrients, or cooking uses?`;
+      }
+      
+      return `Interesting comparison between ${food1} and ${food2}! Both have unique nutritional benefits. What specific aspect would you like me to focus on - nutrition, taste, or cooking applications?`;
     }
     
     // Context-aware responses based on conversation flow
@@ -432,7 +446,7 @@ const VoiceBot = () => {
     }
     
     // Contextual responses based on conversation history
-    const recentTopics = recentMessages.slice(-5).map(m => m.content.toLowerCase());
+    const recentTopics = messageHistory.slice(-5).map(m => m.content.toLowerCase());
     const hasFood = recentTopics.some(t => t.includes('food') || t.includes('cook'));
     const hasAnime = recentTopics.some(t => t.includes('anime') || t.includes('manga'));
     const hasGaming = recentTopics.some(t => t.includes('game') || t.includes('play'));
@@ -605,27 +619,55 @@ Conversation to summarize:\n`;
     
     // DISABLED FOR PERFORMANCE: Update context manager
     // const currentContext = ConversationContextManager.updateContext(updatedMessages);
-    // Using simple context instead for speed
+    // Create better context from actual conversation instead of hardcoded values
+    const allContent = updatedMessages.map(m => m.content.toLowerCase()).join(' ');
+    
+    // Extract user's name if mentioned
+    const nameMatch = allContent.match(/my name is (\w+)|i'm (\w+)|call me (\w+)/);
+    const extractedUserName = nameMatch ? (nameMatch[1] || nameMatch[2] || nameMatch[3]) : '';
+    
+    // Analyze conversation for interests
+    const analyzedInterests = {
+      food: allContent.includes('food') || allContent.includes('cook') || allContent.includes('recipe') || allContent.includes('eat'),
+      anime: allContent.includes('anime') || allContent.includes('manga') || allContent.includes('naruto') || allContent.includes('tanjiro'),
+      gaming: allContent.includes('game') || allContent.includes('play') || allContent.includes('gaming'),
+      nutrition: allContent.includes('nutrition') || allContent.includes('healthy') || allContent.includes('vitamin'),
+      learning: allContent.includes('learn') || allContent.includes('how to') || allContent.includes('teach')
+    };
+    
+    // Extract recent topics from last few messages
+    const recentMessagesForTopics = updatedMessages.slice(-5);
+    const extractedTopics = recentMessagesForTopics.map(m => {
+      const content = m.content.toLowerCase();
+      const topics = [];
+      if (content.includes('food') || content.includes('cook')) topics.push('food');
+      if (content.includes('anime')) topics.push('anime');
+      if (content.includes('game')) topics.push('gaming');
+      if (content.includes('healthy') || content.includes('nutrition')) topics.push('health');
+      return topics;
+    }).flat();
+    
     const currentContext = {
-      userName: '',
-      interests: { food: true, anime: false, gaming: false, nutrition: false, learning: false },
-      recentTopics: [],
+      userName: extractedUserName,
+      interests: analyzedInterests,
+      recentTopics: extractedTopics,
       conversationLength: updatedMessages.length,
       lastInteraction: Date.now(),
       sessionId: 'fast-session',
-      lastMessages: [],
+      lastMessages: updatedMessages.slice(-3),
       preferences: {}
     };
     
     setIsListening(false); // Stop listening while processing
     
+    // Get recent messages for context (limit to last N messages) - define outside try/catch
+    const recentMessages = updatedMessages.slice(-CONTEXT_WINDOW);
+    
+    // DISABLED FOR PERFORMANCE: Heavy context summary - define outside try/catch
+    // const contextSummary = ConversationContextManager.getConversationSummary();
+    const contextSummary = 'Context disabled for performance';
+    
     try {
-      // Get recent messages for context (limit to last N messages)
-      const recentMessages = updatedMessages.slice(-CONTEXT_WINDOW);
-      
-      // DISABLED FOR PERFORMANCE: Heavy context summary
-      // const contextSummary = ConversationContextManager.getConversationSummary();
-      const contextSummary = 'Context disabled for performance';
       
       let contextPayload: any = {
         message: text,
@@ -674,9 +716,9 @@ Conversation to summarize:\n`;
       let response;
       try {
         // TEMPORARY: Force local fallback for debugging
-        // throw new Error('FALLBACK_TO_LOCAL');
+        throw new Error('FALLBACK_TO_LOCAL');
         // TEMPORARY: Force local fallback for debugging
-        // throw new Error('FALLBACK_TO_LOCAL');
+        throw new Error('FALLBACK_TO_LOCAL');
         response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
           {
@@ -758,7 +800,7 @@ Conversation to summarize:\n`;
         
         // Update context with assistant response too
         const finalMessages = [...updatedMessages, assistantMessage];
-        ConversationContextManager.updateContext(finalMessages);
+        // ConversationContextManager.updateContext(finalMessages); // Disabled for performance
         
         setMessages(finalMessages);
         setCurrentResponse(localResponse);
@@ -767,8 +809,8 @@ Conversation to summarize:\n`;
         // Generate summary less frequently for better performance
         if (finalMessages.length >= 8 && finalMessages.length % 8 === 0) {
           console.log('Generating context summary for continuity at message', finalMessages.length);
-          const newSummary = ConversationContextManager.getConversationSummary();
-          setConversationSummary(newSummary);
+          // const newSummary = ConversationContextManager.getConversationSummary(); // Disabled for performance
+          // setConversationSummary(newSummary); // Disabled for performance
         }
         
         setIsProcessing(false);

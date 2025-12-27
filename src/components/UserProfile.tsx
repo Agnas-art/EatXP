@@ -1,12 +1,14 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { DietaryPreferencesModal } from "./DietaryPreferencesModal";
 
 export const UserProfile = () => {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [showPreferencesModal, setShowPreferencesModal] = useState(false);
   const navigate = useNavigate();
 
   if (!user) return null;
@@ -69,6 +71,20 @@ export const UserProfile = () => {
               </div>
             </div>
 
+            {/* Preferences Button */}
+            <motion.button
+              whileHover={{ x: 4 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 transition-colors text-sm text-foreground"
+              onClick={() => {
+                setShowPreferencesModal(true);
+                setIsOpen(false);
+              }}
+            >
+              <Settings className="w-4 h-4 text-primary" />
+              <span>Dietary Preferences</span>
+            </motion.button>
+
             {/* Profile Button */}
             <motion.button
               whileHover={{ x: 4 }}
@@ -101,6 +117,12 @@ export const UserProfile = () => {
           onClick={() => setIsOpen(false)}
         />
       )}
+
+      {/* Dietary Preferences Modal */}
+      <DietaryPreferencesModal
+        isOpen={showPreferencesModal}
+        onClose={() => setShowPreferencesModal(false)}
+      />
     </div>
   );
 };
