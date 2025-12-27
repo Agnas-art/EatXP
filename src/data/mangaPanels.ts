@@ -26,7 +26,7 @@ export const MANGA_PANELS: Record<string, MangaStrip> = {
     description:
       "An exciting adventure through the magical Fruit Forest with color-changing fruits!",
     emoji: "🍎",
-    unlockedAt: "chapter_2",
+    unlockedAt: "chapter_1",
     author: "Naruto",
     theme: "Vitamin Adventure",
     panels: [
