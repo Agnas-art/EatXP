@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { PreferencesProvider } from "@/context/PreferencesContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -92,15 +93,17 @@ const App = () => {
   return (
     <I18nextProvider i18n={i18n}>
       <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter basename="/EatXP/">
-              <AppContent />
-            </BrowserRouter>
-          </TooltipProvider>
-        </QueryClientProvider>
+        <PreferencesProvider>
+          <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter basename="/EatXP/">
+                <AppContent />
+              </BrowserRouter>
+            </TooltipProvider>
+          </QueryClientProvider>
+        </PreferencesProvider>
       </AuthProvider>
     </I18nextProvider>
   );

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Heart, Star, Clock } from "lucide-react";
+import { Heart, Star, Clock, AlertCircle } from "lucide-react";
+import { usePreferences } from "@/context/PreferencesContext";
 
 interface FoodCardProps {
   name: string;
@@ -12,13 +13,25 @@ interface FoodCardProps {
 }
 
 const FoodCard = ({ name, emoji, category, benefits, funFact, color, onClick }: FoodCardProps) => {
+  const { canEatFood } = usePreferences();
+  const canEat = canEatFood(name);
+
   return (
     <motion.div
       whileHover={{ y: -4, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="bg-card rounded-3xl shadow-card overflow-hidden cursor-pointer"
+      className={`bg-card rounded-3xl shadow-card overflow-hidden cursor-pointer ${
+        !canEat ? "opacity-60 relative" : ""
+      }`}
     >
+      {/* Allergen Badge */}
+      {!canEat && (
+        <div className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 z-10">
+          <AlertCircle className="w-4 h-4" />
+        </div>
+      )}
+
       <div className={`${color} p-4 flex items-center justify-center`}>
         <motion.span
           className="text-5xl"
