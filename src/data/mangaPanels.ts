@@ -24,355 +24,259 @@ export const MANGA_PANELS: Record<string, MangaStrip> = {
     id: "fruit_forest_adventure",
     title: "The Quest for Fruit Forest's Treasures",
     description:
-      "An exciting adventure through the magical Fruit Forest with color-changing fruits!",
+      "Join our hero in the magical Fruit Forest! Discover colorful fruits, vibrant nutrition facts, and unlock XP rewards. Manga-style adventure with bold art, dynamic panels, and educational food lessons!",
     emoji: "🍎",
     unlockedAt: "chapter_1",
-    author: "Naruto",
+    author: "Yor Forger",
     theme: "Vitamin Adventure",
+    lesson: "Learn about Vitamin A and C benefits for health and vision",
     panels: [
       {
         id: "panel_1",
-        image: "🧑",
-        dialogue: "Whoa! Welcome to Fruit Forest! I'm your guide!",
+        image: "🌳",
+        dialogue: "✨ WHOOSH! Welcome to the Legendary Fruit Forest! I'm your nutrition guide!",
         emotion: "excited",
       },
       {
         id: "panel_2",
         image: "🍎",
-        dialogue: "Pick me! I'm bursting with Vitamin A for sharp eyes!",
+        dialogue: "🔴 RED APPLE POWER! Vitamin A: +50 Vision Boost! 📊 Rich in antioxidants!",
         emotion: "proud",
       },
       {
         id: "panel_3",
         image: "🍊",
-        dialogue: "And I'm packed with Vitamin C to keep you from getting sick!",
-        emotion: "cheerful",
-      },
-      {
-        id: "panel_4",
-        image: "🫐",
-        dialogue: "Don't forget me! My blueberries boost your brain power!",
-        emotion: "magical",
-      },
-      {
-        id: "panel_5",
-        image: "😋",
-        dialogue: "Together we make the perfect vitamin squad!",
+        dialogue: "🧡 ORANGE BURST! Vitamin C: +40 Immunity! 💪 Boosts your defense!",
         emotion: "determined",
       },
       {
-        id: "panel_6",
-        image: "🌟",
-        dialogue: "Quest complete! You've unlocked Fruit Forest's power!",
+        id: "panel_4",
+        image: "🍌",
+        dialogue: "💛 GOLDEN BANANA! Potassium: +30 Energy! ⚡ Quick energy source!",
+        emotion: "cheerful",
+      },
+      {
+        id: "panel_5",
+        image: "🎖️",
+        dialogue: "You earned 🏆 XP 150! QUEST COMPLETE! Next: Seasonal Vegetables! →",
         emotion: "triumphant",
       },
     ],
-    lesson:
-      "Different fruits provide different vitamins that work together to keep you healthy!",
   },
-
-  mighty_mineral_saga: {
-    id: "mighty_mineral_saga",
-    title: "The Mighty Mineral Saga",
+  seasonal_vegetables_spring: {
+    id: "seasonal_vegetables_spring",
+    title: "Spring's Green Guardians - Spinach & Asparagus Adventure",
     description:
-      "An epic tale of minerals battling weakness and building strength!",
-    emoji: "💪",
+      "Spring arrives with fresh green vegetables! Follow the hero through vibrant fields of spinach and asparagus. Dynamic manga panels showcase nutrient diagrams, close-ups of vegetables, and gameplay elements with glowing effects!",
+    emoji: "🥬",
+    unlockedAt: "chapter_1",
+    author: "Yor Forger",
+    theme: "Spring Vegetables",
+    lesson: "Iron, Fiber, and Folate - Nature's spring gifts for strong bodies",
+    panels: [
+      {
+        id: "panel_1",
+        image: "🌸",
+        dialogue: "🌱 SPRING AWAKENING! Green fields stretch before us! Time to explore!",
+        emotion: "excited",
+      },
+      {
+        id: "panel_2",
+        image: "🥬",
+        dialogue: "🟢 SPINACH POWER-UP! Iron: +60 Strength! 💚 Dark leafy green magic!",
+        emotion: "determined",
+      },
+      {
+        id: "panel_3",
+        image: "📊",
+        dialogue: "📈 NUTRITION FACT: Folate helps new cells grow! Essential for growth! 🧬",
+        emotion: "amazed",
+      },
+      {
+        id: "panel_4",
+        image: "🥦",
+        dialogue: "💚 ASPARAGUS ALLY! Fiber: +45! Digestive Health Boost! 🔥",
+        emotion: "cheerful",
+      },
+      {
+        id: "panel_5",
+        image: "🎖️",
+        dialogue: "⭐ YOU DID IT! Earned 🏆 XP 200! Spring Guardian Status: UNLOCKED!",
+        emotion: "triumphant",
+      },
+    ],
+  },
+  summer_colors_carrot_tomato: {
+    id: "summer_colors_carrot_tomato",
+    title: "Summer Sunburst - The Carrot & Tomato Chronicles",
+    description:
+      "Brilliant summer arrives with orange carrots and red tomatoes! Experience vibrant manga art with dynamic action sequences, close-up vegetable illustrations, and interactive nutrition cards integrated into the story!",
+    emoji: "🥕",
+    unlockedAt: "chapter_2",
+    author: "Yor Forger",
+    theme: "Summer Vegetables",
+    lesson: "Beta-Carotene and Lycopene - Nature's colorful defenders",
+    panels: [
+      {
+        id: "panel_1",
+        image: "☀️",
+        dialogue: "🌞 SUMMER EXPLOSION! Golden fields of vegetables shine bright!",
+        emotion: "excited",
+      },
+      {
+        id: "panel_2",
+        image: "🥕",
+        dialogue: "🟠 CARROT BLAST! Beta-Carotene: +70 Vision! Perfect for sunlight! 👀",
+        emotion: "determined",
+      },
+      {
+        id: "panel_3",
+        image: "🍅",
+        dialogue: "🔴 TOMATO TIME! Lycopene: +55 Antioxidant! Heart-healthy power! ❤️",
+        emotion: "proud",
+      },
+      {
+        id: "panel_4",
+        image: "💥",
+        dialogue: "🎯 COMBO ATTACK! Carrot + Tomato = Ultimate Summer Salad! SYNERGY +30!",
+        emotion: "amazed",
+      },
+      {
+        id: "panel_5",
+        image: "🎖️",
+        dialogue: "🏆 XP 250 EARNED! Summer Champion Unlocked! Health Level: RISING! 📈",
+        emotion: "triumphant",
+      },
+    ],
+  },
+  autumn_harvest_sweet_potato: {
+    id: "autumn_harvest_sweet_potato",
+    title: "Autumn's Golden Treasure - The Sweet Potato Quest",
+    description:
+      "Golden autumn brings the sweet potato! Manga-style quest with warm color palettes, manga screentones, dynamic action poses, educational chalkboard sequences, and XP progress tracking visually integrated into panels!",
+    emoji: "🍠",
     unlockedAt: "chapter_3",
-    author: "Tanjiro",
-    theme: "Mineral Power",
+    author: "Yor Forger",
+    theme: "Autumn Vegetables",
+    lesson: "Complex Carbs and Vitamin E - Sustained energy for active adventurers",
     panels: [
       {
         id: "panel_1",
-        image: "🦴",
-        dialogue: "My bones are weak! How can I become strong?",
-        emotion: "worried",
+        image: "🍂",
+        dialogue: "🍁 AUTUMN ARRIVES! Harvest season glows with warm golden light!",
+        emotion: "excited",
       },
       {
         id: "panel_2",
-        image: "🥛",
-        dialogue: "Fear not! I am Calcium, the bone builder!",
-        emotion: "heroic",
+        image: "🍠",
+        dialogue: "🟠 SWEET POTATO SURGE! Complex Carbs: +80 Sustained Energy! ⚡",
+        emotion: "determined",
       },
       {
         id: "panel_3",
-        image: "🧂",
-        dialogue: "And I'm Sodium, powering your muscles!",
-        emotion: "energetic",
-      },
-      {
-        id: "panel_4",
-        image: "🍌",
-        dialogue: "I'm Potassium, keeping your heart beating strong!",
-        emotion: "vital",
-      },
-      {
-        id: "panel_5",
-        image: "🧑",
-        dialogue: "Together! Your bones harden, muscles grow stronger!",
+        image: "📊",
+        dialogue: "🎓 NUTRITION LESSON: Fiber aids digestion! Vitamin E protects cells! 🛡️",
         emotion: "amazed",
       },
       {
-        id: "panel_6",
-        image: "⚔️",
-        dialogue: "Now I'm ready for any challenge! Minerals power my body!",
-        emotion: "confident",
-      },
-    ],
-    lesson:
-      "Minerals work together to build strong bones, power muscles, and keep your body running!",
-  },
-
-  protein_power_ups: {
-    id: "protein_power_ups",
-    title: "Protein Power-Ups!",
-    description:
-      "Watch as a weak student transforms with the power of protein!",
-    emoji: "🚀",
-    unlockedAt: "chapter_4",
-    author: "Deku",
-    theme: "Muscle Building",
-    panels: [
-      {
-        id: "panel_1",
-        image: "😭",
-        dialogue: "I'm too skinny... I'll never be strong enough...",
-        emotion: "sad",
-      },
-      {
-        id: "panel_2",
-        image: "🍗",
-        dialogue: "Try me! I'm chicken - pure protein power!",
-        emotion: "encouraging",
-      },
-      {
-        id: "panel_3",
-        image: "🥚",
-        dialogue: "And eggs! Complete amino acid profile!",
-        emotion: "helpful",
-      },
-      {
         id: "panel_4",
-        image: "🫘",
-        dialogue: "Don't forget beans - plant-based protein!",
-        emotion: "supportive",
+        image: "🔥",
+        dialogue: "🌡️ WARMING POWER! Perfect for fall activities! Boosts metabolism! 🔥",
+        emotion: "cheerful",
       },
       {
         id: "panel_5",
-        image: "💪",
-        dialogue: "Wow! My muscles are growing! I feel stronger!",
-        emotion: "amazed",
-      },
-      {
-        id: "panel_6",
-        image: "🌟",
-        dialogue: "Protein + Training = Unstoppable Power!",
+        image: "🎖️",
+        dialogue: "⭐ XP 280 EARNED! Autumn Harvester Rank UP! Ready for Winter? 🎯",
         emotion: "triumphant",
       },
     ],
-    lesson:
-      "Protein builds muscle tissue. Eat protein and exercise to get stronger every day!",
   },
-
-  carb_quest: {
-    id: "carb_quest",
-    title: "The Carb Quest: Energy Unlimited",
-    description: "A high-energy adventure fueled by carbohydrates!",
-    emoji: "⚡",
-    unlockedAt: "chapter_5",
-    author: "Goku",
-    theme: "Energy Adventure",
-    panels: [
-      {
-        id: "panel_1",
-        image: "🥵",
-        dialogue: "I'm exhausted... running out of energy... can't continue...",
-        emotion: "tired",
-      },
-      {
-        id: "panel_2",
-        image: "🍚",
-        dialogue: "Quick! Eat rice! Instant carbohydrate energy!",
-        emotion: "urgent",
-      },
-      {
-        id: "panel_3",
-        image: "🍞",
-        dialogue: "Whole grain bread for lasting energy!",
-        emotion: "helpful",
-      },
-      {
-        id: "panel_4",
-        image: "🍌",
-        dialogue: "Bananas are portable carb power!",
-        emotion: "enthusiastic",
-      },
-      {
-        id: "panel_5",
-        image: "⚡",
-        dialogue: "YES! Energy surging through me! I can keep going!",
-        emotion: "energized",
-      },
-      {
-        id: "panel_6",
-        image: "🚀",
-        dialogue: "Carbs fuel my adventure! Infinite energy!",
-        emotion: "unstoppable",
-      },
-    ],
-    lesson:
-      "Carbohydrates are your body's main fuel. Eat them before activities for sustained energy!",
-  },
-
-  balanced_battle: {
-    id: "balanced_battle",
-    title: "The Balanced Battle Victory",
+  winter_wellness_broccoli: {
+    id: "winter_wellness_broccoli",
+    title: "Winter Wellness - The Broccoli Guardian Emerges",
     description:
-      "Four nutrition heroes combine forces for the ultimate balanced meal!",
-    emoji: "🍽️",
-    unlockedAt: "chapter_6",
-    author: "Team Eats",
-    theme: "Nutrition Mastery",
+      "Winter's most powerful vegetable! Dynamic manga panels with cool blue color schemes, expressive character emotions, vitamin diagram sequences, and gamified health progress bars integrated into the visual narrative!",
+    emoji: "🥦",
+    unlockedAt: "chapter_3",
+    author: "Yor Forger",
+    theme: "Winter Vegetables",
+    lesson: "Vitamin C and Sulforaphane - Immune system superpowers",
     panels: [
       {
         id: "panel_1",
-        image: "👹",
-        dialogue: "I'm Junk Food! I'll make you weak and sick!",
-        emotion: "evil",
+        image: "❄️",
+        dialogue: "❄️ WINTER AWAKENS! Crisp cold air brings new challenges and power!",
+        emotion: "determined",
       },
       {
         id: "panel_2",
-        image: "💪",
-        dialogue: "Not if we work together! I'm Protein!",
+        image: "🥦",
+        dialogue: "💚 BROCCOLI GUARDIAN! Vitamin C: +90 Immunity Shield! 🛡️",
         emotion: "brave",
       },
       {
         id: "panel_3",
-        image: "🥗",
-        dialogue: "And I'm Vegetables - full of vitamins and minerals!",
+        image: "🧬",
+        dialogue: "⚗️ SULFORAPHANE SCIENCE! Detox power! Anti-disease warrior! 🔬",
+        emotion: "amazed",
+      },
+      {
+        id: "panel_4",
+        image: "💪",
+        dialogue: "🌟 ULTIMATE HEALTH! Broccoli is your winter armor! Stay strong! 💪",
+        emotion: "triumphant",
+      },
+      {
+        id: "panel_5",
+        image: "🎖️",
+        dialogue: "🏆 XP 300 EARNED! Winter Champion! Season Master: COMPLETE! 🌟",
+        emotion: "triumphant",
+      },
+    ],
+  },
+  balanced_meal_comic: {
+    id: "balanced_meal_comic",
+    title: "The Perfect Plate - Balanced Nutrition Quest",
+    description:
+      "Learn the art of balanced eating! Manga adventure featuring dynamic character poses, a beautiful illustrated plate diagram, nutrition pyramids, and interactive food categories with glowing highlights and manga-style action lines!",
+    emoji: "🍽️",
+    unlockedAt: "chapter_4",
+    author: "Yor Forger",
+    theme: "Nutrition Education",
+    lesson: "Create balanced meals with proteins, vegetables, grains, and fruits",
+    panels: [
+      {
+        id: "panel_1",
+        image: "👨‍🍳",
+        dialogue: "🎯 MASTER CHEF MODE! Time to learn the perfect plate composition!",
+        emotion: "determined",
+      },
+      {
+        id: "panel_2",
+        image: "🥕",
+        dialogue: "🥬 VEGETABLES: 1/4 Plate! Fiber + Vitamins + Minerals! The foundation!",
+        emotion: "instructive",
+      },
+      {
+        id: "panel_3",
+        image: "🍗",
+        dialogue: "💪 PROTEIN: 1/4 Plate! Chicken, Fish, Beans! Muscle building power!",
         emotion: "strong",
       },
       {
         id: "panel_4",
         image: "🍚",
-        dialogue: "With Carbs for energy, we're unstoppable!",
-        emotion: "powerful",
+        dialogue: "⚡ GRAINS: 1/4 Plate! Brown rice, whole wheat! Sustained energy!",
+        emotion: "energetic",
       },
       {
         id: "panel_5",
-        image: "🌈",
-        dialogue:
-          "Together - balanced, colorful, nutritious - we defeat weakness!",
-        emotion: "victorious",
-      },
-      {
-        id: "panel_6",
-        image: "🎉",
-        dialogue:
-          "A balanced plate makes a balanced hero! You've mastered nutrition!",
+        image: "🎖️",
+        dialogue: "🏆 XP 320 EARNED! Balanced Diet Master! Health Level: MAXIMUM! 📊",
         emotion: "triumphant",
       },
     ],
-    lesson:
-      "The secret to optimal health is eating a variety of foods in balanced portions!",
-  },
-
-  secret_snack_story: {
-    id: "secret_snack_story",
-    title: "The Secret Snack Story",
-    description: "Discover healthy snacks that taste amazing and boost energy!",
-    emoji: "🍿",
-    unlockedAt: "chapter_2",
-    author: "Naruto",
-    theme: "Healthy Snacking",
-    panels: [
-      {
-        id: "panel_1",
-        image: "🧒",
-        dialogue: "I'm hungry but only have junk food options!",
-        emotion: "frustrated",
-      },
-      {
-        id: "panel_2",
-        image: "🍎",
-        dialogue: "Try an apple! Crunchy, sweet, and full of fiber!",
-        emotion: "helpful",
-      },
-      {
-        id: "panel_3",
-        image: "🥜",
-        dialogue: "Almonds give protein AND healthy fats for your brain!",
-        emotion: "informative",
-      },
-      {
-        id: "panel_4",
-        image: "🍯",
-        dialogue: "Honey with whole grain toast - energy and nutrition!",
-        emotion: "delicious",
-      },
-      {
-        id: "panel_5",
-        image: "😋",
-        dialogue: "These snacks taste AMAZING and make me stronger!",
-        emotion: "happy",
-      },
-      {
-        id: "panel_6",
-        image: "✨",
-        dialogue: "Healthy snacking = sustained energy all day!",
-        emotion: "inspired",
-      },
-    ],
-    lesson: "Smart snack choices keep your energy up and body healthy!",
-  },
-
-  cooking_class_adventure: {
-    id: "cooking_class_adventure",
-    title: "Cooking Class Adventure",
-    description: "Learn how to prepare nutritious meals step by step!",
-    emoji: "👨‍🍳",
-    unlockedAt: "chapter_4",
-    author: "Tanjiro",
-    theme: "Cooking Skills",
-    panels: [
-      {
-        id: "panel_1",
-        image: "🧂",
-        dialogue: "Today we're making a stir-fry! First, prep your veggies!",
-        emotion: "teaching",
-      },
-      {
-        id: "panel_2",
-        image: "🍳",
-        dialogue: "Heat the pan and use just a little oil!",
-        emotion: "instructive",
-      },
-      {
-        id: "panel_3",
-        image: "🥘",
-        dialogue: "Add colorful vegetables - each brings unique nutrition!",
-        emotion: "enthusiastic",
-      },
-      {
-        id: "panel_4",
-        image: "🍗",
-        dialogue: "Protein cooks quickly - don't overcook it!",
-        emotion: "experienced",
-      },
-      {
-        id: "panel_5",
-        image: "🍚",
-        dialogue: "Serve with brown rice for complete nutrition!",
-        emotion: "masterful",
-      },
-      {
-        id: "panel_6",
-        image: "😍",
-        dialogue: "Delicious, nutritious, and homemade! Cook with love!",
-        emotion: "proud",
-      },
-    ],
-    lesson:
-      "Learning to cook means you control nutrition. Cook simple, eat healthy!",
   },
 };
 
@@ -382,7 +286,8 @@ export const getUnlockedMangaPanels = (
   const unlocked: Record<string, MangaStrip> = {};
 
   Object.entries(MANGA_PANELS).forEach(([key, strip]) => {
-    if (completedChapters.includes(strip.unlockedAt)) {
+    // First manga is always unlocked
+    if (strip.id === "fruit_forest_adventure" || completedChapters.includes(strip.unlockedAt)) {
       unlocked[key] = strip;
     }
   });
