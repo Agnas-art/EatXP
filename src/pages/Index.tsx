@@ -34,6 +34,7 @@ import { MealMasterySimulator } from "@/components/teen/MealMasterySimulator";
 import { AboutEatXP } from "@/components/AboutEatXP";
 import { AnimeMangaBuilder } from "@/components/teen/AnimeMangaBuilder";
 import { RealLifeMissions } from "@/components/teen/RealLifeMissions";
+import HealthyFoodHeroesDetail from "@/components/HealthyFoodHeroesDetail";
 import { useAuth } from "@/hooks/useAuth";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import { foodCategories, healthyFoods, recipes, foodFacts, achievements } from "@/data/foodData";
@@ -64,6 +65,7 @@ const Index = () => {
   const [showMangaBuilder, setShowMangaBuilder] = useState(false);
   const [showRealMissions, setShowRealMissions] = useState(false);
   const [showAboutEatXP, setShowAboutEatXP] = useState(false);
+  const [selectedFoodHero, setSelectedFoodHero] = useState<string | null>(null);
   const { transcript, isListening } = useVoiceRecognition();
 
   useEffect(() => {
@@ -234,6 +236,16 @@ const Index = () => {
         recipe={selectedRecipe}
         onBack={() => setSelectedRecipe(null)}
         ageGroup={getAgeLabel()}
+      />
+    );
+  }
+
+  if (selectedFoodHero) {
+    return (
+      <HealthyFoodHeroesDetail
+        foodKey={selectedFoodHero}
+        onBack={() => setSelectedFoodHero(null)}
+        selectedAge={selectedAge || "kids"}
       />
     );
   }
@@ -742,7 +754,9 @@ const Index = () => {
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {currentFoods.slice(0, 4).map((food, i) => (
-                    <FoodCard key={i} {...food} />
+                    <div key={i} onClick={() => setSelectedFoodHero(food.name.toLowerCase())}>
+                      <FoodCard {...food} />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -786,6 +800,7 @@ const Index = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1 }}
+                    onClick={() => setSelectedFoodHero(food.name.toLowerCase())}
                   >
                     <FoodCard {...food} />
                   </motion.div>

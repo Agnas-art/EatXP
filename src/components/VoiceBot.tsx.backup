@@ -210,7 +210,7 @@ const VoiceBot = () => {
   // Storage key for conversation persistence
   const STORAGE_KEY = 'voicebot_conversation';
   const MAX_STORED_MESSAGES = 50;
-  const CONTEXT_WINDOW = 30; // Increased for better context carryover
+  const CONTEXT_WINDOW = 20; // Increased from 10
 
   // Load conversation from localStorage on mount
   useEffect(() => {
@@ -218,22 +218,11 @@ const VoiceBot = () => {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const context: ConversationContext = JSON.parse(stored);
-        // Load conversation history - removed 24 hour expiry to maintain context better
-        // Only skip loading if data is corrupted or very old (7 days)
-        const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
-        if (!context.lastActiveTime || Date.now() - context.lastActiveTime < maxAge) {
+        // Only load if conversation is recent (within last 24 hours)
+        if (Date.now() - context.lastActiveTime < 24 * 60 * 60 * 1000) {
           setMessages(context.messages || []);
           setConversationSummary(context.summary || '');
-          console.log('Loaded conversation context:', {
-            messageCount: context.messages?.length || 0,
-            hasSummary: !!context.summary,
-            lastActive: context.lastActiveTime ? new Date(context.lastActiveTime).toLocaleString() : 'unknown'
-          });
-        } else {
-          console.log('Conversation context too old, starting fresh');
         }
-      } else {
-        console.log('No previous conversation context found');
       }
     } catch (error) {
       console.error('Failed to load conversation history:', error);
@@ -270,121 +259,43 @@ const VoiceBot = () => {
           lastActiveTime: Date.now()
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(context));
-        console.log('Saved conversation context:', {
-          messageCount: context.messages.length,
-          hasSummary: !!context.summary,
-          summaryLength: context.summary?.length || 0
-        });
       } catch (error) {
         console.error('Failed to save conversation history:', error);
       }
     }
   }, [messages, conversationSummary]);
 
-  // Enhanced local response generator with comprehensive context awareness
-  const generateLocalResponse = useCallback(async (userInput: string, messageHistory: Message[], context: ConversationContext): Promise<string> => {
+  // Local fallback response generator with enhanced context awareness
+  const generateLocalResponse = useCallback(async (userInput: string, messageHistory: Message[]): Promise<string> => {
     const input = userInput.toLowerCase().trim();
     
-    // Use the provided context instead of parsing from localStorage
-    const {
-      userName,
-      interests: userPreferences,
-      recentTopics: contextTopics,
-      conversationLength,
-      lastMessages,
-      lastInteraction
-    } = context;
+    // Analyze conversation history for context
+    const recentMessages = messageHistory.slice(-10); // Look at more recent context
+    const allTopics = messageHistory.map(m => m.content.toLowerCase()).join(' ');
+    const userPreferences = {
+      food: allTopics.includes('food') || allTopics.includes('cook') || allTopics.includes('recipe'),
+      anime: allTopics.includes('anime') || allTopics.includes('manga') || allTopics.includes('naruto') || allTopics.includes('tanjiro'),
+      gaming: allTopics.includes('game') || allTopics.includes('play') || allTopics.includes('gaming'),
+    };
     
-    // CRITICAL FIX: Detect contextual references like "these 2", "which one", etc.
-    const hasContextualReference = 
-      input.includes('these') || input.includes('those') || input.includes('them') ||
-      input.includes('which one') || input.includes('which of') || input.includes('between them') ||
-      input.includes('the 2') || input.includes('these 2') || input.includes('both') ||
-      input.includes('compared to') || input.includes('difference') || input.includes('versus') ||
-      input.includes('it') || input.includes('this') || input.includes('that');
+    // Extract user's name if mentioned in conversation
+    const nameMatch = allTopics.match(/my name is (\w+)|i'm (\w+)|call me (\w+)/);
+    const userName = nameMatch ? (nameMatch[1] || nameMatch[2] || nameMatch[3]) : '';
     
-    let previousContext = '';
-    let referencedItems = [];
-    
-    if (hasContextualReference && messageHistory.length > 1) {
-      // Look for previously mentioned food items in recent conversation
-      const recentContent = messageHistory.slice(-6).map(m => m.content).join(' ');
-      
-      // Extract food items from previous messages
-      const foodItemPattern = /\b(avocado|pasta|rice|chicken|salmon|beef|broccoli|spinach|apple|banana|tomato|onion|garlic|cheese|bread|milk|yogurt|nuts|seeds|quinoa|oats|beans|lentils|sweet potato|carrot|bell pepper|cucumber|lettuce|egg|tofu|fish|turkey|pork|lamb|mushroom|zucchini|eggplant|cauliflower|cabbage|kale|olive oil|coconut|almond|walnut|cashew|peanut|strawberry|blueberry|orange|grape|pineapple|mango|watermelon|cantaloupe|peach|pear|cherry|lime|lemon)\w*\b/gi;
-      const foundItems = recentContent.match(foodItemPattern) || [];
-      
-      // Remove duplicates and get unique items
-      referencedItems = [...new Set(foundItems.map(item => item.toLowerCase()))];
-      
-      console.log('CONTEXTUAL REFERENCE DETECTED!');
-      console.log('Found referenced items:', referencedItems);
-      console.log('Recent content:', recentContent.substring(0, 200));
-      
-      if (referencedItems.length >= 2) {
-        previousContext = `Previously we were discussing: ${referencedItems.join(' and ')}.`;
-      } else if (referencedItems.length === 1) {
-        previousContext = `Previously we were discussing: ${referencedItems[0]}.`;
-      } else {
-        // Fallback: look for any comparison topic in recent messages
-        const recentUserMessage = messageHistory.slice().reverse().find(m => m.role === 'user' && m.content !== userInput);
-        if (recentUserMessage) {
-          previousContext = `In your previous question you mentioned: "${recentUserMessage.content}".`;
-        }
-      }
-    }
+    // Check for repeated questions or similar topics
+    const isRepeatedQuestion = recentMessages.some(m => 
+      m.role === 'user' && 
+      m.content.toLowerCase().includes(input.substring(0, 20)) && 
+      m.content !== userInput
+    );
     
     // Find previous discussions about similar topics
-    const previousUserMessages = messageHistory.filter(m => m.role === 'user').slice(-3);
-    const previousAssistantMessages = messageHistory.filter(m => m.role === 'assistant').slice(-3);
-    
-    // Check for repeated or similar questions
-    const isRepeatedQuestion = previousUserMessages.some(m => {
-      const similarity = m.content.toLowerCase().includes(input.substring(0, 20));
-      return similarity && m.content !== userInput;
-    });
+    const previousUserMessages = recentMessages.filter(m => m.role === 'user').slice(-3);
+    const previousAssistantMessages = recentMessages.filter(m => m.role === 'assistant').slice(-3);
     
     // Handle repeated or follow-up questions with context
     if (isRepeatedQuestion && previousAssistantMessages.length > 0) {
       return `${userName ? `${userName}, ` : ''}I think we talked about something similar before. To build on our previous discussion, what specific aspect would you like to explore further?`;
-    }
-    
-    // CRITICAL FIX: Handle contextual references FIRST - this addresses the exact issue reported
-    if (hasContextualReference && referencedItems.length >= 2) {
-      const item1 = referencedItems[0];
-      const item2 = referencedItems[1];
-      
-      console.log(`HANDLING CONTEXTUAL REFERENCE: ${item1} vs ${item2}`);
-      
-      // Handle specific nutrition/health comparisons
-      if (input.includes('healthy fat') || input.includes('fat') || input.includes('omega')) {
-        if (item1 === 'avocado' || item2 === 'avocado') {
-          return `${userName ? `${userName}, ` : ''}Great follow-up question! Between ${item1} and ${item2}, avocado definitely has more healthy fats! 🥑 Avocados are rich in monounsaturated fats (about 15g per avocado) and omega-9 fatty acids, which are excellent for heart health. Pasta, on the other hand, is primarily carbohydrates with minimal fat content (less than 1g per serving). So avocado is your winner for healthy fats!`;
-        } else {
-          return `${userName ? `${userName}, ` : ''}Looking at the healthy fat content between ${item1} and ${item2}, here's the comparison you're looking for...`;
-        }
-      }
-      else if (input.includes('protein') || input.includes('amino acid')) {
-        return `${userName ? `${userName}, ` : ''}Comparing the protein content between ${item1} and ${item2} that we discussed earlier...`;
-      }
-      else if (input.includes('calorie') || input.includes('energy') || input.includes('calories')) {
-        return `${userName ? `${userName}, ` : ''}Regarding calories in ${item1} vs ${item2} from our previous discussion...`;
-      }
-      else if (input.includes('vitamin') || input.includes('mineral') || input.includes('nutrient')) {
-        return `${userName ? `${userName}, ` : ''}For vitamins and minerals, comparing ${item1} and ${item2}...`;
-      }
-      else if (input.includes('fiber') || input.includes('digestive')) {
-        return `${userName ? `${userName}, ` : ''}Looking at fiber content between ${item1} and ${item2}...`;
-      }
-      else if (input.includes('better') || input.includes('healthier') || input.includes('which one')) {
-        return `${userName ? `${userName}, ` : ''}Between ${item1} and ${item2} that we were comparing, both have unique benefits. Let me explain which might be better for your specific needs...`;
-      }
-      else {
-        return `${userName ? `${userName}, ` : ''}Continuing our discussion about ${item1} and ${item2}...`;
-      }
-    }
-    else if (hasContextualReference && previousContext) {
-      return `${userName ? `${userName}, ` : ''}I understand you're referring to what we discussed earlier. ${previousContext} What specific aspect would you like me to elaborate on?`;
     }
     
     // Context-aware responses based on conversation flow
@@ -492,7 +403,7 @@ const VoiceBot = () => {
 
   // Generate conversation summary for long conversations with better context
   const generateSummary = useCallback(async (allMessages: Message[]): Promise<string> => {
-    if (allMessages.length < 4) return ''; // Lower threshold for faster context building
+    if (allMessages.length < 8) return ''; // Reduced threshold for better context
     
     try {
       // Extract key information from conversation
@@ -511,25 +422,13 @@ const VoiceBot = () => {
       if (allContent.includes('game') || allContent.includes('play') || allContent.includes('gaming')) topics.push('gaming');
       
       // Create context-rich summary prompt
-      let summaryPrompt = `Create a detailed conversation summary for context carryover. This summary will be used in future conversations to maintain continuity. Include:
+      let summaryPrompt = `Create a brief summary of this conversation to maintain context for future messages. Include:
+1. User's name if mentioned: ${userName || 'not provided'}
+2. Main topics discussed: ${topics.join(', ') || 'general conversation'}
+3. Any specific preferences or interests mentioned
+4. Ongoing themes or questions
 
-ESSENTIAL CONTEXT:
-1. User's name/identity: ${userName || 'not mentioned yet'}
-2. Main topics discussed: ${topics.join(', ') || 'introductory conversation'}
-3. User's specific interests, preferences, and goals mentioned
-4. Any ongoing projects, questions, or learning objectives
-5. Conversational style and personality traits observed
-6. Key facts about the user shared during conversation
-
-CONVERSATION FLOW:
-- How the conversation started and developed
-- Main questions asked and key answers provided
-- Any advice given or information shared
-- Current conversation state and next logical topics
-
-This summary should help maintain conversation continuity and context across sessions.
-
-Conversation to summarize:\n`;
+Recent conversation context:\n`;
       
       // Include more context for better summarization
       const contextMessages = [
@@ -619,7 +518,7 @@ Conversation to summarize:\n`;
 
     setIsProcessing(true);
     
-    // Update conversation context with new message
+    // Add user message first
     const userMessage: Message = { 
       role: 'user', 
       content: text,
@@ -629,49 +528,45 @@ Conversation to summarize:\n`;
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
     
-    // Update context manager with new conversation state
-    const currentContext = ConversationContextManager.updateContext(updatedMessages);
-    
     setIsListening(false); // Stop listening while processing
     
     try {
       // Get recent messages for context (limit to last N messages)
       const recentMessages = updatedMessages.slice(-CONTEXT_WINDOW);
       
-      // Get comprehensive conversation summary
-      const contextSummary = ConversationContextManager.getConversationSummary();
+      // Analyze conversation for better context
+      const allContent = updatedMessages.map(m => m.content.toLowerCase()).join(' ');
+      const userName = allContent.match(/my name is (\w+)|i'm (\w+)|call me (\w+)/);
+      const userNameExtracted = userName ? (userName[1] || userName[2] || userName[3]) : '';
       
       let contextPayload: any = {
         message: text,
         conversationHistory: recentMessages.slice(0, -1), // Exclude current message
         conversationMetadata: {
           messageCount: updatedMessages.length,
-          userName: currentContext.userName,
-          hasLongHistory: updatedMessages.length > 10,
-          sessionId: currentContext.sessionId,
-          contextWindow: CONTEXT_WINDOW,
-          totalStoredMessages: messages.length,
-          interests: currentContext.interests,
-          recentTopics: currentContext.recentTopics
-        },
-        conversationSummary: contextSummary,
-        persistentContext: {
-          userPreferences: currentContext.interests,
-          conversationContinuity: true,
-          lastInteractionTime: currentContext.lastInteraction
+          userName: userNameExtracted,
+          hasLongHistory: updatedMessages.length > 10
         }
       };
       
-      console.log('=== ENHANCED CONTEXT DEBUG ===');
-      console.log('Total messages in conversation:', updatedMessages.length);
-      console.log('Recent messages being sent:', recentMessages.length);
-      console.log('Context summary:', contextSummary);
-      console.log('User interests:', currentContext.interests);
-      console.log('Recent topics:', currentContext.recentTopics);
-      console.log('Context payload size:', JSON.stringify(contextPayload).length);
+      // Add conversation summary for better context - always include if available
+      if (conversationSummary) {
+        contextPayload.conversationSummary = conversationSummary;
+        console.log('Including conversation summary in context:', conversationSummary);
+      }
+      
+      // Include additional context metadata
+      if (updatedMessages.length > 5) {
+        const lastFewMessages = updatedMessages.slice(-5);
+        const contextSummary = lastFewMessages.map(m => 
+          `${m.role}: ${m.content.substring(0, 100)}`
+        ).join(' | ');
+        contextPayload.recentContext = contextSummary;
+        console.log('Including recent context:', contextSummary);
+      }
       
       // Generate new summary more frequently to preserve context better
-      if (updatedMessages.length > 0 && updatedMessages.length % 6 === 0) { // Much more frequent summary
+      if (updatedMessages.length > 0 && updatedMessages.length % 15 === 0) { // More frequent summary
         console.log('Generating conversation summary at message', updatedMessages.length);
         const newSummary = await generateSummary(updatedMessages);
         if (newSummary) {
@@ -757,34 +652,22 @@ Conversation to summarize:\n`;
           localStorage.setItem('voicebot_fallback_notified', 'true');
         }
         
-        // Enhanced local fallback with comprehensive context
-        console.log('Using enhanced local fallback with persistent context');
-        console.log('=== ENHANCED LOCAL FALLBACK DEBUG ===');
-        console.log('Current context summary:', contextSummary);
-        const localResponse = await generateLocalResponse(text, recentMessages, currentContext);
-        console.log('Generated enhanced local response:', localResponse);
-        
+        // Local fallback response with enhanced context
+        console.log('Using local fallback - ensuring context is preserved');
+        console.log('=== LOCAL FALLBACK DEBUG ===');
+        console.log('Calling generateLocalResponse with:', { text, recentMessagesCount: recentMessages.length });
+        const localResponse = await generateLocalResponse(text, recentMessages);
+        console.log('Generated local response:', localResponse);
+        console.log('Local response length:', localResponse?.length || 0);
         const assistantMessage: Message = { 
           role: 'assistant', 
           content: localResponse,
           timestamp: Date.now()
         };
         
-        // Update context with assistant response too
-        const finalMessages = [...updatedMessages, assistantMessage];
-        ConversationContextManager.updateContext(finalMessages);
-        
-        setMessages(finalMessages);
+        setMessages(prev => [...prev, assistantMessage]);
         setCurrentResponse(localResponse);
         speakText(localResponse);
-        
-        // Generate summary more frequently for better context continuity
-        if (finalMessages.length >= 4 && finalMessages.length % 4 === 0) {
-          console.log('Generating context summary for continuity at message', finalMessages.length);
-          const newSummary = ConversationContextManager.getConversationSummary();
-          setConversationSummary(newSummary);
-        }
-        
         setIsProcessing(false);
         return;
       }
