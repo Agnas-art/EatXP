@@ -16,7 +16,6 @@ export default function MangaPanels({
   selectedCharacter = "deku",
 }: MangaPanelsProps) {
   const [selectedStrip, setSelectedStrip] = useState<MangaStrip | null>(null);
-  const [currentPanelIndex, setCurrentPanelIndex] = useState(0);
 
   const selectedChar = ANIME_CHARACTERS[selectedCharacter] || ANIME_CHARACTERS["deku"];
 
@@ -31,182 +30,145 @@ export default function MangaPanels({
   const unlockedManga = Object.values(MANGA_PANELS).filter(isMangaUnlocked);
   const lockedManga = Object.values(MANGA_PANELS).filter((m) => !isMangaUnlocked(m));
 
-  const getEmotionColor = (emotion: string | undefined): string => {
-    switch (emotion) {
-      case "excited":
-      case "happy":
-      case "triumphant":
-        return "from-yellow-300 to-orange-300";
-      case "sad":
-      case "worried":
-        return "from-blue-200 to-blue-300";
-      case "evil":
-      case "angry":
-        return "from-red-300 to-red-400";
-      case "heroic":
-      case "brave":
-        return "from-purple-300 to-purple-400";
-      case "amazed":
-      case "inspired":
-        return "from-pink-300 to-pink-400";
-      case "energetic":
-      case "cheerful":
-        return "from-green-300 to-green-400";
-      case "proud":
-      case "magical":
-        return "from-indigo-300 to-indigo-400";
-      case "determined":
-        return "from-orange-400 to-red-500";
-      default:
-        return "from-white to-gray-100";
-    }
-  };
-
   if (selectedStrip) {
-    const currentPanel = selectedStrip.panels[currentPanelIndex];
-    const nextPanelIndex = (currentPanelIndex + 1) % selectedStrip.panels.length;
-
     return (
-      <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 overflow-auto">
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-amber-200 p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setSelectedStrip(null)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition"
-            >
-              <ChevronLeft className="w-6 h-6 text-gray-700" />
-            </button>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-              📖 {selectedStrip.title}
-            </h1>
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black overflow-auto">
+        <div className="sticky top-0 z-20 bg-black/90 backdrop-blur-sm border-b-4 border-orange-600 p-4 shadow-2xl">
+          <div className="flex items-center justify-between gap-3 max-w-7xl mx-auto">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSelectedStrip(null)}
+                className="p-2 hover:bg-orange-600 rounded-lg transition"
+              >
+                <ChevronLeft className="w-6 h-6 text-white" />
+              </button>
+              <h1 className="text-3xl font-black bg-gradient-to-r from-orange-400 via-red-500 to-purple-600 bg-clip-text text-transparent">
+                📖 {selectedStrip.title}
+              </h1>
+            </div>
+            <div className="flex gap-3">
+              <div className="px-4 py-2 bg-white/10 rounded-lg border border-orange-500">
+                <p className="text-sm text-orange-300">Author</p>
+                <p className="font-bold text-white">{selectedStrip.author}</p>
+              </div>
+              <div className="px-4 py-2 bg-white/10 rounded-lg border border-purple-500">
+                <p className="text-sm text-purple-300">Theme</p>
+                <p className="font-bold text-white">{selectedStrip.theme}</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="p-6 max-w-5xl mx-auto">
+        {/* Manga Page */}
+        <div className="p-8 max-w-7xl mx-auto">
           <motion.div
-            key={currentPanelIndex}
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className={`rounded-xl border-4 border-black bg-gradient-to-br ${getEmotionColor(currentPanel.emotion)} p-8 mb-8 shadow-2xl relative min-h-96 flex flex-col justify-center overflow-hidden`}
+            transition={{ duration: 0.6 }}
+            className="bg-white rounded-2xl shadow-2xl overflow-hidden border-8 border-yellow-100"
           >
-            <div className="absolute top-3 left-3 w-5 h-5 border-t-3 border-l-3 border-black"></div>
-            <div className="absolute top-3 right-3 w-5 h-5 border-t-3 border-r-3 border-black"></div>
-            <div className="absolute bottom-3 left-3 w-5 h-5 border-b-3 border-l-3 border-black"></div>
-            <div className="absolute bottom-3 right-3 w-5 h-5 border-b-3 border-r-3 border-black"></div>
+            {/* Manga Grid Layout */}
+            <div className="bg-white p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-screen">
+              {selectedStrip.panels.map((panel, idx) => {
+                // Varied panel sizes for dynamic manga layout
+                const sizeClass =
+                  idx === 0
+                    ? "md:col-span-2 row-span-2 text-8xl"
+                    : idx === 3
+                      ? "lg:col-span-2 text-6xl"
+                      : "text-5xl";
+                const bgColor =
+                  idx % 3 === 0
+                    ? "from-yellow-100 to-orange-100"
+                    : idx % 3 === 1
+                      ? "from-blue-100 to-cyan-100"
+                      : "from-pink-100 to-rose-100";
 
-            <div className="absolute top-6 right-6 bg-black text-white rounded-full w-14 h-14 flex items-center justify-center font-bold text-lg shadow-lg border-2 border-white">
-              {currentPanelIndex + 1}/{selectedStrip.panels.length}
-            </div>
-
-            <div className="flex items-center justify-between w-full gap-8 relative z-10">
-              <div className="flex flex-col items-center flex-shrink-0">
-                {selectedChar.imageUrl ? (
-                  <img
-                    src={selectedChar.imageUrl}
-                    alt={selectedChar.name}
-                    className="w-40 h-48 object-cover rounded-lg border-4 border-black shadow-lg hover:scale-105 transition"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                      const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.classList.remove("hidden");
-                    }}
-                  />
-                ) : null}
-                <div className="hidden text-8xl mt-2">{selectedChar.emoji || "🧑"}</div>
-              </div>
-
-              <div className="flex-1">
-                <div className="text-9xl mb-6 text-center drop-shadow-lg">
-                  {currentPanel.image}
-                </div>
-
-                <div className="relative bg-white rounded-2xl p-8 border-4 border-black shadow-xl before:content-[''] before:absolute before:-left-8 before:top-8 before:w-0 before:h-0 before:border-l-10 before:border-t-10 before:border-r-0 before:border-b-0 before:border-l-transparent before:border-t-white before:border-b-transparent">
-                  <p className="text-2xl font-bold text-gray-900 mb-4 leading-relaxed">
-                    {currentPanel.dialogue}
-                  </p>
-                  <p className="text-lg font-semibold text-gray-700 border-t-2 border-gray-300 pt-3">
-                    — {selectedChar.name}
-                  </p>
-                </div>
-
-                {currentPanel.emotion && (
-                  <div className="mt-6 inline-block">
-                    <div className="bg-black text-white px-6 py-3 rounded-full font-bold text-base border-2 border-white shadow-lg">
-                      💭 {currentPanel.emotion.toUpperCase()}
+                return (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: idx * 0.1, duration: 0.4 }}
+                    className={`${sizeClass} border-4 border-black rounded-lg overflow-hidden bg-gradient-to-br ${bgColor} p-6 flex flex-col justify-between hover:shadow-lg transition-all cursor-pointer group relative`}
+                  >
+                    {/* Panel number indicator */}
+                    <div className="absolute top-2 right-2 bg-black text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm border-2 border-white shadow-md">
+                      {idx + 1}
                     </div>
-                  </div>
-                )}
-              </div>
+
+                    {/* Manga effect corner lines */}
+                    <div className="absolute top-0 left-0 w-4 h-4 border-t-3 border-l-3 border-black"></div>
+                    <div className="absolute top-0 right-0 w-4 h-4 border-t-3 border-r-3 border-black"></div>
+                    <div className="absolute bottom-0 left-0 w-4 h-4 border-b-3 border-l-3 border-black"></div>
+                    <div className="absolute bottom-0 right-0 w-4 h-4 border-b-3 border-r-3 border-black"></div>
+
+                    {/* Panel image/emoji - large and centered */}
+                    <div className="flex items-center justify-center flex-1 mb-3 drop-shadow-lg group-hover:scale-110 transition">
+                      {panel.image}
+                    </div>
+
+                    {/* Speech bubble with dialogue */}
+                    <div className="relative bg-white rounded-2xl p-4 border-3 border-black shadow-md before:content-[''] before:absolute before:-left-6 before:bottom-4 before:w-0 before:h-0 before:border-l-12 before:border-t-6 before:border-r-0 before:border-b-6 before:border-l-white before:border-t-transparent before:border-b-transparent">
+                      <p className="text-sm font-bold text-gray-900 leading-tight">
+                        {panel.dialogue}
+                      </p>
+                    </div>
+
+                    {/* Emotion indicator */}
+                    {panel.emotion && (
+                      <div className="mt-2 inline-block">
+                        <span className="text-xs font-bold bg-black text-white px-3 py-1 rounded-full">
+                          {panel.emotion.toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
             </div>
+
+            {/* Lesson Takeaway Section */}
+            {selectedStrip.lesson && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="bg-gradient-to-r from-orange-300 via-yellow-300 to-red-300 border-t-8 border-black p-8"
+              >
+                <div className="flex items-center gap-4">
+                  <span className="text-6xl">✨</span>
+                  <div>
+                    <p className="font-black text-2xl text-black mb-2">LESSON TAKEAWAY</p>
+                    <p className="text-lg font-bold text-gray-900 leading-relaxed">
+                      {selectedStrip.lesson}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
 
-          <div className="flex justify-between items-center gap-4 mb-8">
+          {/* Story Description */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mt-8 bg-white/10 backdrop-blur-sm border-2 border-orange-500 rounded-xl p-6 text-white"
+          >
+            <p className="text-lg leading-relaxed">{selectedStrip.description}</p>
+          </motion.div>
+
+          {/* Navigation */}
+          <div className="mt-8 flex justify-center gap-4">
             <motion.button
-              whileHover={{ scale: 1.08 }}
+              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setCurrentPanelIndex((currentPanelIndex - 1 + selectedStrip.panels.length) % selectedStrip.panels.length)}
-              className="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-bold hover:shadow-lg transition text-lg"
+              onClick={() => setSelectedStrip(null)}
+              className="px-8 py-4 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-xl font-bold hover:shadow-lg transition text-lg"
             >
-              ← Previous Panel
+              ← Back to Manga List
             </motion.button>
-
-            <div className="flex gap-3 flex-wrap justify-center">
-              {selectedStrip.panels.map((_, idx) => (
-                <motion.button
-                  key={idx}
-                  whileHover={{ scale: 1.3 }}
-                  whileTap={{ scale: 0.8 }}
-                  onClick={() => setCurrentPanelIndex(idx)}
-                  className={`rounded-full transition shadow-md ${
-                    idx === currentPanelIndex 
-                      ? "bg-orange-600 w-5 h-5 scale-125 ring-2 ring-orange-300" 
-                      : "bg-gray-400 w-4 h-4 hover:bg-orange-400"
-                  }`}
-                />
-              ))}
-            </div>
-
-            <motion.button
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setCurrentPanelIndex(nextPanelIndex)}
-              className="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-bold hover:shadow-lg transition text-lg"
-            >
-              Next Panel →
-            </motion.button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-white border-2 border-amber-300 rounded-lg p-4">
-              <p className="text-sm text-gray-600 mb-1">📝 Author</p>
-              <p className="font-bold text-orange-700">{selectedStrip.author}</p>
-            </div>
-            <div className="bg-white border-2 border-amber-300 rounded-lg p-4">
-              <p className="text-sm text-gray-600 mb-1">🎯 Theme</p>
-              <p className="font-bold text-orange-700">{selectedStrip.theme}</p>
-            </div>
-            <div className="bg-white border-2 border-amber-300 rounded-lg p-4">
-              <p className="text-sm text-gray-600 mb-1">📑 Total Panels</p>
-              <p className="font-bold text-orange-700">{selectedStrip.panels.length}</p>
-            </div>
-          </div>
-
-          {selectedStrip.lesson && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-r from-yellow-100 via-orange-100 to-red-100 border-3 border-orange-400 rounded-lg p-6 mb-8 shadow-lg"
-            >
-              <p className="font-bold text-xl text-orange-900 mb-3">✨ Lesson Takeaway</p>
-              <p className="text-lg text-orange-800 leading-relaxed">{selectedStrip.lesson}</p>
-            </motion.div>
-          )}
-
-          <div className="bg-white border-2 border-amber-200 rounded-lg p-6">
-            <p className="text-lg text-gray-700 leading-relaxed">
-              {selectedStrip.description}
-            </p>
           </div>
         </div>
       </div>

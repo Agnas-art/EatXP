@@ -669,15 +669,11 @@ Conversation to summarize:\n`;
       return topics;
     }).flat();
     
-    const currentContext = {
-      userName: extractedUserName,
-      interests: analyzedInterests,
-      recentTopics: extractedTopics,
-      conversationLength: updatedMessages.length,
-      lastInteraction: Date.now(),
-      sessionId: 'fast-session',
-      lastMessages: updatedMessages.slice(-3),
-      preferences: {}
+    // Create proper ConversationContext for local fallback
+    const currentContext: ConversationContext = {
+      messages: updatedMessages,
+      summary: conversationSummary || `User: ${extractedUserName || 'Guest'}, Topics: ${extractedTopics.join(', ') || 'General conversation'}`,
+      lastActiveTime: Date.now()
     };
     
     setIsListening(false); // Stop listening while processing
@@ -737,10 +733,12 @@ Conversation to summarize:\n`;
       
       let response;
       try {
-        // TEMPORARY: Force local fallback for debugging
-        throw new Error('FALLBACK_TO_LOCAL');
-        // TEMPORARY: Force local fallback for debugging
-        throw new Error('FALLBACK_TO_LOCAL');
+        // Check if Supabase is properly configured before making API call
+        if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
+          console.log('Supabase not configured, using local fallback');
+          throw new Error('FALLBACK_TO_LOCAL');
+        }
+        
         response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
           {
@@ -762,6 +760,7 @@ Conversation to summarize:\n`;
           
           // If the error is configuration-related, fall back to local response
           if (response.status === 500 || errorText.includes('LOVABLE_API_KEY')) {
+            console.log('Configuration issue detected, falling back to local response');
             throw new Error('FALLBACK_TO_LOCAL');
           }
           
@@ -791,11 +790,17 @@ Conversation to summarize:\n`;
         console.log('Response processed successfully:', data.reply);
         
       } catch (fetchError) {
-        console.error('=== API ERROR DETAILS ===');
-        console.error('Error type:', fetchError.constructor.name);
-        console.error('Error message:', fetchError.message);
-        console.error('Full error:', fetchError);
-        console.warn('Supabase edge function not available, using local fallback:', fetchError);
+        // Handle FALLBACK_TO_LOCAL as normal flow, not an error
+        if (fetchError.message === 'FALLBACK_TO_LOCAL') {
+          console.log('Using local fallback mode');
+        } else {
+          console.error('=== API ERROR DETAILS ===');
+          console.error('Error type:', fetchError.constructor.name);
+          console.error('Error message:', fetchError.message);
+          console.error('Full error:', fetchError);
+        }
+        
+        console.log('Supabase edge function not available, using local fallback');
         
         // Show a one-time notification about fallback mode
         if (!localStorage.getItem('voicebot_fallback_notified')) {
@@ -818,6 +823,13 @@ Conversation to summarize:\n`;
         const fullMessageHistory = storedContext.messages || [];
         const completeHistory = [...fullMessageHistory, ...updatedMessages];
         
+        // Create context with complete history for better conversation continuity
+        const enhancedContext: ConversationContext = {
+          messages: completeHistory,
+          summary: storedContext.summary || currentContext.summary,
+          lastActiveTime: Date.now()
+        };
+        
         console.log('💾 COMPLETE HISTORY DEBUG:', {
           storedMessages: fullMessageHistory.length,
           currentSession: updatedMessages.length,
@@ -825,7 +837,7 @@ Conversation to summarize:\n`;
           lastStoredMessage: fullMessageHistory[fullMessageHistory.length - 1]?.content?.substring(0, 50)
         });
         
-        const localResponse = await generateLocalResponse(text, completeHistory, currentContext);
+        const localResponse = await generateLocalResponse(text, completeHistory, enhancedContext);
         console.log('Generated enhanced local response:', localResponse);
         
         const assistantMessage: Message = { 
