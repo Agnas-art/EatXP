@@ -159,6 +159,7 @@ const Index = () => {
       "Complex carbs": "seasonal_produce.complex_carbs",
       "Lean protein": "seasonal_produce.lean_protein",
       "B vitamins": "seasonal_produce.b_vitamins",
+      "Fiber rich": "food_benefits.fiber_rich",
     };
 
     // Map fun fact keys
