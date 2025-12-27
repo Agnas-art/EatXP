@@ -338,6 +338,563 @@ const FOOD_HEROES_DATA: Record<string, FoodHero> = {
         "Tomatoes are botanically fruits (they have seeds inside), but the Supreme Court ruled them vegetables for cooking purposes in 1893! So technically, they're both!",
     },
   },
+
+  banana: {
+    name: "Banana",
+    emoji: "🍌",
+    scientificName: "Musa acuminata",
+    category: "Tropical Fruit",
+    seasonality: ["Year-round"],
+    nutrition: {
+      calories: 105,
+      protein: 1.3,
+      fiber: 2.6,
+      vitamins: ["Vitamin B6", "Vitamin C", "Folate"],
+      minerals: ["Potassium", "Manganese"],
+      benefits: [
+        "Rich in potassium for heart health and energy",
+        "Natural sugars provide quick energy boost",
+        "Contains mood-boosting serotonin precursors",
+      ],
+    },
+    animeTraits: {
+      trait: "Energy Champion",
+      power: "Vitality Surge - Instant energy boost for adventures!",
+    },
+    funFact: "Bananas are berries, but strawberries aren't! Also, bananas can float in water due to their low density.",
+    culturalUses: {
+      dishes: ["Banana splits (American)", "Banana curry (South Asian)", "Pancakes (Global)"],
+      traditions: ["Popular in Caribbean cuisine", "Staple in African dishes", "Used in Asian desserts"],
+      cookingTips: [
+        "Ripe bananas are sweeter and softer",
+        "Green bananas have more resistant starch",
+        "Blend frozen bananas for nice cream",
+      ],
+    },
+    sustainability:
+      "Bananas are available year-round but grown in tropical regions. Fair-trade bananas support farmer livelihoods. Buy organic when possible!",
+    xpReward: 40,
+    challenge: {
+      title: "Energy Quest",
+      description: "Eat a banana and feel the energy boost!",
+      requirement: 1,
+      duration: "7 days",
+    },
+    recipe: {
+      title: "Peanut Butter Banana Toast",
+      emoji: "🍌🥜",
+      description: "Quick, delicious, and packed with energy!",
+      steps: [
+        "Toast whole grain bread until golden",
+        "Spread 2 tbsp peanut butter on toast",
+        "Slice banana and arrange on top",
+        "Drizzle with honey and a pinch of cinnamon",
+        "Enjoy immediately!",
+      ],
+    },
+    trivia: {
+      question: "Which fruit is technically a berry?",
+      options: ["Strawberry", "Banana", "Raspberry", "Blackberry"],
+      correct: 1,
+      explanation:
+        "Bananas are berries! Botanically, a berry develops from the ovary of a single flower. Strawberries actually aren't true berries - they're aggregate fruits!",
+    },
+  },
+
+  apple: {
+    name: "Apple",
+    emoji: "🍎",
+    scientificName: "Malus domestica",
+    category: "Pome Fruit",
+    seasonality: ["Fall", "Winter", "Early Spring"],
+    nutrition: {
+      calories: 95,
+      protein: 0.5,
+      fiber: 4.4,
+      vitamins: ["Vitamin C", "Vitamin K"],
+      minerals: ["Potassium", "Manganese"],
+      benefits: [
+        "High in fiber for healthy digestion",
+        "Contains quercetin for brain health",
+        "Helps maintain healthy teeth",
+      ],
+    },
+    animeTraits: {
+      trait: "Health Guardian",
+      power: "Wellness Shield - Keep you healthy every day!",
+    },
+    funFact: "Apples are part of the rose family! It takes about 36 apples to make one gallon of apple juice.",
+    culturalUses: {
+      dishes: ["Apple pie (American)", "Apple crumble (British)", "Apple salad (Global)"],
+      traditions: ["Apple bobbing (Halloween)", "Thanksgiving staple", "Rosh Hashanah symbol"],
+      cookingTips: [
+        "Different varieties have different tastes",
+        "Granny Smith for baking, Fuji for eating",
+        "Keep apples in the refrigerator to last longer",
+      ],
+    },
+    sustainability:
+      "Apples can be stored long-term without refrigeration. Buy local when in season (fall). Supports local orchards!",
+    xpReward: 45,
+    challenge: {
+      title: "Apple A Day",
+      description: "Eat an apple daily for a week to stay healthy!",
+      requirement: 7,
+      duration: "7 days",
+    },
+    recipe: {
+      title: "Baked Cinnamon Apples",
+      emoji: "🍎✨",
+      description: "Warm, cozy dessert that's naturally sweet!",
+      steps: [
+        "Core 2 apples and place in baking dish",
+        "Fill with oats, nuts, and cinnamon",
+        "Drizzle with honey",
+        "Bake at 375°F for 20 minutes",
+        "Serve warm with yogurt!",
+      ],
+    },
+    trivia: {
+      question: "Apples are part of which plant family?",
+      options: ["Citrus", "Stone fruit", "Rose", "Berry"],
+      correct: 2,
+      explanation: "Apples belong to the Rosaceae family, the same family as roses, pears, and strawberries!",
+    },
+  },
+
+  cheese: {
+    name: "Cheese",
+    emoji: "🧀",
+    scientificName: "Lactis coagulatum",
+    category: "Dairy",
+    seasonality: ["Year-round"],
+    nutrition: {
+      calories: 402,
+      protein: 25,
+      fiber: 0,
+      vitamins: ["Vitamin A", "Vitamin B12", "Vitamin D"],
+      minerals: ["Calcium", "Phosphorus", "Zinc"],
+      benefits: [
+        "Excellent source of calcium for strong bones",
+        "High protein for muscle building",
+        "Contains probiotics for gut health",
+      ],
+    },
+    animeTraits: {
+      trait: "Bone Warrior",
+      power: "Calcium Shield - Build unbreakable bones!",
+    },
+    funFact: "There are over 2,000 varieties of cheese! The oldest known cheese dates back 8,000 years.",
+    culturalUses: {
+      dishes: ["Pizza (Italian)", "Nachos (Mexican)", "Mac and Cheese (American)"],
+      traditions: ["Cheese festivals worldwide", "Traditional cheesemaking in Europe", "Important in Mediterranean diet"],
+      cookingTips: [
+        "Softer cheeses melt better",
+        "Sharp cheddar has more flavor than mild",
+        "Store cheese in the cheese drawer of fridge",
+      ],
+    },
+    sustainability:
+      "Look for locally-made cheese from small dairies. Organic cheese comes from grass-fed cows. Supports sustainable farming!",
+    xpReward: 50,
+    challenge: {
+      title: "Cheese Challenge",
+      description: "Try a new cheese variety and unlock the 'Cheese Explorer' badge!",
+      requirement: 1,
+      duration: "30 days",
+    },
+    recipe: {
+      title: "Cheesy Veggie Quesadilla",
+      emoji: "🧀🥬",
+      description: "Melty, cheesy, and packed with veggies!",
+      steps: [
+        "Heat olive oil in a pan",
+        "Place tortilla and add shredded cheese + veggies",
+        "Top with another tortilla",
+        "Cook until golden and cheese is melted",
+        "Cut into triangles and serve!",
+      ],
+    },
+    trivia: {
+      question: "How many cheese varieties exist?",
+      options: ["About 100", "About 500", "Over 2,000", "About 50"],
+      correct: 2,
+      explanation:
+        "There are over 2,000 varieties of cheese worldwide! Each region has its own specialty cheeses with unique flavors and textures.",
+    },
+  },
+
+  avocado: {
+    name: "Avocado",
+    emoji: "🥑",
+    scientificName: "Persea americana",
+    category: "Fruit",
+    seasonality: ["Fall", "Winter", "Spring"],
+    nutrition: {
+      calories: 160,
+      protein: 2,
+      fiber: 6.7,
+      vitamins: ["Vitamin K", "Vitamin C", "Folate"],
+      minerals: ["Potassium", "Copper"],
+      benefits: [
+        "Rich in healthy monounsaturated fats for brain health",
+        "High in potassium, more than bananas",
+        "Supports eye health with lutein",
+      ],
+    },
+    animeTraits: {
+      trait: "Brain Scholar",
+      power: "Intellect Boost - Sharpen your mind for studying!",
+    },
+    funFact: "Avocados are actually berries! They contain a large seed in the middle and develop from the plant's flower.",
+    culturalUses: {
+      dishes: ["Guacamole (Mexican)", "Avocado toast (Modern)", "Poke bowls (Hawaiian)"],
+      traditions: ["Mexican staple for centuries", "Growing trend in health food", "Symbol of sustainability"],
+      cookingTips: [
+        "Wait until avocado yields to gentle pressure",
+        "Store in paper bag to ripen faster",
+        "Use lemon juice to prevent browning",
+      ],
+    },
+    sustainability:
+      "Avocados require significant water. Look for sustainably grown options. Support fair-trade farming practices!",
+    xpReward: 55,
+    challenge: {
+      title: "Brain Boost Quest",
+      description: "Make avocado toast and fuel your brain!",
+      requirement: 1,
+      duration: "7 days",
+    },
+    recipe: {
+      title: "Avocado Toast with Egg",
+      emoji: "🥑🍳",
+      description: "Perfect brunch with healthy fats and protein!",
+      steps: [
+        "Toast whole grain bread until crispy",
+        "Mash ripe avocado with lemon, salt, pepper",
+        "Spread on toast generously",
+        "Top with a fried or poached egg",
+        "Add red pepper flakes and enjoy!",
+      ],
+    },
+    trivia: {
+      question: "Avocados are actually what type of fruit?",
+      options: ["Vegetables", "Berries", "Drupes", "Aggregate fruits"],
+      correct: 1,
+      explanation:
+        "Avocados are berries! They develop from a single ovary and have a large seed, making them true berries despite their savory use.",
+    },
+  },
+
+  salmon: {
+    name: "Salmon",
+    emoji: "🐟",
+    scientificName: "Salmo salar",
+    category: "Protein/Fish",
+    seasonality: ["Spring", "Summer", "Fall"],
+    nutrition: {
+      calories: 206,
+      protein: 20,
+      fiber: 0,
+      vitamins: ["Vitamin D", "Vitamin B12", "Selenium"],
+      minerals: ["Omega-3 fatty acids", "Potassium"],
+      benefits: [
+        "Rich in omega-3 fatty acids for heart health",
+        "Excellent source of lean protein",
+        "Supports brain and joint health",
+      ],
+    },
+    animeTraits: {
+      trait: "Strength Warrior",
+      power: "Muscle Surge - Build lean muscle and power!",
+    },
+    funFact: "Salmon can jump up to 12 feet high! They swim thousands of miles back to their birthplace to spawn.",
+    culturalUses: {
+      dishes: ["Sushi (Japanese)", "Salmon fillet (Nordic)", "Fish tacos (Modern)"],
+      traditions: ["Native American staple", "Scandinavian cuisine", "Japanese delicacy"],
+      cookingTips: [
+        "Wild salmon has more omega-3s than farmed",
+        "Baking or grilling preserves nutrients better",
+        "Skin contains beneficial omega-3s - keep it on",
+      ],
+    },
+    sustainability:
+      "Choose wild-caught salmon from sustainable fisheries. Look for MSC certification. Avoid overfished species!",
+    xpReward: 65,
+    challenge: {
+      title: "Protein Power",
+      description: "Cook and eat salmon to get the protein warrior badge!",
+      requirement: 1,
+      duration: "14 days",
+    },
+    recipe: {
+      title: "Honey Garlic Baked Salmon",
+      emoji: "🐟✨",
+      description: "Flaky, delicious, and super healthy!",
+      steps: [
+        "Place salmon fillet on parchment paper",
+        "Mix honey, garlic, and lemon juice",
+        "Brush mixture over salmon",
+        "Bake at 400°F for 15 minutes",
+        "Serve with roasted vegetables!",
+      ],
+    },
+    trivia: {
+      question: "How high can salmon jump?",
+      options: ["Up to 6 feet", "Up to 10 feet", "Up to 12 feet", "Up to 15 feet"],
+      correct: 2,
+      explanation:
+        "Salmon can jump up to 12 feet high! This amazing ability helps them swim upstream to their birthplace, a journey that can be thousands of miles long!",
+    },
+  },
+
+  quinoa: {
+    name: "Quinoa",
+    emoji: "🌾",
+    scientificName: "Chenopodium quinoa",
+    category: "Grain",
+    seasonality: ["Fall", "Winter"],
+    nutrition: {
+      calories: 120,
+      protein: 4.4,
+      fiber: 2.8,
+      vitamins: ["Magnesium", "Manganese", "Folate"],
+      minerals: ["Phosphorus", "Copper", "Iron"],
+      benefits: [
+        "Complete protein with all 9 amino acids",
+        "High in fiber for digestion",
+        "Gluten-free grain",
+      ],
+    },
+    animeTraits: {
+      trait: "Ancient Hero",
+      power: "Complete Strength - Full body nutrition in every bite!",
+    },
+    funFact: "Quinoa was called 'the mother grain' by the Incas! It's technically a seed, not a true grain.",
+    culturalUses: {
+      dishes: ["Quinoa bowls (Modern)", "Peruvian salads", "Grain pilaf (Global)"],
+      traditions: ["Andean staple for 5,000 years", "Growing superfood trend", "Vegan protein source"],
+      cookingTips: [
+        "Rinse quinoa before cooking to remove bitterness",
+        "Use 2 cups water to 1 cup quinoa",
+        "Fluff with fork after cooking",
+      ],
+    },
+    sustainability:
+      "Quinoa is drought-resistant and supports Andean farmers. However, water usage in some regions is high. Choose certified fair-trade!",
+    xpReward: 60,
+    challenge: {
+      title: "Ancient Grain Quest",
+      description: "Try quinoa and unlock the ancient grain warrior badge!",
+      requirement: 1,
+      duration: "14 days",
+    },
+    recipe: {
+      title: "Mediterranean Quinoa Bowl",
+      emoji: "🌾🥒",
+      description: "Colorful, filling, and packed with nutrients!",
+      steps: [
+        "Cook 1 cup quinoa in 2 cups water",
+        "Add diced cucumber, tomato, red onion",
+        "Include chickpeas for extra protein",
+        "Drizzle with olive oil and lemon juice",
+        "Top with feta cheese and herbs!",
+      ],
+    },
+    trivia: {
+      question: "Quinoa is technically what?",
+      options: ["A grain", "A seed", "A legume", "A vegetable"],
+      correct: 1,
+      explanation:
+        "Quinoa is technically a seed from a plant related to spinach and beets, not a true grain. But it's used like a grain in cooking!",
+    },
+  },
+
+  "greek yogurt": {
+    name: "Greek Yogurt",
+    emoji: "🥛",
+    scientificName: "Lactobacillus bulgaricus",
+    category: "Dairy",
+    seasonality: ["Year-round"],
+    nutrition: {
+      calories: 130,
+      protein: 11,
+      fiber: 0,
+      vitamins: ["Vitamin B12", "Pantothenic acid"],
+      minerals: ["Calcium", "Probiotics"],
+      benefits: [
+        "Twice the protein of regular yogurt",
+        "Contains probiotics for gut health",
+        "Supports digestive health and immunity",
+      ],
+    },
+    animeTraits: {
+      trait: "Gut Guardian",
+      power: "Digestive Shield - Keep your belly happy and strong!",
+    },
+    funFact: "Greek yogurt is strained multiple times to remove whey, making it thicker and creamier than regular yogurt!",
+    culturalUses: {
+      dishes: ["Tzatziki sauce (Greek)", "Parfaits (Modern)", "Smoothie bowls (Health food)"],
+      traditions: ["Mediterranean diet staple", "Ancient Greek preparation", "Modern health trend"],
+      cookingTips: [
+        "Check expiration date - fresher is better",
+        "Full-fat has more flavor than low-fat",
+        "Great substitute for sour cream",
+      ],
+    },
+    sustainability:
+      "Look for organic Greek yogurt from grass-fed cows. Support brands with ethical dairy practices!",
+    xpReward: 50,
+    challenge: {
+      title: "Gut Health Quest",
+      description: "Eat Greek yogurt daily for 5 days to boost your digestion!",
+      requirement: 5,
+      duration: "7 days",
+    },
+    recipe: {
+      title: "Berry Greek Yogurt Parfait",
+      emoji: "🥛🫐",
+      description: "Creamy, delicious, and loaded with probiotics!",
+      steps: [
+        "Layer Greek yogurt in a bowl",
+        "Add granola for crunch",
+        "Top with mixed berries (blueberry, strawberry)",
+        "Drizzle with honey",
+        "Enjoy as breakfast or snack!",
+      ],
+    },
+    trivia: {
+      question: "How much more protein does Greek yogurt have than regular yogurt?",
+      options: ["25% more", "50% more", "100% more", "150% more"],
+      correct: 2,
+      explanation:
+        "Greek yogurt has twice (100% more) the protein of regular yogurt because it's strained to remove whey, concentrating the protein!",
+    },
+  },
+
+  "sweet potato": {
+    name: "Sweet Potato",
+    emoji: "🍠",
+    scientificName: "Ipomoea batatas",
+    category: "Root Vegetable",
+    seasonality: ["Fall", "Winter"],
+    nutrition: {
+      calories: 103,
+      protein: 1.6,
+      fiber: 3.3,
+      vitamins: ["Vitamin A", "Vitamin C", "Folate"],
+      minerals: ["Potassium", "Manganese"],
+      benefits: [
+        "Excellent source of beta-carotene for vision",
+        "High in antioxidants",
+        "Supports immune system",
+      ],
+    },
+    animeTraits: {
+      trait: "Vision Guardian",
+      power: "Golden Sight - See clearly and stay alert!",
+    },
+    funFact: "Sweet potatoes are not related to regular potatoes! They're from a completely different plant family.",
+    culturalUses: {
+      dishes: ["Fries (American)", "Curry (Asian)", "Pie (Thanksgiving)"],
+      traditions: ["Thanksgiving staple", "Soul food tradition", "Asian cuisine"],
+      cookingTips: [
+        "Baking brings out natural sweetness",
+        "Skin is edible and nutritious",
+        "Great substitute for regular potatoes",
+      ],
+    },
+    sustainability:
+      "Sweet potatoes are low-impact crops that improve soil health. Buy local when possible!",
+    xpReward: 55,
+    challenge: {
+      title: "Golden Root Quest",
+      description: "Roast sweet potatoes and earn the vision hero badge!",
+      requirement: 1,
+      duration: "7 days",
+    },
+    recipe: {
+      title: "Roasted Sweet Potato Wedges",
+      emoji: "🍠✨",
+      description: "Crispy outside, soft inside - perfectly golden!",
+      steps: [
+        "Cut sweet potato into wedges",
+        "Toss with olive oil and cinnamon",
+        "Spread on baking sheet",
+        "Roast at 400°F for 25 minutes",
+        "Serve with yogurt dip!",
+      ],
+    },
+    trivia: {
+      question: "Are sweet potatoes related to regular potatoes?",
+      options: ["Yes, same family", "No, completely different", "Somewhat related", "Only by name"],
+      correct: 1,
+      explanation:
+        "Sweet potatoes and regular potatoes are completely unrelated! Regular potatoes are from the nightshade family, while sweet potatoes are vines from the bindweed family.",
+    },
+  },
+
+  chicken: {
+    name: "Chicken",
+    emoji: "🍗",
+    scientificName: "Gallus gallus domesticus",
+    category: "Protein/Poultry",
+    seasonality: ["Year-round"],
+    nutrition: {
+      calories: 165,
+      protein: 31,
+      fiber: 0,
+      vitamins: ["Vitamin B6", "Niacin", "Selenium"],
+      minerals: ["Phosphorus", "Zinc"],
+      benefits: [
+        "Lean protein for muscle building",
+        "Rich in B vitamins for energy",
+        "Versatile and affordable",
+      ],
+    },
+    animeTraits: {
+      trait: "Power Hero",
+      power: "Strength Force - Build muscles and energy!",
+    },
+    funFact: "Chicken is the most popular meat in the world! A single chicken produces about 3-5 pounds of meat.",
+    culturalUses: {
+      dishes: ["Fried chicken (American)", "Tikka (Indian)", "Teriyaki (Japanese)"],
+      traditions: ["Global staple", "Key in many cuisines", "Popular BBQ ingredient"],
+      cookingTips: [
+        "Dark meat is more flavorful than white meat",
+        "Always cook to internal temperature of 165°F",
+        "Marinating adds flavor and tenderness",
+      ],
+    },
+    sustainability:
+      "Choose free-range or pasture-raised chicken. Look for certifications. Supports ethical farming!",
+    xpReward: 60,
+    challenge: {
+      title: "Power Meal Quest",
+      description: "Cook a chicken dinner and earn the protein hero badge!",
+      requirement: 1,
+      duration: "14 days",
+    },
+    recipe: {
+      title: "Lemon Herb Grilled Chicken",
+      emoji: "🍗🍋",
+      description: "Juicy, flavorful, and perfect with veggies!",
+      steps: [
+        "Mix olive oil, lemon juice, garlic, and herbs",
+        "Marinate chicken breasts for 30 minutes",
+        "Grill over medium heat for 6-7 minutes per side",
+        "Rest for 5 minutes before serving",
+        "Serve with roasted veggies!",
+      ],
+    },
+    trivia: {
+      question: "What is the most popular meat in the world?",
+      options: ["Beef", "Pork", "Chicken", "Fish"],
+      correct: 2,
+      explanation:
+        "Chicken is the most popular meat globally! It's affordable, versatile, and nutritious, making it a staple in cuisines worldwide.",
+    },
+  },
 };
 
 interface HealthyFoodHeroesDetailProps {
