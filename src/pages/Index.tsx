@@ -20,6 +20,7 @@ import FoodKingdomMap from "@/components/FoodKingdomMap";
 import AnimeCutscenes from "@/components/AnimeCutscenes";
 import MangaPanels from "@/components/MangaPanels";
 import SeasonalProduce from "@/components/SeasonalProduce";
+import FoodNutritionTracker from "@/components/FoodNutritionTracker";
 import { AnimeThemeSelector } from "@/components/AnimeThemeSelector";
 import { CharacterSelector } from "@/components/CharacterSelector";
 import { VoiceControlButton } from "@/components/VoiceControlButton";
@@ -54,6 +55,7 @@ const Index = () => {
   const [showAnimeCutscenes, setShowAnimeCutscenes] = useState(false);
   const [showMangaPanels, setShowMangaPanels] = useState(false);
   const [showSeasonalProduce, setShowSeasonalProduce] = useState(false);
+  const [showFoodNutritionTracker, setShowFoodNutritionTracker] = useState(false);
   const [showShokuikuSaga, setShowShokuikuSaga] = useState(false);
   const [showBossBattles, setShowBossBattles] = useState(false);
   const [showMealMastery, setShowMealMastery] = useState(false);
@@ -93,6 +95,8 @@ const Index = () => {
       setShowMangaPanels(true);
     } else if (lower.includes("seasonal") || lower.includes("produce") || lower.includes("vegetables") || lower.includes("fruits")) {
       setShowSeasonalProduce(true);
+    } else if (lower.includes("nutrition") || lower.includes("tracker") || lower.includes("meal") || lower.includes("analyze")) {
+      setShowFoodNutritionTracker(true);
     } else if (lower.includes("home") || lower.includes("back")) {
       setShowGames(false);
       setShowComics(false);
@@ -103,6 +107,7 @@ const Index = () => {
       setShowAnimeCutscenes(false);
       setShowMangaPanels(false);
       setShowSeasonalProduce(false);
+      setShowFoodNutritionTracker(false);
     }
   }, [transcript]);
 
@@ -363,6 +368,14 @@ const Index = () => {
     );
   }
 
+  if (showFoodNutritionTracker) {
+    return (
+      <FoodNutritionTracker
+        onBack={() => setShowFoodNutritionTracker(false)}
+      />
+    );
+  }
+
   if (showShokuikuSaga) {
     return (
       <div className="min-h-screen bg-background pb-8">
@@ -565,6 +578,17 @@ const Index = () => {
                   <span className="text-2xl mb-1 inline-block">🌿</span>
                   <p className="font-display font-bold text-xs text-primary-foreground">Seasonal Produce</p>
                   <p className="text-xs text-primary-foreground/80">Fresh by season</p>
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowFoodNutritionTracker(true)}
+                  className="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl p-3 text-left relative overflow-hidden"
+                >
+                  <span className="text-2xl mb-1 inline-block">📊</span>
+                  <p className="font-display font-bold text-xs text-primary-foreground">Nutrition Tracker</p>
+                  <p className="text-xs text-primary-foreground/80">Grade your meals</p>
                 </motion.button>
 
 
