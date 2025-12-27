@@ -19,6 +19,7 @@ import StoryMode from "@/components/StoryMode";
 import FoodKingdomMap from "@/components/FoodKingdomMap";
 import AnimeCutscenes from "@/components/AnimeCutscenes";
 import MangaPanels from "@/components/MangaPanels";
+import SeasonalProduce from "@/components/SeasonalProduce";
 import { AnimeThemeSelector } from "@/components/AnimeThemeSelector";
 import { CharacterSelector } from "@/components/CharacterSelector";
 import { VoiceControlButton } from "@/components/VoiceControlButton";
@@ -52,6 +53,7 @@ const Index = () => {
   const [showFoodKingdomMap, setShowFoodKingdomMap] = useState(false);
   const [showAnimeCutscenes, setShowAnimeCutscenes] = useState(false);
   const [showMangaPanels, setShowMangaPanels] = useState(false);
+  const [showSeasonalProduce, setShowSeasonalProduce] = useState(false);
   const [showShokuikuSaga, setShowShokuikuSaga] = useState(false);
   const [showBossBattles, setShowBossBattles] = useState(false);
   const [showMealMastery, setShowMealMastery] = useState(false);
@@ -89,6 +91,8 @@ const Index = () => {
       setShowAnimeCutscenes(true);
     } else if (lower.includes("manga") || lower.includes("comic") || lower.includes("panel")) {
       setShowMangaPanels(true);
+    } else if (lower.includes("seasonal") || lower.includes("produce") || lower.includes("vegetables") || lower.includes("fruits")) {
+      setShowSeasonalProduce(true);
     } else if (lower.includes("home") || lower.includes("back")) {
       setShowGames(false);
       setShowComics(false);
@@ -98,6 +102,7 @@ const Index = () => {
       setShowFoodKingdomMap(false);
       setShowAnimeCutscenes(false);
       setShowMangaPanels(false);
+      setShowSeasonalProduce(false);
     }
   }, [transcript]);
 
@@ -350,6 +355,14 @@ const Index = () => {
     );
   }
 
+  if (showSeasonalProduce) {
+    return (
+      <SeasonalProduce
+        onBack={() => setShowSeasonalProduce(false)}
+      />
+    );
+  }
+
   if (showShokuikuSaga) {
     return (
       <div className="min-h-screen bg-background pb-8">
@@ -541,6 +554,17 @@ const Index = () => {
                   <span className="text-2xl mb-1 inline-block">📖</span>
                   <p className="font-display font-bold text-xs text-primary-foreground">{t("home.manga")}</p>
                   <p className="text-xs text-primary-foreground/80">{t("home.manga_desc")}</p>
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowSeasonalProduce(true)}
+                  className="bg-gradient-to-br from-green-500 to-lime-400 rounded-2xl p-3 text-left relative overflow-hidden"
+                >
+                  <span className="text-2xl mb-1 inline-block">🌿</span>
+                  <p className="font-display font-bold text-xs text-primary-foreground">Seasonal Produce</p>
+                  <p className="text-xs text-primary-foreground/80">Fresh by season</p>
                 </motion.button>
 
 
