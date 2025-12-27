@@ -674,9 +674,9 @@ Conversation to summarize:\n`;
       let response;
       try {
         // TEMPORARY: Force local fallback for debugging
-        // throw new Error('FALLBACK_TO_LOCAL');
+        throw new Error('FALLBACK_TO_LOCAL');
         // TEMPORARY: Force local fallback for debugging
-        // throw new Error('FALLBACK_TO_LOCAL');
+        throw new Error('FALLBACK_TO_LOCAL');
         response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-chat`,
           {
