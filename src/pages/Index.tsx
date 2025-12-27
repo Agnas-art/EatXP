@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Gamepad2, BookOpen, Palette, Users, BookMarked } from "lucide-react";
+import { ArrowRight, Sparkles, Gamepad2, BookOpen, Users, BookMarked } from "lucide-react";
 import FoodMascot from "@/components/FoodMascot";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import AgeSelector from "@/components/AgeSelector";
@@ -22,7 +22,6 @@ import MangaPanels from "@/components/MangaPanels";
 import SeasonalProduce from "@/components/SeasonalProduce";
 import FoodNutritionTracker from "@/components/FoodNutritionTracker";
 import CommunitySpace from "@/components/CommunitySpace";
-import { AnimeThemeSelector } from "@/components/AnimeThemeSelector";
 import { CharacterSelector } from "@/components/CharacterSelector";
 import { VoiceControlButton } from "@/components/VoiceControlButton";
 import { UserProfile } from "@/components/UserProfile";
@@ -50,7 +49,6 @@ const Index = () => {
   const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
   const [showGames, setShowGames] = useState(false);
   const [showComics, setShowComics] = useState(false);
-  const [showThemeSelector, setShowThemeSelector] = useState(false);
   const [showCharacterSelector, setShowCharacterSelector] = useState(false);
   const [showStoryMode, setShowStoryMode] = useState(false);
   const [showFoodKingdomMap, setShowFoodKingdomMap] = useState(false);
@@ -85,8 +83,6 @@ const Index = () => {
       setShowGames(true);
     } else if (lower.includes("comics") || lower.includes("stories")) {
       setShowComics(true);
-    } else if (lower.includes("theme") || lower.includes("color")) {
-      setShowThemeSelector(true);
     } else if (lower.includes("character") || lower.includes("avatar")) {
       setShowCharacterSelector(true);
     } else if (lower.includes("story") || lower.includes("chapter") || lower.includes("learn")) {
@@ -106,7 +102,6 @@ const Index = () => {
     } else if (lower.includes("home") || lower.includes("back")) {
       setShowGames(false);
       setShowComics(false);
-      setShowThemeSelector(false);
       setShowCharacterSelector(false);
       setShowStoryMode(false);
       setShowFoodKingdomMap(false);
@@ -263,28 +258,6 @@ const Index = () => {
           }
         }}
       />
-    );
-  }
-
-  if (showThemeSelector) {
-    return (
-      <div className="min-h-screen bg-background pb-8">
-        <header className="sticky top-0 bg-background/95 backdrop-blur-lg z-40 px-4 py-3 border-b border-border flex items-center justify-between">
-          <button
-            onClick={() => setShowThemeSelector(false)}
-            className="text-muted-foreground hover:text-foreground transition-colors font-semibold"
-          >
-            {t("common.back_to_home")}
-          </button>
-          <div className="flex items-center gap-2">
-            <Palette className="w-5 h-5 text-primary" />
-            <span className="font-display font-bold">{t("common.anime_themes")}</span>
-          </div>
-        </header>
-        <main className="px-4 py-6">
-          <AnimeThemeSelector onSelect={() => setShowThemeSelector(false)} />
-        </main>
-      </div>
     );
   }
 
@@ -491,14 +464,6 @@ const Index = () => {
                 title={t("common.story_mode")}
               >
                 <BookMarked className="w-5 h-5" />
-              </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setShowThemeSelector(true)}
-                className="bg-accent/10 text-accent hover:bg-accent/20 p-2 rounded-full transition-all"
-                title={t("common.change_theme")}
-              >
-                <Palette className="w-5 h-5" />
               </motion.button>
               <VoiceControlButton className="relative" />
               <motion.button
