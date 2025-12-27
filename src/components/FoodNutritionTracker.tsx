@@ -82,15 +82,6 @@ const FOOD_DATABASE: Record<string, MealItem> = {
     additives: ["artificial flavor", "emulsifier", "preservative"],
     healthScore: 35,
   },
-  soda: {
-    id: "soda",
-    name: "Soft Drink",
-    calories: 140,
-    protein: 0,
-    sugar: 39,
-    additives: ["high fructose corn syrup", "artificial sweetener", "caramel color"],
-    healthScore: 15,
-  },
   pizza_slice: {
     id: "pizza_slice",
     name: "Pizza Slice",
@@ -136,13 +127,47 @@ const FOOD_DATABASE: Record<string, MealItem> = {
     additives: [],
     healthScore: 88,
   },
+  // Soft Drinks Category
+  soft_drink_cola: {
+    id: "soft_drink_cola",
+    name: "Soft Drinks - Cola",
+    calories: 140,
+    protein: 0,
+    sugar: 39,
+    additives: ["high fructose corn syrup", "caramel color"],
+    healthScore: 15,
+  },
+  soft_drink_lemon_lime: {
+    id: "soft_drink_lemon_lime",
+    name: "Soft Drinks - Lemon-Lime",
+    calories: 140,
+    protein: 0,
+    sugar: 38,
+    additives: ["high fructose corn syrup", "natural flavor"],
+    healthScore: 20,
+  },
+};
+
+// Additives information with disadvantages
+const ADDITIVES_INFO: Record<string, string> = {
+  "high fructose corn syrup": "Can cause blood sugar spikes and liver damage",
+  "artificial sweetener": "May disrupt gut bacteria and metabolism",
+  "caramel color": "Linked to potential cancer risk in animal studies",
+  "artificial flavor": "May cause headaches and allergic reactions",
+  "emulsifier": "Can damage intestinal lining and cause inflammation",
+  "preservative": "May increase risk of heart disease",
+  "sodium phosphate": "Excessive sodium can raise blood pressure",
+  "dough conditioner": "May contain harmful chemicals",
+  "trans fat": "Increases bad cholesterol and heart disease risk",
+  "sodium": "Excess intake linked to high blood pressure",
+  "natural flavor": "Often contains hidden additives and chemicals",
 };
 
 // Barcode Database - maps UPC/EAN codes to food items
 const BARCODE_DATABASE: Record<string, MealItem> = {
-  "5901234123457": { // Sample Cola Soft Drink
-    id: "barcode_cola",
-    name: "Cola Soft Drink (12oz)",
+  "5000000000001": { // Generic Soft Drinks
+    id: "soft_drinks_generic",
+    name: "Soft Drinks (12oz)",
     calories: 140,
     protein: 0,
     sugar: 39,
@@ -194,15 +219,6 @@ const BARCODE_DATABASE: Record<string, MealItem> = {
     additives: [],
     healthScore: 95,
   },
-  "5449000050127": { // Sample Lemon-Lime Soft Drink
-    id: "barcode_lemon_soda",
-    name: "Lemon-Lime Soft Drink (12oz)",
-    calories: 140,
-    protein: 0,
-    sugar: 38,
-    additives: ["high fructose corn syrup", "natural flavor"],
-    healthScore: 20,
-  },
   "4006885006113": { // Sample Chocolate
     id: "barcode_chocolate",
     name: "Chocolate Truffles",
@@ -216,13 +232,12 @@ const BARCODE_DATABASE: Record<string, MealItem> = {
 
 // Sample barcodes for demo - user can copy these to test
 export const SAMPLE_BARCODES = [
-  { barcode: "5901234123457", name: "Cola Soft Drink" },
+  { barcode: "5000000000001", name: "Soft Drinks" },
   { barcode: "5901234567890", name: "Apple" },
   { barcode: "5051234567890", name: "Banana" },
   { barcode: "4006381333931", name: "Greek Yogurt" },
   { barcode: "4011999999999", name: "Broccoli" },
   { barcode: "5000230110627", name: "Salmon" },
-  { barcode: "5449000050127", name: "Lemon-Lime Soft Drink" },
   { barcode: "4006885006113", name: "Chocolate Truffles" },
 ];
 
@@ -605,16 +620,26 @@ const FoodNutritionTracker = ({ onBack }: FoodNutritionTrackerProps) => {
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="rounded-lg bg-orange-500/10 border border-orange-500/30 p-2 mb-3"
+                      className="rounded-lg bg-orange-500/10 border border-orange-500/30 p-3 mb-3 space-y-2"
                     >
                       <div className="flex gap-2 items-start">
                         <AlertCircle className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 text-xs text-orange-700">
+                        <div className="flex-1 text-xs text-orange-700 space-y-1">
                           {totalSugar > 50 && (
                             <p>⚠️ High sugar content ({Math.round(totalSugar)}g)</p>
                           )}
                           {allAdditives.size > 0 && (
-                            <p>⚠️ Contains {allAdditives.size} additives</p>
+                            <div>
+                              <p className="font-semibold mb-1">⚠️ Additives detected:</p>
+                              <div className="space-y-1 ml-2">
+                                {Array.from(allAdditives).map((additive) => (
+                                  <div key={additive} className="text-xs">
+                                    <p className="font-semibold text-orange-800">• {additive}</p>
+                                    <p className="text-orange-700 ml-3">{ADDITIVES_INFO[additive] || "Unknown additive"}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           )}
                         </div>
                       </div>

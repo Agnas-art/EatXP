@@ -1,42 +1,44 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface AgeSelectorProps {
   selectedAge: string | null;
   onSelect: (age: string) => void;
 }
 
-const ageGroups = [
-  {
-    id: "kids",
-    label: "Little Chefs",
-    ages: "5-8 years",
-    emoji: "🍎",
-    color: "bg-kawaii-pink",
-    description: "Fun & easy recipes!",
-  },
-  {
-    id: "tweens",
-    label: "Junior Cooks",
-    ages: "9-12 years",
-    emoji: "🍕",
-    color: "bg-kawaii-yellow",
-    description: "Level up your skills!",
-  },
-  {
-    id: "teens",
-    label: "Teen Chefs",
-    ages: "13-17 years",
-    emoji: "🍳",
-    color: "bg-kawaii-mint",
-    description: "Master the kitchen!",
-  },
-];
-
 const AgeSelector = ({ selectedAge, onSelect }: AgeSelectorProps) => {
+  const { t } = useTranslation();
+
+  const ageGroups = [
+    {
+      id: "kids",
+      label: t("cover_page.little_chefs"),
+      ages: t("cover_page.little_chefs_ages"),
+      emoji: "🍎",
+      color: "bg-kawaii-pink",
+      description: t("cover_page.little_chefs_desc"),
+    },
+    {
+      id: "tweens",
+      label: t("cover_page.junior_cooks"),
+      ages: t("cover_page.junior_cooks_ages"),
+      emoji: "🍕",
+      color: "bg-kawaii-yellow",
+      description: t("cover_page.junior_cooks_desc"),
+    },
+    {
+      id: "teens",
+      label: t("cover_page.teen_chefs"),
+      ages: t("cover_page.teen_chefs_ages"),
+      emoji: "🍳",
+      color: "bg-kawaii-mint",
+      description: t("cover_page.teen_chefs_desc"),
+    },
+  ];
   return (
     <div className="space-y-3">
       <h3 className="font-display text-lg font-bold text-center text-foreground">
-        Choose Your Chef Level!
+        {t("cover_page.choose_chef_level")}
       </h3>
       <div className="grid grid-cols-1 gap-3">
         {ageGroups.map((group, index) => (
