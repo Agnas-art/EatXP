@@ -432,7 +432,7 @@ const VoiceBot = () => {
     }
     
     // Contextual responses based on conversation history
-    const recentTopics = recentMessages.slice(-5).map(m => m.content.toLowerCase());
+    const recentTopics = messageHistory.slice(-5).map(m => m.content.toLowerCase());
     const hasFood = recentTopics.some(t => t.includes('food') || t.includes('cook'));
     const hasAnime = recentTopics.some(t => t.includes('anime') || t.includes('manga'));
     const hasGaming = recentTopics.some(t => t.includes('game') || t.includes('play'));
