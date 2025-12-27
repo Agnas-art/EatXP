@@ -759,7 +759,7 @@ Conversation to summarize:\n`;
         
         // Update context with assistant response too
         const finalMessages = [...updatedMessages, assistantMessage];
-        ConversationContextManager.updateContext(finalMessages);
+        // ConversationContextManager.updateContext(finalMessages); // Disabled for performance
         
         setMessages(finalMessages);
         setCurrentResponse(localResponse);
@@ -768,8 +768,8 @@ Conversation to summarize:\n`;
         // Generate summary less frequently for better performance
         if (finalMessages.length >= 8 && finalMessages.length % 8 === 0) {
           console.log('Generating context summary for continuity at message', finalMessages.length);
-          const newSummary = ConversationContextManager.getConversationSummary();
-          setConversationSummary(newSummary);
+          // const newSummary = ConversationContextManager.getConversationSummary(); // Disabled for performance
+          // setConversationSummary(newSummary); // Disabled for performance
         }
         
         setIsProcessing(false);
