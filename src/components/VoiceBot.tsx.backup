@@ -210,7 +210,7 @@ const VoiceBot = () => {
   // Storage key for conversation persistence
   const STORAGE_KEY = 'voicebot_conversation';
   const MAX_STORED_MESSAGES = 50;
-  const CONTEXT_WINDOW = 30; // Increased for better context carryover
+  const CONTEXT_WINDOW = 20; // Increased from 10
 
   // Load conversation from localStorage on mount
   useEffect(() => {
@@ -218,22 +218,11 @@ const VoiceBot = () => {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const context: ConversationContext = JSON.parse(stored);
-        // Load conversation history - removed 24 hour expiry to maintain context better
-        // Only skip loading if data is corrupted or very old (7 days)
-        const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
-        if (!context.lastActiveTime || Date.now() - context.lastActiveTime < maxAge) {
+        // Only load if conversation is recent (within last 24 hours)
+        if (Date.now() - context.lastActiveTime < 24 * 60 * 60 * 1000) {
           setMessages(context.messages || []);
           setConversationSummary(context.summary || '');
-          console.log('Loaded conversation context:', {
-            messageCount: context.messages?.length || 0,
-            hasSummary: !!context.summary,
-            lastActive: context.lastActiveTime ? new Date(context.lastActiveTime).toLocaleString() : 'unknown'
-          });
-        } else {
-          console.log('Conversation context too old, starting fresh');
         }
-      } else {
-        console.log('No previous conversation context found');
       }
     } catch (error) {
       console.error('Failed to load conversation history:', error);
@@ -270,11 +259,6 @@ const VoiceBot = () => {
           lastActiveTime: Date.now()
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(context));
-        console.log('Saved conversation context:', {
-          messageCount: context.messages.length,
-          hasSummary: !!context.summary,
-          summaryLength: context.summary?.length || 0
-        });
       } catch (error) {
         console.error('Failed to save conversation history:', error);
       }
@@ -419,7 +403,7 @@ const VoiceBot = () => {
 
   // Generate conversation summary for long conversations with better context
   const generateSummary = useCallback(async (allMessages: Message[]): Promise<string> => {
-    if (allMessages.length < 4) return ''; // Lower threshold for faster context building
+    if (allMessages.length < 8) return ''; // Reduced threshold for better context
     
     try {
       // Extract key information from conversation
@@ -438,25 +422,13 @@ const VoiceBot = () => {
       if (allContent.includes('game') || allContent.includes('play') || allContent.includes('gaming')) topics.push('gaming');
       
       // Create context-rich summary prompt
-      let summaryPrompt = `Create a detailed conversation summary for context carryover. This summary will be used in future conversations to maintain continuity. Include:
+      let summaryPrompt = `Create a brief summary of this conversation to maintain context for future messages. Include:
+1. User's name if mentioned: ${userName || 'not provided'}
+2. Main topics discussed: ${topics.join(', ') || 'general conversation'}
+3. Any specific preferences or interests mentioned
+4. Ongoing themes or questions
 
-ESSENTIAL CONTEXT:
-1. User's name/identity: ${userName || 'not mentioned yet'}
-2. Main topics discussed: ${topics.join(', ') || 'introductory conversation'}
-3. User's specific interests, preferences, and goals mentioned
-4. Any ongoing projects, questions, or learning objectives
-5. Conversational style and personality traits observed
-6. Key facts about the user shared during conversation
-
-CONVERSATION FLOW:
-- How the conversation started and developed
-- Main questions asked and key answers provided
-- Any advice given or information shared
-- Current conversation state and next logical topics
-
-This summary should help maintain conversation continuity and context across sessions.
-
-Conversation to summarize:\n`;
+Recent conversation context:\n`;
       
       // Include more context for better summarization
       const contextMessages = [
@@ -573,34 +545,28 @@ Conversation to summarize:\n`;
         conversationMetadata: {
           messageCount: updatedMessages.length,
           userName: userNameExtracted,
-          hasLongHistory: updatedMessages.length > 10,
-          sessionId: localStorage.getItem('voicebot_session_id') || 'default',
-          contextWindow: CONTEXT_WINDOW,
-          totalStoredMessages: messages.length
+          hasLongHistory: updatedMessages.length > 10
         }
       };
       
-      console.log('=== CONTEXT DEBUG ===');
-      console.log('Total messages in conversation:', updatedMessages.length);
-      console.log('Recent messages being sent:', recentMessages.length);
-      console.log('Conversation summary length:', conversationSummary?.length || 0);
-      console.log('Context payload size:', JSON.stringify(contextPayload).length);
-      
-      // Always include conversation summary for better context - ensure it's not empty
-      if (conversationSummary && conversationSummary.trim().length > 0) {
+      // Add conversation summary for better context - always include if available
+      if (conversationSummary) {
         contextPayload.conversationSummary = conversationSummary;
-        console.log('Including conversation summary in context:', conversationSummary.substring(0, 100) + '...');
-      } else if (updatedMessages.length > 2) {
-        // Create a basic context even for short conversations
-        const recentTopics = updatedMessages.slice(-8).map(m => 
-          `${m.role}: ${m.content.substring(0, 80)}...`
+        console.log('Including conversation summary in context:', conversationSummary);
+      }
+      
+      // Include additional context metadata
+      if (updatedMessages.length > 5) {
+        const lastFewMessages = updatedMessages.slice(-5);
+        const contextSummary = lastFewMessages.map(m => 
+          `${m.role}: ${m.content.substring(0, 100)}`
         ).join(' | ');
-        contextPayload.recentContext = recentTopics;
-        console.log('No summary available, including recent context:', recentTopics);
+        contextPayload.recentContext = contextSummary;
+        console.log('Including recent context:', contextSummary);
       }
       
       // Generate new summary more frequently to preserve context better
-      if (updatedMessages.length > 0 && updatedMessages.length % 6 === 0) { // Much more frequent summary
+      if (updatedMessages.length > 0 && updatedMessages.length % 15 === 0) { // More frequent summary
         console.log('Generating conversation summary at message', updatedMessages.length);
         const newSummary = await generateSummary(updatedMessages);
         if (newSummary) {
