@@ -357,9 +357,7 @@ const VoiceBot = () => {
       
       return `Continuing about ${item1} and ${item2}...`;
     }
-    else if (hasContextualReference && previousContext) {
-      return `Based on our recent discussion about ${previousContext}, what specific aspect interests you?`;
-    }
+    // Removed problematic previousContext reference that was undefined
     
     // Direct food comparison detection (for questions like "is avocado better than pasta")
     const foods = ['avocado', 'pasta', 'rice', 'chicken', 'salmon', 'egg', 'apple', 'banana', 'bread', 'cheese', 'milk'];
