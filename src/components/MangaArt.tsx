@@ -1,311 +1,355 @@
-// Classic comic book style SVG artwork - vintage Marvel aesthetic
+// Modern anime/manga style - mature teen aesthetic
 
 import React from "react";
 
 const FruitForest = () => (
   <svg viewBox="0 0 400 500" className="w-full h-full">
-    {/* Yellow vintage comic background */}
-    <rect width="400" height="500" fill="#FFF9C4" />
+    {/* Gradient background - cool modern anime style */}
+    <defs>
+      <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style={{stopColor: "#1a1a2e", stopOpacity: 1}} />
+        <stop offset="100%" style={{stopColor: "#16213e", stopOpacity: 1}} />
+      </linearGradient>
+      <linearGradient id="groundGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style={{stopColor: "#2d5016", stopOpacity: 1}} />
+        <stop offset="100%" style={{stopColor: "#1a3a0a", stopOpacity: 1}} />
+      </linearGradient>
+    </defs>
     
     {/* Sky */}
-    <rect width="400" height="200" fill="#87CEEB" />
-    <circle cx="350" cy="50" r="40" fill="#FFD700" />
+    <rect width="400" height="280" fill="url(#skyGrad)" />
     
-    {/* Trees with thick outlines */}
+    {/* Moon */}
+    <circle cx="350" cy="50" r="35" fill="#e8e8e8" opacity="0.8" />
+    <circle cx="365" cy="40" r="35" fill="#1a1a2e" />
+    
+    {/* Trees - detailed and moody */}
     <g>
       {/* Left tree */}
-      <ellipse cx="100" cy="150" rx="50" ry="80" fill="#228B22" stroke="#000" strokeWidth="3" />
-      <rect x="75" y="200" width="50" height="80" fill="#8B4513" stroke="#000" strokeWidth="3" />
+      <path d="M 60 200 Q 50 150 70 120 Q 80 90 100 80 Q 80 85 70 120 Q 50 150 60 200" 
+            fill="#0d2410" stroke="#000" strokeWidth="1.5" />
+      <rect x="55" y="200" width="20" height="100" fill="#3d2817" stroke="#000" strokeWidth="1.5" />
       
       {/* Right tree */}
-      <ellipse cx="300" cy="140" rx="55" ry="85" fill="#32CD32" stroke="#000" strokeWidth="3" />
-      <rect x="270" y="210" width="60" height="70" fill="#654321" stroke="#000" strokeWidth="3" />
+      <path d="M 340 200 Q 330 140 360 100 Q 375 70 390 55 Q 370 75 350 110 Q 330 150 340 200" 
+            fill="#1a4d2e" stroke="#000" strokeWidth="1.5" />
+      <rect x="330" y="200" width="25" height="95" fill="#3d2817" stroke="#000" strokeWidth="1.5" />
     </g>
     
-    {/* Apples on trees with bold outlines */}
+    {/* Apples - realistic, not cartoonish */}
     <g>
-      <circle cx="85" cy="110" r="15" fill="#FF0000" stroke="#000" strokeWidth="2" />
-      <circle cx="115" cy="100" r="12" fill="#DC143C" stroke="#000" strokeWidth="2" />
-      <circle cx="100" cy="130" r="10" fill="#FF6347" stroke="#000" strokeWidth="2" />
+      <circle cx="75" cy="110" r="12" fill="#c41e3a" stroke="#000" strokeWidth="1" />
+      <circle cx="105" cy="95" r="10" fill="#d32f2f" stroke="#000" strokeWidth="1" />
+      <circle cx="90" cy="130" r="9" fill="#b71c1c" stroke="#000" strokeWidth="1" />
+      <ellipse cx="77" cy="105" rx="5" ry="4" fill="#ff6b6b" opacity="0.5" />
       
-      <circle cx="280" cy="95" r="16" fill="#FF1111" stroke="#000" strokeWidth="2" />
-      <circle cx="320" cy="105" r="13" fill="#E00000" stroke="#000" strokeWidth="2" />
-      <circle cx="300" cy="135" r="11" fill="#FF4444" stroke="#000" strokeWidth="2" />
+      <circle cx="355" cy="85" r="13" fill="#c41e3a" stroke="#000" strokeWidth="1" />
+      <circle cx="375" cy="100" r="11" fill="#d32f2f" stroke="#000" strokeWidth="1" />
+      <ellipse cx="358" cy="82" rx="5" ry="5" fill="#ff6b6b" opacity="0.5" />
     </g>
     
     {/* Ground */}
-    <rect y="280" width="400" height="220" fill="#90EE90" />
+    <rect y="280" width="400" height="220" fill="url(#groundGrad)" />
     
-    {/* Character - hero standing confidently */}
-    <g transform="translate(200, 250)">
-      {/* Head */}
-      <circle cx="0" cy="-80" r="25" fill="#F4A460" stroke="#000" strokeWidth="2.5" />
-      {/* Hair */}
-      <path d="M -25 -100 Q -25 -120 0 -125 Q 25 -120 25 -100" fill="#2C1810" stroke="#000" strokeWidth="2" />
-      {/* Eyes - big and heroic */}
-      <circle cx="-12" cy="-85" r="8" fill="#fff" stroke="#000" strokeWidth="1.5" />
-      <circle cx="12" cy="-85" r="8" fill="#fff" stroke="#000" strokeWidth="1.5" />
-      <circle cx="-12" cy="-85" r="4" fill="#000" />
-      <circle cx="12" cy="-85" r="4" fill="#000" />
-      {/* Smile */}
-      <path d="M -15 -70 Q 0 -60 15 -70" stroke="#000" strokeWidth="2" fill="none" />
+    {/* Teenage hero character - realistic proportions */}
+    <g transform="translate(200, 240)">
+      {/* Head - proportional */}
+      <circle cx="0" cy="-70" r="22" fill="#d4a574" stroke="#000" strokeWidth="1.5" />
       
-      {/* Body - muscular */}
-      <ellipse cx="0" cy="-30" rx="30" ry="45" fill="#FF6B9D" stroke="#000" strokeWidth="2.5" />
-      {/* Arms - dynamic pose */}
-      <ellipse cx="-40" cy="-35" rx="15" ry="50" fill="#F4A460" stroke="#000" strokeWidth="2" transform="rotate(-30 -40 -35)" />
-      <ellipse cx="40" cy="-35" rx="15" ry="50" fill="#F4A460" stroke="#000" strokeWidth="2" transform="rotate(30 40 -35)" />
+      {/* Hair - modern style, not childish */}
+      <path d="M -22 -85 Q -20 -100 0 -105 Q 20 -100 22 -85 L 20 -70 Q 0 -65 -20 -70 Z" 
+            fill="#2c1810" stroke="#000" strokeWidth="1" />
+      
+      {/* Eyes - mature, focused */}
+      <ellipse cx="-9" cy="-75" rx="5" ry="7" fill="#000" />
+      <ellipse cx="9" cy="-75" rx="5" ry="7" fill="#000" />
+      <ellipse cx="-7" cy="-77" rx="2.5" ry="3" fill="#fff" />
+      <ellipse cx="11" cy="-77" rx="2.5" ry="3" fill="#fff" />
+      
+      {/* Mouth - neutral, serious expression */}
+      <path d="M -8 -55 Q 0 -50 8 -55" stroke="#000" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+      
+      {/* Neck */}
+      <rect x="-10" y="-48" width="20" height="15" fill="#d4a574" />
+      
+      {/* Body - athletic build */}
+      <path d="M -25 -30 L -30 30 L 30 30 L 25 -30 Q 0 -35 -25 -30" 
+            fill="#2c3e50" stroke="#000" strokeWidth="1.5" />
+      
+      {/* Arms - natural dynamic pose */}
+      <ellipse cx="-35" cy="-10" rx="10" ry="40" fill="#d4a574" stroke="#000" strokeWidth="1.5" transform="rotate(-25 -35 -10)" />
+      <ellipse cx="35" cy="-10" rx="10" ry="40" fill="#d4a574" stroke="#000" strokeWidth="1.5" transform="rotate(25 35 -10)" />
+      
       {/* Legs */}
-      <ellipse cx="-15" cy="30" rx="12" ry="40" fill="#1E90FF" stroke="#000" strokeWidth="2" />
-      <ellipse cx="15" cy="30" rx="12" ry="40" fill="#1E90FF" stroke="#000" strokeWidth="2" />
+      <ellipse cx="-12" cy="50" rx="8" ry="35" fill="#1a1a1a" stroke="#000" strokeWidth="1.5" />
+      <ellipse cx="12" cy="50" rx="8" ry="35" fill="#1a1a1a" stroke="#000" strokeWidth="1.5" />
     </g>
     
-    {/* Comic book action lines */}
-    <line x1="50" y1="250" x2="10" y2="240" stroke="#000" strokeWidth="2" />
-    <line x1="60" y1="280" x2="15" y2="290" stroke="#000" strokeWidth="2" />
-    <line x1="350" y1="260" x2="390" y2="250" stroke="#000" strokeWidth="2" />
-    
-    {/* Speech bubble */}
-    <g transform="translate(50, 80)">
-      <rect x="0" y="0" width="140" height="60" rx="10" fill="#fff" stroke="#000" strokeWidth="2" />
-      <polygon points="90,60 110,85 100,65" fill="#fff" stroke="#000" strokeWidth="2" />
-      <text x="70" y="20" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#000">Welcome to Fruit</text>
-      <text x="70" y="40" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#000">Forest!</text>
+    {/* Manga-style speech bubble - angular */}
+    <g transform="translate(280, 80)">
+      <path d="M 0 8 L 0 60 Q 0 70 10 70 L 90 70 Q 100 70 100 60 L 100 8 Q 100 0 90 0 L 10 0 Q 0 0 0 8 M 15 70 L 5 85 L 20 72 Z" 
+            fill="#2c3e50" stroke="#000" strokeWidth="1.5" />
+      <text x="50" y="25" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#e8e8e8">Nutrients</text>
+      <text x="50" y="45" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#e8e8e8">fuel growth</text>
     </g>
   </svg>
 );
 
 const AppleCharacter = () => (
   <svg viewBox="0 0 400 500" className="w-full h-full">
-    {/* Comic book yellow background */}
-    <rect width="400" height="500" fill="#FFFACD" />
+    {/* Dark modern background with gradient */}
+    <defs>
+      <radialGradient id="appleBg" cx="50%" cy="30%">
+        <stop offset="0%" style={{stopColor: "#2d3e50", stopOpacity: 1}} />
+        <stop offset="100%" style={{stopColor: "#1a1a2e", stopOpacity: 1}} />
+      </radialGradient>
+      <linearGradient id="appleShine" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{stopColor: "#ff6b6b", stopOpacity: 1}} />
+        <stop offset="50%" style={{stopColor: "#c41e3a", stopOpacity: 1}} />
+        <stop offset="100%" style={{stopColor: "#8b0000", stopOpacity: 1}} />
+      </linearGradient>
+    </defs>
     
-    {/* Shadow/background effect */}
-    <ellipse cx="200" cy="400" rx="150" ry="30" fill="rgba(0,0,0,0.1)" />
+    {/* Background */}
+    <rect width="400" height="500" fill="url(#appleBg)" />
     
-    {/* Large apple character - center stage */}
+    {/* Realistic apple - main character */}
     <g transform="translate(200, 200)">
-      {/* Apple body - detailed shading */}
-      <circle cx="0" cy="0" r="90" fill="#FF2222" stroke="#000" strokeWidth="4" />
-      <ellipse cx="-40" cy="-30" rx="50" ry="60" fill="#FF5555" stroke="none" />
-      <ellipse cx="40" cy="-20" rx="40" ry="50" fill="#DD0000" stroke="none" />
+      {/* Apple body with realistic shading */}
+      <circle cx="0" cy="0" r="80" fill="url(#appleShine)" stroke="#000" strokeWidth="2" />
       
-      {/* Stem */}
-      <rect x="-8" y="-110" width="16" height="40" fill="#6D4C41" stroke="#000" strokeWidth="2" />
-      {/* Leaf */}
-      <ellipse cx="25" cy="-80" rx="30" ry="18" fill="#4CAF50" stroke="#000" strokeWidth="2" transform="rotate(-40 25 -80)" />
+      {/* Subtle shadow effect for depth */}
+      <ellipse cx="-30" cy="-20" rx="45" ry="55" fill="#ff9999" opacity="0.4" />
+      <ellipse cx="35" cy="25" rx="40" ry="50" fill="#660000" opacity="0.3" />
       
-      {/* Face - expressive and happy */}
-      {/* Left eye */}
-      <ellipse cx="-40" cy="-10" rx="20" ry="28" fill="#000" stroke="#000" strokeWidth="2" />
-      <ellipse cx="-40" cy="-15" rx="10" ry="14" fill="#fff" />
-      <circle cx="-38" cy="-10" r="6" fill="#4A90E2" />
-      {/* Right eye */}
-      <ellipse cx="40" cy="-10" rx="20" ry="28" fill="#000" stroke="#000" strokeWidth="2" />
-      <ellipse cx="40" cy="-15" rx="10" ry="14" fill="#fff" />
-      <circle cx="42" cy="-10" r="6" fill="#4A90E2" />
+      {/* Stem - detailed */}
+      <rect x="-6" y="-95" width="12" height="45" fill="#6b4423" stroke="#000" strokeWidth="1.5" rx="3" />
       
-      {/* Cheeks - rosy blush */}
-      <ellipse cx="-65" cy="15" rx="18" ry="14" fill="#FFB6D9" opacity="0.8" />
-      <ellipse cx="65" cy="15" rx="18" ry="14" fill="#FFB6D9" opacity="0.8" />
+      {/* Leaf - realistic shape */}
+      <path d="M 20 -75 Q 50 -70 55 -45 Q 50 -50 30 -55 Z" 
+            fill="#3d7e3d" stroke="#000" strokeWidth="1" />
+      <path d="M 25 -70 Q 45 -68 48 -50" stroke="#2d5d2d" strokeWidth="0.8" fill="none" />
       
-      {/* Big happy smile */}
-      <path d="M -35 35 Q 0 55 35 35" stroke="#000" strokeWidth="3" fill="none" strokeLinecap="round" />
-      <path d="M -33 38 Q 0 52 33 38" stroke="#fff" strokeWidth="1" fill="none" opacity="0.6" />
+      {/* Eye - anime style but mature */}
+      <ellipse cx="-35" cy="-15" rx="18" ry="25" fill="#000" stroke="#000" strokeWidth="1" />
+      <ellipse cx="-35" cy="-20" rx="8" ry="12" fill="#fff" />
+      <circle cx="-32" cy="-18" r="4" fill="#4a90e2" />
+      
+      {/* Smart, determined expression */}
+      <path d="M -50 15 Q -40 25 -25 20" stroke="#000" strokeWidth="2" fill="none" strokeLinecap="round" />
     </g>
     
-    {/* Shine effect */}
-    <circle cx="280" cy="120" r="30" fill="#FFE082" opacity="0.6" />
-    <circle cx="80" cy="280" r="25" fill="#FFE082" opacity="0.4" />
+    {/* Subtle energy glow - not flashy */}
+    <circle cx="200" cy="200" r="95" fill="none" stroke="#4a90e2" strokeWidth="1" opacity="0.3" />
     
-    {/* Speech bubble - excited */}
-    <g transform="translate(280, 80)">
-      <path d="M 10 0 L 110 0 Q 120 0 120 10 L 120 70 Q 120 80 110 80 L 20 80 Q 10 80 10 70 L 10 30 L -15 50 L 10 35 Z" 
-            fill="#fff" stroke="#000" strokeWidth="2" />
-      <text x="65" y="25" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#000">I'm loaded</text>
-      <text x="65" y="45" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#000">with vitamins!</text>
+    {/* Modern speech bubble */}
+    <g transform="translate(260, 80)">
+      <path d="M 5 5 L 95 5 Q 105 5 105 15 L 105 70 Q 105 80 95 80 L 15 80 L 0 95 L 15 80 L 15 15 Q 15 5 5 5" 
+            fill="#2d3e50" stroke="#000" strokeWidth="1.5" />
+      <text x="55" y="30" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#e8e8e8">Packed with</text>
+      <text x="55" y="50" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#e8e8e8">vitamins &amp; fiber</text>
     </g>
-    
-    {/* Action lines around character */}
-    <line x1="80" y1="150" x2="40" y2="130" stroke="#000" strokeWidth="2" />
-    <line x1="90" y1="200" x2="50" y2="210" stroke="#000" strokeWidth="2" />
-    <line x1="320" y1="160" x2="360" y2="140" stroke="#000" strokeWidth="2" />
-    <line x1="310" y1="220" x2="350" y2="230" stroke="#000" strokeWidth="2" />
   </svg>
 );
 
 const CharacterHappy = () => (
   <svg viewBox="0 0 400 500" className="w-full h-full">
-    {/* Comic background - yellow */}
-    <rect width="400" height="500" fill="#FFF8DC" />
+    {/* Dark anime background */}
+    <defs>
+      <linearGradient id="characterBg" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style={{stopColor: "#1a2a47", stopOpacity: 1}} />
+        <stop offset="100%" style={{stopColor: "#0f1623", stopOpacity: 1}} />
+      </linearGradient>
+      <linearGradient id="skinTone" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{stopColor: "#d4a574", stopOpacity: 1}} />
+        <stop offset="100%" style={{stopColor: "#c9945f", stopOpacity: 1}} />
+      </linearGradient>
+    </defs>
     
-    {/* Big dramatic character transformation */}
-    <g transform="translate(200, 220)">
-      {/* Head - large and expressive */}
-      <circle cx="0" cy="-70" r="50" fill="#F7B563" stroke="#000" strokeWidth="3" />
+    <rect width="400" height="500" fill="url(#characterBg)" />
+    
+    {/* Anime character - confident teen stance */}
+    <g transform="translate(200, 240)">
+      {/* Head with anime proportions */}
+      <circle cx="0" cy="-65" r="28" fill="url(#skinTone)" stroke="#000" strokeWidth="1.5" />
       
-      {/* Hair - spiky/dynamic */}
-      <path d="M -50 -110 Q -60 -130 -40 -140 Q -20 -145 0 -150 Q 20 -145 40 -140 Q 60 -130 50 -110" 
-            fill="#2C1810" stroke="#000" strokeWidth="2.5" />
+      {/* Hair - modern, layered anime style */}
+      <path d="M -28 -85 Q -28 -110 0 -115 Q 28 -110 28 -85 L 25 -65 Q 0 -60 -25 -65 Z" 
+            fill="#1a1a2e" stroke="#000" strokeWidth="1" />
+      <path d="M -18 -90 Q -15 -105 -8 -100" fill="#2d3e50" stroke="#000" strokeWidth="0.8" />
+      <path d="M 18 -90 Q 15 -105 8 -100" fill="#2d3e50" stroke="#000" strokeWidth="0.8" />
       
-      {/* Eyes - HUGE and happy */}
-      <ellipse cx="-25" cy="-75" rx="18" ry="30" fill="#000" stroke="#000" strokeWidth="2" />
-      <ellipse cx="25" cy="-75" rx="18" ry="30" fill="#000" stroke="#000" strokeWidth="2" />
+      {/* Eyes - determined, cool anime style */}
+      <ellipse cx="-11" cy="-70" rx="8" ry="12" fill="#000" stroke="#000" strokeWidth="1" />
+      <ellipse cx="11" cy="-70" rx="8" ry="12" fill="#000" stroke="#000" strokeWidth="1" />
+      <ellipse cx="-11" cy="-75" rx="3.5" ry="6" fill="#e8e8e8" />
+      <ellipse cx="11" cy="-75" rx="3.5" ry="6" fill="#e8e8e8" />
       
-      {/* Eye shine - big and shiny */}
-      <ellipse cx="-20" cy="-85" rx="10" ry="16" fill="#fff" />
-      <ellipse cx="30" cy="-85" rx="10" ry="16" fill="#fff" />
-      <circle cx="-18" cy="-80" r="4" fill="#8B4513" />
-      <circle cx="32" cy="-80" r="4" fill="#8B4513" />
-      
-      {/* Huge happy smile */}
-      <path d="M -30 -40 Q 0 -15 30 -40" stroke="#000" strokeWidth="4" fill="none" strokeLinecap="round" />
-      <path d="M -30 -35 Q 0 -20 30 -35" stroke="#fff" strokeWidth="2" fill="none" opacity="0.5" />
-      
-      {/* Blush marks - big and visible */}
-      <ellipse cx="-55" cy="-55" rx="20" ry="15" fill="#FF89B0" opacity="0.7" />
-      <ellipse cx="55" cy="-55" rx="20" ry="15" fill="#FF89B0" opacity="0.7" />
+      {/* Confident smirk - not childish */}
+      <path d="M -10 -50 Q 0 -45 12 -48" stroke="#000" strokeWidth="1.5" fill="none" strokeLinecap="round" />
       
       {/* Neck */}
-      <rect x="-20" y="-10" width="40" height="25" fill="#F7B563" stroke="#000" strokeWidth="2" />
+      <rect x="-12" y="-37" width="24" height="12" fill="url(#skinTone)" stroke="#000" strokeWidth="1" />
       
-      {/* Body - excited pose */}
-      <ellipse cx="0" cy="50" rx="60" ry="75" fill="#FF6B9D" stroke="#000" strokeWidth="3" />
+      {/* Athletic body - energetic pose */}
+      <path d="M -28 -25 L -32 35 L 32 35 L 28 -25 Q 0 -30 -28 -25" 
+            fill="#2c5aa0" stroke="#000" strokeWidth="1.5" />
       
-      {/* Arms - raised in victory */}
-      <g transform="translate(-65, 20) rotate(-40)">
-        <ellipse cx="0" cy="0" rx="18" ry="55" fill="#F7B563" stroke="#000" strokeWidth="2.5" />
-        <circle cx="0" cy="-60" r="20" fill="#F7B563" stroke="#000" strokeWidth="2" />
-      </g>
+      {/* Arms - dynamic action pose */}
+      <ellipse cx="-42" cy="5" rx="12" ry="45" fill="url(#skinTone)" stroke="#000" strokeWidth="1.5" transform="rotate(-50 -42 5)" />
+      <ellipse cx="42" cy="-5" rx="12" ry="45" fill="url(#skinTone)" stroke="#000" strokeWidth="1.5" transform="rotate(50 42 -5)" />
       
-      <g transform="translate(65, 20) rotate(40)">
-        <ellipse cx="0" cy="0" rx="18" ry="55" fill="#F7B563" stroke="#000" strokeWidth="2.5" />
-        <circle cx="0" cy="-60" r="20" fill="#F7B563" stroke="#000" strokeWidth="2" />
-      </g>
+      {/* Legs - grounded stance */}
+      <ellipse cx="-12" cy="55" rx="9" ry="38" fill="#1a1a1a" stroke="#000" strokeWidth="1.5" />
+      <ellipse cx="12" cy="55" rx="9" ry="38" fill="#1a1a1a" stroke="#000" strokeWidth="1.5" />
     </g>
     
-    {/* Big impact/excitement effect */}
-    <g transform="translate(80, 100)">
-      <polygon points="0,-30 10,-8 30,-5 15,8 18,30 0,15 -18,30 -15,8 -30,-5 -10,-8" 
-               fill="#FFD700" stroke="#000" strokeWidth="2" />
-    </g>
+    {/* Power indicators - subtle glow effect */}
+    <circle cx="120" cy="120" r="8" fill="#4a90e2" opacity="0.6" />
+    <circle cx="280" cy="100" r="6" fill="#4a90e2" opacity="0.5" />
     
-    <g transform="translate(320, 120)">
-      <polygon points="0,-25 8,-7 25,-3 12,10 15,28 0,14 -15,28 -12,10 -25,-3 -8,-7" 
-               fill="#FFD700" stroke="#000" strokeWidth="2" />
-    </g>
-    
-    {/* Speech bubble - enthusiastic */}
-    <g transform="translate(50, 280)">
-      <path d="M 10 0 L 140 0 Q 150 0 150 10 L 150 90 Q 150 100 140 100 L 30 100 L 10 125 L 20 105 L 10 100 Q 0 100 0 90 L 0 10 Q 0 0 10 0" 
-            fill="#fff" stroke="#000" strokeWidth="2.5" />
-      <text x="75" y="30" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#000">Nutrition</text>
-      <text x="75" y="50" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#000">powers me</text>
-      <text x="75" y="70" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#000">up!</text>
+    {/* Modern manga speech bubble */}
+    <g transform="translate(40, 300)">
+      <path d="M 5 0 L 160 0 Q 170 0 170 10 L 170 80 Q 170 90 160 90 L 15 90 L 0 110 L 15 92 L 10 10 Q 10 0 5 0" 
+            fill="#2d3e50" stroke="#000" strokeWidth="1.5" />
+      <text x="85" y="28" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#e8e8e8">Strong nutrition</text>
+      <text x="85" y="50" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#e8e8e8">builds strength</text>
+      <text x="85" y="72" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#e8e8e8">and focus</text>
     </g>
   </svg>
 );
 
 const NutritionPower = () => (
   <svg viewBox="0 0 400 500" className="w-full h-full">
-    {/* Yellow comic background */}
-    <rect width="400" height="500" fill="#FFFF99" />
+    {/* Dark dramatic background */}
+    <defs>
+      <radialGradient id="powerBurst" cx="50%" cy="50%">
+        <stop offset="0%" style={{stopColor: "#ff6b6b", stopOpacity: 0.8}} />
+        <stop offset="70%" style={{stopColor: "#ff4444", stopOpacity: 0.3}} />
+        <stop offset="100%" style={{stopColor: "#1a1a2e", stopOpacity: 0}} />
+      </radialGradient>
+      <linearGradient id="darkBg" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style={{stopColor: "#2d1a1a", stopOpacity: 1}} />
+        <stop offset="100%" style={{stopColor: "#1a0f0f", stopOpacity: 1}} />
+      </linearGradient>
+    </defs>
     
-    {/* Dramatic explosion effect */}
+    <rect width="400" height="500" fill="url(#darkBg)" />
+    
+    {/* Dramatic power effect - more sophisticated */}
     <g transform="translate(200, 220)">
-      {/* Multiple explosion clouds */}
-      <circle cx="-80" cy="-40" r="50" fill="#FFA500" stroke="#000" strokeWidth="2" />
-      <circle cx="-60" cy="0" r="45" fill="#FF8C00" stroke="#000" strokeWidth="2" />
-      <circle cx="80" cy="-50" r="55" fill="#FFB347" stroke="#000" strokeWidth="2" />
-      <circle cx="70" cy="10" r="48" fill="#FFA500" stroke="#000" strokeWidth="2" />
-      <circle cx="0" cy="60" r="50" fill="#FF8C00" stroke="#000" strokeWidth="2" />
+      {/* Outer explosion ring */}
+      <circle cx="0" cy="0" r="80" fill="url(#powerBurst)" />
       
-      {/* Central impact burst */}
-      <polygon points="0,-60 15,-20 50,-10 20,15 25,55 0,30 -25,55 -20,15 -50,-10 -15,-20" 
-               fill="#FFF" stroke="#000" strokeWidth="3" />
+      {/* Energy circles */}
+      <circle cx="0" cy="0" r="70" fill="none" stroke="#ff6b6b" strokeWidth="2" opacity="0.6" />
+      <circle cx="0" cy="0" r="50" fill="none" stroke="#ff8888" strokeWidth="2" opacity="0.4" />
+      <circle cx="0" cy="0" r="30" fill="none" stroke="#ffaaaa" strokeWidth="1.5" opacity="0.3" />
       
-      {/* Lightning bolts */}
-      <path d="M 0 -80 L -15 -40 L 5 -35 L -10 0 L 10 5 L -5 50 Z" fill="#FFD700" stroke="#000" strokeWidth="2" />
-      <path d="M 60 -60 L 45 -20 L 65 -15 L 50 20 Z" fill="#FFD700" stroke="#000" strokeWidth="1.5" />
-      <path d="M -70 -50 L -85 -10 L -65 -5 L -80 30 Z" fill="#FFD700" stroke="#000" strokeWidth="1.5" />
+      {/* Central core - intense */}
+      <circle cx="0" cy="0" r="20" fill="#ffcccc" stroke="#000" strokeWidth="2" />
+      <circle cx="0" cy="0" r="12" fill="#ff6b6b" stroke="#000" strokeWidth="1" />
+      
+      {/* Lightning bolts - angular and dynamic */}
+      <path d="M -30 -60 L -45 -30 L -25 -25 L -40 10 L -15 5 L -20 50 Z" 
+            fill="#ffee66" stroke="#000" strokeWidth="1.5" />
+      <path d="M 40 -55 L 60 -20 L 40 -15 L 55 25 Z" 
+            fill="#ffee66" stroke="#000" strokeWidth="1.5" />
     </g>
     
-    {/* Radiating impact lines */}
-    <line x1="200" y1="50" x2="200" y2="10" stroke="#000" strokeWidth="3" />
-    <line x1="200" y1="430" x2="200" y2="470" stroke="#000" strokeWidth="3" />
-    <line x1="50" y1="220" x2="10" y2="220" stroke="#000" strokeWidth="3" />
-    <line x1="350" y1="220" x2="390" y2="220" stroke="#000" strokeWidth="3" />
+    {/* Radiating power lines */}
+    <line x1="200" y1="50" x2="200" y2="10" stroke="#ff6b6b" strokeWidth="2" />
+    <line x1="200" y1="430" x2="200" y2="470" stroke="#ff6b6b" strokeWidth="2" />
+    <line x1="80" y1="220" x2="20" y2="220" stroke="#ff6b6b" strokeWidth="2" />
+    <line x1="320" y1="220" x2="380" y2="220" stroke="#ff6b6b" strokeWidth="2" />
     
-    {/* Diagonal lines */}
-    <line x1="80" y1="80" x2="40" y2="40" stroke="#000" strokeWidth="2.5" />
-    <line x1="320" y1="80" x2="360" y2="40" stroke="#000" strokeWidth="2.5" />
+    {/* Diagonal energy beams */}
+    <line x1="100" y1="100" x2="40" y2="40" stroke="#ff8888" strokeWidth="1.5" opacity="0.7" />
+    <line x1="300" y1="100" x2="360" y2="40" stroke="#ff8888" strokeWidth="1.5" opacity="0.7" />
+    <line x1="100" y1="340" x2="40" y2="400" stroke="#ff8888" strokeWidth="1.5" opacity="0.7" />
+    <line x1="300" y1="340" x2="360" y2="400" stroke="#ff8888" strokeWidth="1.5" opacity="0.7" />
     
-    {/* Impact star burst center */}
-    <g transform="translate(200, 220)">
-      <text x="0" y="15" textAnchor="middle" fontSize="48" fontWeight="bold" fill="#FF0000">POW!</text>
+    {/* Modern impact text - not cartoonish */}
+    <g transform="translate(200, 210)">
+      <text x="0" y="0" textAnchor="middle" fontSize="42" fontWeight="bold" fill="#000" opacity="0.8">POWER</text>
+      <text x="0" y="0" textAnchor="middle" fontSize="42" fontWeight="bold" fill="#ff6b6b">POWER</text>
     </g>
     
-    {/* Comic book sound effect */}
-    <g transform="translate(300, 100)">
-      <path d="M 20 10 L 80 10 Q 90 10 90 20 L 90 70 Q 90 80 80 80 L 20 80 Q 10 80 10 70 L 10 20 Q 10 10 20 10" 
-            fill="#FF0000" stroke="#000" strokeWidth="2" />
-      <text x="50" y="50" textAnchor="middle" fontSize="24" fontWeight="bold" fill="#FFF" fontStyle="italic">ZAP!</text>
+    {/* Effect indicator box */}
+    <g transform="translate(280, 100)">
+      <rect x="0" y="0" width="100" height="70" rx="4" fill="#2d3e50" stroke="#ff6b6b" strokeWidth="1.5" />
+      <text x="50" y="25" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#ff8888">Energy</text>
+      <text x="50" y="45" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#ff8888">boost!</text>
     </g>
   </svg>
 );
 
 const BattleScene = () => (
   <svg viewBox="0 0 400 500" className="w-full h-full">
-    {/* Yellow comic background */}
-    <rect width="400" height="500" fill="#FFFACD" />
+    {/* Dark anime battle background */}
+    <defs>
+      <linearGradient id="battleBg" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style={{stopColor: "#1a0f1a", stopOpacity: 1}} />
+        <stop offset="100%" style={{stopColor: "#0f0f1f", stopOpacity: 1}} />
+      </linearGradient>
+      <linearGradient id="heroColor" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{stopColor: "#4a9eff", stopOpacity: 1}} />
+        <stop offset="100%" style={{stopColor: "#2d5aa0", stopOpacity: 1}} />
+      </linearGradient>
+      <linearGradient id="villainColor" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{stopColor: "#ff4444", stopOpacity: 1}} />
+        <stop offset="100%" style={{stopColor: "#8b0000", stopOpacity: 1}} />
+      </linearGradient>
+    </defs>
     
-    {/* Two characters facing off */}
-    <g transform="translate(150, 200)">
-      {/* Left character - hero */}
-      <circle cx="-40" cy="-50" r="30" fill="#F4A460" stroke="#000" strokeWidth="2.5" />
-      <path d="M -70 -65 Q -75 -85 -50 -90" fill="#8B4513" stroke="#000" strokeWidth="2" />
-      <rect x="-60" y="-20" width="40" height="50" fill="#4169E1" stroke="#000" strokeWidth="2.5" />
-      <ellipse cx="-55" cy="40" rx="10" ry="35" fill="#F4A460" stroke="#000" strokeWidth="2" />
-      <ellipse cx="-25" cy="40" rx="10" ry="35" fill="#F4A460" stroke="#000" strokeWidth="2" />
+    <rect width="400" height="500" fill="url(#battleBg)" />
+    
+    {/* Battle composition - two forces clashing */}
+    <g transform="translate(160, 200)">
+      {/* Hero character - left side */}
+      <circle cx="-30" cy="-50" r="22" fill="#d4a574" stroke="#000" strokeWidth="1.5" />
+      <path d="M -50 -65 Q -50 -85 -30 -90" fill="#2c1810" stroke="#000" strokeWidth="1" />
+      <rect x="-50" y="-25" width="40" height="50" fill="url(#heroColor)" stroke="#000" strokeWidth="1.5" />
+      <ellipse cx="-45" cy="35" rx="9" ry="32" fill="#1a1a1a" stroke="#000" strokeWidth="1.5" />
+      <ellipse cx="-15" cy="35" rx="9" ry="32" fill="#1a1a1a" stroke="#000" strokeWidth="1.5" />
       
-      {/* Right character - evil/junk food */}
-      <circle cx="40" cy="-50" r="30" fill="#8B0000" stroke="#000" strokeWidth="2.5" />
-      <path d="M 10 -70 Q 5 -90 35 -95" fill="#660000" stroke="#000" strokeWidth="2" />
-      <rect x="20" y="-20" width="40" height="50" fill="#FF8C00" stroke="#000" strokeWidth="2.5" />
-      <ellipse cx="25" cy="40" rx="10" ry="35" fill="#8B0000" stroke="#000" strokeWidth="2" />
-      <ellipse cx="55" cy="40" rx="10" ry="35" fill="#8B0000" stroke="#000" strokeWidth="2" />
+      {/* Villain/unbalanced food - right side */}
+      <circle cx="40" cy="-50" r="22" fill="#8b4513" stroke="#000" strokeWidth="1.5" />
+      <path d="M 20 -70 Q 15 -85 40 -90" fill="#5a2d0c" stroke="#000" strokeWidth="1" />
+      <rect x="20" y="-25" width="40" height="50" fill="url(#villainColor)" stroke="#000" strokeWidth="1.5" />
+      <ellipse cx="25" cy="35" rx="9" ry="32" fill="#1a1a1a" stroke="#000" strokeWidth="1.5" />
+      <ellipse cx="55" cy="35" rx="9" ry="32" fill="#1a1a1a" stroke="#000" strokeWidth="1.5" />
       
-      {/* Energy clash between them */}
-      <circle cx="0" cy="-30" r="25" fill="#FFD700" stroke="#000" strokeWidth="2" />
-      <circle cx="0" cy="-30" r="35" fill="none" stroke="#FFD700" strokeWidth="2" opacity="0.5" />
+      {/* Energy collision - center */}
+      <circle cx="5" cy="-30" r="20" fill="#ffee66" stroke="#000" strokeWidth="1.5" />
+      <circle cx="5" cy="-30" r="28" fill="none" stroke="#ffee66" strokeWidth="1" opacity="0.5" />
+      
+      {/* Explosive clash effect */}
+      <path d="M -5 -35 L 0 -55 L 8 -38 L 15 -50 L 12 -30 L 20 -35 L 10 -20 L 18 -15 L 5 -10 Z" 
+            fill="#ffaa44" stroke="#000" strokeWidth="1" />
     </g>
     
-    {/* Explosion effect between them */}
-    <g transform="translate(200, 200)">
-      <path d="M -30 -30 L -15 -45 L 0 -35 L 15 -50 L 30 -30 L 20 -10 L 35 0 L 15 10 L 20 30 L 0 20 L -20 30 L -15 10 L -35 0 L -20 -10 Z" 
-            fill="#FF6347" stroke="#000" strokeWidth="2" />
+    {/* Impact radiating lines */}
+    <line x1="130" y1="150" x2="90" y2="120" stroke="#ffee66" strokeWidth="2" />
+    <line x1="145" y1="100" x2="110" y2="50" stroke="#ffee66" strokeWidth="1.5" />
+    <line x1="270" y1="150" x2="310" y2="120" stroke="#ffee66" strokeWidth="2" />
+    <line x1="255" y1="100" x2="290" y2="50" stroke="#ffee66" strokeWidth="1.5" />
+    <line x1="110" y1="260" x2="70" y2="300" stroke="#ff6b6b" strokeWidth="2" />
+    <line x1="290" y1="260" x2="330" y2="300" stroke="#ff6b6b" strokeWidth="2" />
+    
+    {/* Impact sound effect - modern style */}
+    <g transform="translate(50, 70)">
+      <rect x="0" y="0" width="100" height="65" rx="3" fill="#2d3e50" stroke="#000" strokeWidth="1.5" />
+      <text x="50" y="35" textAnchor="middle" fontSize="22" fontWeight="bold" fill="#ffee66" fontStyle="italic">CLASH!</text>
     </g>
     
-    {/* Impact lines radiating */}
-    <line x1="100" y1="150" x2="60" y2="120" stroke="#000" strokeWidth="2.5" />
-    <line x1="120" y1="100" x2="90" y2="50" stroke="#000" strokeWidth="2.5" />
-    <line x1="280" y1="150" x2="320" y2="120" stroke="#000" strokeWidth="2.5" />
-    <line x1="300" y1="100" x2="330" y2="50" stroke="#000" strokeWidth="2.5" />
-    
-    {/* Comic book sound effects */}
-    <g transform="translate(50, 80)">
-      <path d="M 15 5 L 55 5 Q 65 5 65 15 L 65 50 Q 65 60 55 60 L 15 60 Q 5 60 5 50 L 5 15 Q 5 5 15 5" 
-            fill="#FFD700" stroke="#000" strokeWidth="2" />
-      <text x="35" y="40" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#FF0000" fontStyle="italic">CRASH!</text>
-    </g>
-    
-    {/* Speech bubbles */}
-    <g transform="translate(280, 320)">
-      <path d="M 10 0 L 90 0 Q 100 0 100 10 L 100 55 Q 100 65 90 65 L 15 65 L 0 80 L 10 65 L 10 10 Q 10 0 10 0" 
-            fill="#fff" stroke="#000" strokeWidth="2" />
-      <text x="50" y="22" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#000">Balanced</text>
-      <text x="50" y="40" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#000">nutrition</text>
-      <text x="50" y="58" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#000">wins!</text>
+    {/* Nutritional victory message */}
+    <g transform="translate(260, 320)">
+      <path d="M 5 0 L 105 0 Q 115 0 115 10 L 115 70 Q 115 80 105 80 L 15 80 L 0 100 L 12 82 L 10 10 Q 10 0 5 0" 
+            fill="#2d3e50" stroke="#000" strokeWidth="1.5" />
+      <text x="60" y="28" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#4a9eff">Balanced</text>
+      <text x="60" y="45" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#4a9eff">nutrition</text>
+      <text x="60" y="62" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#4a9eff">wins!</text>
     </g>
   </svg>
 );
