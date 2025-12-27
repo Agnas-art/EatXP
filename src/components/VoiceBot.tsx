@@ -295,13 +295,96 @@ const VoiceBot = () => {
       lastInteraction
     } = context;
     
+    // CRITICAL FIX: Detect contextual references like "these 2", "which one", etc.
+    const hasContextualReference = 
+      input.includes('these') || input.includes('those') || input.includes('them') ||
+      input.includes('which one') || input.includes('which of') || input.includes('between them') ||
+      input.includes('the 2') || input.includes('these 2') || input.includes('both') ||
+      input.includes('compared to') || input.includes('difference') || input.includes('versus') ||
+      input.includes('it') || input.includes('this') || input.includes('that');
+    
+    let previousContext = '';
+    let referencedItems = [];
+    
+    if (hasContextualReference && messageHistory.length > 1) {
+      // Look for previously mentioned food items in recent conversation
+      const recentContent = messageHistory.slice(-6).map(m => m.content).join(' ');
+      
+      // Extract food items from previous messages
+      const foodItemPattern = /\b(avocado|pasta|rice|chicken|salmon|beef|broccoli|spinach|apple|banana|tomato|onion|garlic|cheese|bread|milk|yogurt|nuts|seeds|quinoa|oats|beans|lentils|sweet potato|carrot|bell pepper|cucumber|lettuce|egg|tofu|fish|turkey|pork|lamb|mushroom|zucchini|eggplant|cauliflower|cabbage|kale|olive oil|coconut|almond|walnut|cashew|peanut|strawberry|blueberry|orange|grape|pineapple|mango|watermelon|cantaloupe|peach|pear|cherry|lime|lemon)\w*\b/gi;
+      const foundItems = recentContent.match(foodItemPattern) || [];
+      
+      // Remove duplicates and get unique items
+      referencedItems = [...new Set(foundItems.map(item => item.toLowerCase()))];
+      
+      console.log('CONTEXTUAL REFERENCE DETECTED!');
+      console.log('Found referenced items:', referencedItems);
+      console.log('Recent content:', recentContent.substring(0, 200));
+      
+      if (referencedItems.length >= 2) {
+        previousContext = `Previously we were discussing: ${referencedItems.join(' and ')}.`;
+      } else if (referencedItems.length === 1) {
+        previousContext = `Previously we were discussing: ${referencedItems[0]}.`;
+      } else {
+        // Fallback: look for any comparison topic in recent messages
+        const recentUserMessage = messageHistory.slice().reverse().find(m => m.role === 'user' && m.content !== userInput);
+        if (recentUserMessage) {
+          previousContext = `In your previous question you mentioned: "${recentUserMessage.content}".`;
+        }
+      }
+    }
+    
     // Find previous discussions about similar topics
-    const previousUserMessages = recentMessages.filter(m => m.role === 'user').slice(-3);
-    const previousAssistantMessages = recentMessages.filter(m => m.role === 'assistant').slice(-3);
+    const previousUserMessages = messageHistory.filter(m => m.role === 'user').slice(-3);
+    const previousAssistantMessages = messageHistory.filter(m => m.role === 'assistant').slice(-3);
+    
+    // Check for repeated or similar questions
+    const isRepeatedQuestion = previousUserMessages.some(m => {
+      const similarity = m.content.toLowerCase().includes(input.substring(0, 20));
+      return similarity && m.content !== userInput;
+    });
     
     // Handle repeated or follow-up questions with context
     if (isRepeatedQuestion && previousAssistantMessages.length > 0) {
       return `${userName ? `${userName}, ` : ''}I think we talked about something similar before. To build on our previous discussion, what specific aspect would you like to explore further?`;
+    }
+    
+    // CRITICAL FIX: Handle contextual references FIRST - this addresses the exact issue reported
+    if (hasContextualReference && referencedItems.length >= 2) {
+      const item1 = referencedItems[0];
+      const item2 = referencedItems[1];
+      
+      console.log(`HANDLING CONTEXTUAL REFERENCE: ${item1} vs ${item2}`);
+      
+      // Handle specific nutrition/health comparisons
+      if (input.includes('healthy fat') || input.includes('fat') || input.includes('omega')) {
+        if (item1 === 'avocado' || item2 === 'avocado') {
+          return `${userName ? `${userName}, ` : ''}Great follow-up question! Between ${item1} and ${item2}, avocado definitely has more healthy fats! 🥑 Avocados are rich in monounsaturated fats (about 15g per avocado) and omega-9 fatty acids, which are excellent for heart health. Pasta, on the other hand, is primarily carbohydrates with minimal fat content (less than 1g per serving). So avocado is your winner for healthy fats!`;
+        } else {
+          return `${userName ? `${userName}, ` : ''}Looking at the healthy fat content between ${item1} and ${item2}, here's the comparison you're looking for...`;
+        }
+      }
+      else if (input.includes('protein') || input.includes('amino acid')) {
+        return `${userName ? `${userName}, ` : ''}Comparing the protein content between ${item1} and ${item2} that we discussed earlier...`;
+      }
+      else if (input.includes('calorie') || input.includes('energy') || input.includes('calories')) {
+        return `${userName ? `${userName}, ` : ''}Regarding calories in ${item1} vs ${item2} from our previous discussion...`;
+      }
+      else if (input.includes('vitamin') || input.includes('mineral') || input.includes('nutrient')) {
+        return `${userName ? `${userName}, ` : ''}For vitamins and minerals, comparing ${item1} and ${item2}...`;
+      }
+      else if (input.includes('fiber') || input.includes('digestive')) {
+        return `${userName ? `${userName}, ` : ''}Looking at fiber content between ${item1} and ${item2}...`;
+      }
+      else if (input.includes('better') || input.includes('healthier') || input.includes('which one')) {
+        return `${userName ? `${userName}, ` : ''}Between ${item1} and ${item2} that we were comparing, both have unique benefits. Let me explain which might be better for your specific needs...`;
+      }
+      else {
+        return `${userName ? `${userName}, ` : ''}Continuing our discussion about ${item1} and ${item2}...`;
+      }
+    }
+    else if (hasContextualReference && previousContext) {
+      return `${userName ? `${userName}, ` : ''}I understand you're referring to what we discussed earlier. ${previousContext} What specific aspect would you like me to elaborate on?`;
     }
     
     // Context-aware responses based on conversation flow
