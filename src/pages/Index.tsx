@@ -34,6 +34,7 @@ import { MealMasterySimulator } from "@/components/teen/MealMasterySimulator";
 import { AboutEatXP } from "@/components/AboutEatXP";
 import { AnimeMangaBuilder } from "@/components/teen/AnimeMangaBuilder";
 import { RealLifeMissions } from "@/components/teen/RealLifeMissions";
+import HealthyFoodHeroesDetail from "@/components/HealthyFoodHeroesDetail";
 import { useAuth } from "@/hooks/useAuth";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import { foodCategories, healthyFoods, recipes, foodFacts, achievements } from "@/data/foodData";
@@ -64,6 +65,7 @@ const Index = () => {
   const [showMangaBuilder, setShowMangaBuilder] = useState(false);
   const [showRealMissions, setShowRealMissions] = useState(false);
   const [showAboutEatXP, setShowAboutEatXP] = useState(false);
+  const [selectedFoodHero, setSelectedFoodHero] = useState<string | null>(null);
   const { transcript, isListening } = useVoiceRecognition();
 
   useEffect(() => {
@@ -234,6 +236,16 @@ const Index = () => {
         recipe={selectedRecipe}
         onBack={() => setSelectedRecipe(null)}
         ageGroup={getAgeLabel()}
+      />
+    );
+  }
+
+  if (selectedFoodHero) {
+    return (
+      <HealthyFoodHeroesDetail
+        foodKey={selectedFoodHero}
+        onBack={() => setSelectedFoodHero(null)}
+        selectedAge={selectedAge || "kids"}
       />
     );
   }
@@ -589,8 +601,8 @@ const Index = () => {
                   className="bg-gradient-to-br from-green-500 to-lime-400 rounded-2xl p-3 text-left relative overflow-hidden"
                 >
                   <span className="text-2xl mb-1 inline-block">🌿</span>
-                  <p className="font-display font-bold text-xs text-primary-foreground">Seasonal Produce</p>
-                  <p className="text-xs text-primary-foreground/80">Fresh by season</p>
+                  <p className="font-display font-bold text-xs text-primary-foreground">{t("seasonal_produce.title")}</p>
+                  <p className="text-xs text-primary-foreground/80">{t("seasonal_produce.subtitle")}</p>
                 </motion.button>
 
                 <motion.button
@@ -600,8 +612,8 @@ const Index = () => {
                   className="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl p-3 text-left relative overflow-hidden"
                 >
                   <span className="text-2xl mb-1 inline-block">📊</span>
-                  <p className="font-display font-bold text-xs text-primary-foreground">Nutrition Tracker</p>
-                  <p className="text-xs text-primary-foreground/80">Grade your meals</p>
+                  <p className="font-display font-bold text-xs text-primary-foreground">{t("nutrition_tracker.title")}</p>
+                  <p className="text-xs text-primary-foreground/80">{t("nutrition_tracker.subtitle")}</p>
                 </motion.button>
 
                 <motion.button
@@ -611,8 +623,8 @@ const Index = () => {
                   className="bg-gradient-to-br from-pink-500 to-rose-500 rounded-2xl p-3 text-left relative overflow-hidden"
                 >
                   <span className="text-2xl mb-1 inline-block">🌍</span>
-                  <p className="font-display font-bold text-xs text-primary-foreground">Community Space</p>
-                  <p className="text-xs text-primary-foreground/80">Share & compete</p>
+                  <p className="font-display font-bold text-xs text-primary-foreground">{t("community_space.title")}</p>
+                  <p className="text-xs text-primary-foreground/80">{t("community_space.subtitle")}</p>
                 </motion.button>
 
 
@@ -742,7 +754,9 @@ const Index = () => {
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {currentFoods.slice(0, 4).map((food, i) => (
-                    <FoodCard key={i} {...food} />
+                    <div key={i} onClick={() => setSelectedFoodHero(food.name.toLowerCase())}>
+                      <FoodCard {...food} />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -786,6 +800,7 @@ const Index = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1 }}
+                    onClick={() => setSelectedFoodHero(food.name.toLowerCase())}
                   >
                     <FoodCard {...food} />
                   </motion.div>
