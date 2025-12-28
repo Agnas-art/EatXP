@@ -853,6 +853,11 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
       setSelectedChapter(chapterId);
       setSelectedChampion(chapter.heroId || null);
       setMinionIndex(0);
+      // Find the boss for this chapter
+      const boss = Object.values(BOSSES).find(b => b.chapter === chapterId);
+      if (boss) {
+        setCurrentBoss(boss);
+      }
       setGameMode("chapter_map");
     }
   };
