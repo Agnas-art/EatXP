@@ -655,9 +655,25 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
   const handleClaimBossReward = () => {
     if (!currentBoss) return;
 
-    // Award XP
+    // Award XP for boss defeat
     const rewardXp = currentBoss.baseHp * 3;
-    setXp((prev) => prev + rewardXp);
+    setXp((prev) => {
+      const newXp = prev + rewardXp;
+      // Check for level up
+      if (newXp >= level * 500) {
+        setLevel((prev) => prev + 1);
+        // Unlock new skills on level up
+        setSkills((prev) =>
+          prev.map((skill) =>
+            skill.requiredLevel === level + 1
+              ? { ...skill, unlocked: true }
+              : skill
+          )
+        );
+        return 0;
+      }
+      return newXp;
+    });
 
     // Award companion if exists
     if (currentBoss.rewards_spirit) {
@@ -679,6 +695,15 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
         }
       )
     );
+
+    // Complete the associated quest
+    if (selectedQuest) {
+      setQuests((prev) =>
+        prev.map((q) =>
+          q.id === selectedQuest ? { ...q, completed: true } : q
+        )
+      );
+    }
 
     setBossRewardShown(true);
   };
@@ -759,7 +784,30 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
 
   const handleCompleteQuest = (questId: number) => {
     const quest = quests.find((q) => q.id === questId);
+    const currentChapter = chapters.find((c) => c.questIds.includes(questId));
+    
     if (quest && !quest.completed) {
+      // Check if this is the final quest of a chapter (boss quest)
+      if (currentChapter && quest.theme === "Boss Battle") {
+        // Trigger boss battle instead of just completing
+        const bossId = currentChapter.bossName.toLowerCase().replace(/\s+/g, "_");
+        
+        // Find matching boss in BOSSES data
+        const bosses = Object.entries(BOSSES).find(
+          ([key, boss]) => boss.name === currentChapter.bossName
+        );
+        
+        if (bosses) {
+          // Award some XP for reaching the boss
+          setXp((prev) => prev + Math.floor(quest.reward * 0.3));
+          
+          // Start the boss battle
+          handleStartBossBattle(bosses[0]);
+          return; // Don't complete quest yet, will complete after boss is defeated
+        }
+      }
+      
+      // Regular quest completion
       setXp((prev) => prev + quest.reward);
       if (xp + quest.reward >= level * 500) {
         setLevel((prev) => prev + 1);
