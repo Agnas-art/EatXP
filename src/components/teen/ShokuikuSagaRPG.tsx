@@ -595,6 +595,17 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
   const [bossDefeated, setBossDefeated] = useState(false);
   const [bossRewardShown, setBossRewardShown] = useState(false);
   const [weeklyChallenge, setWeeklyChallenge] = useState(WEEKLY_CHALLENGES[0]);
+  
+  // Advanced Combat System States
+  const [battleTurns, setBattleTurns] = useState(0);
+  const [combatLog, setCombatLog] = useState<string[]>([]);
+  const [bossCurrentMove, setBossCurrentMove] = useState<string>("");
+  const [playerLastAction, setPlayerLastAction] = useState<string>("");
+  const [statusEffects, setStatusEffects] = useState<{ name: string; turns: number }[]>([]);
+  const [playerDefending, setPlayerDefending] = useState(false);
+  const [bossPattern, setBossPattern] = useState<number>(0);
+  const [companionOnCooldown, setCompanionOnCooldown] = useState(false);
+  const [mythsCountered, setMythsCountered] = useState(0);
 
   const heroData = selectedHero
     ? ANIME_CHARACTERS[selectedHero as keyof typeof ANIME_CHARACTERS]
@@ -629,58 +640,161 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
   const handleBossBattleStart = () => {
     setShowCutscene(false);
     setGameMode("boss_battle");
+    setCombatLog(["⚔️ Battle Start! Choose your first action...", ""]);
+    setBattleTurns(0);
+  };
+
+  const addCombatLog = (message: string) => {
+    setCombatLog((prev) => [message, ...prev.slice(0, 9)]);
   };
 
   const handleBossAttack = (actionType: "attack" | "defend" | "counter_myth" | "use_companion") => {
-    if (!currentBoss) return;
+    if (!currentBoss || bossDefeated || playerStats.health <= 0) return;
 
     const currentPhase = currentBoss.phases[currentBossPhase];
-    const randomTaunt = currentPhase.taunts[Math.floor(Math.random() * currentPhase.taunts.length)];
-    let playerDamage = 0;
-    let bossDamage = 0;
+    const turn = battleTurns + 1;
+
+    // ===== PLAYER ACTION RESOLUTION =====
+    let playerDamageDealt = 0;
+    let playerLog = "";
 
     switch (actionType) {
       case "attack":
-        playerDamage = Math.floor(Math.random() * 15) + playerStats.attack;
-        bossDamage = Math.floor(Math.random() * 12) + 5;
+        // Basic attack: high variance, no protection
+        const attackDamage = Math.floor(Math.random() * 18) + playerStats.attack - 2;
+        playerDamageDealt = Math.max(1, attackDamage);
+        playerLog = `💥 You attack! Deal ${playerDamageDealt} damage!`;
+        setPlayerDefending(false);
+        setPlayerLastAction("attack");
         break;
+
       case "defend":
-        playerDamage = Math.floor(Math.random() * 5) + 3;
-        bossDamage = Math.floor(Math.random() * 8) + 2;
+        // Defend: reduce incoming damage significantly, small damage output
+        playerDamageDealt = Math.floor(Math.random() * 6) + 2;
+        playerLog = `🛡️ You take a defensive stance! (Reduce next damage by 50%)`;
+        setPlayerDefending(true);
+        setPlayerLastAction("defend");
         break;
+
       case "counter_myth":
-        playerDamage = Math.floor(Math.random() * 20) + playerStats.wisdom;
-        bossDamage = 0; // Nutrition facts protect you!
+        // Counter myth: wisdom-based damage, special effect against taunts
+        const mythCounter = Math.floor(Math.random() * 10) + playerStats.wisdom + 5;
+        playerDamageDealt = mythCounter;
+        const mythCounterNum = mythsCountered + 1;
+        setMythsCountered(mythCounterNum);
+        playerLog = `💡 Counter Myth! "Truth Beats Lies!" Deal ${playerDamageDealt} wisdom damage! (${mythCounterNum}/3 myths countered)`;
+        setPlayerLastAction("counter");
+        setPlayerDefending(false);
+
+        // Add bonus for 3 consecutive myth counters
+        if (mythCounterNum >= 3) {
+          addCombatLog("⭐ COMBO! 3 myths countered! +100 XP bonus!");
+          setXp((prev) => prev + 100);
+          setMythsCountered(0);
+        }
         break;
+
       case "use_companion":
-        playerDamage = Math.floor(Math.random() * 18) + 10;
-        bossDamage = Math.floor(Math.random() * 6) + 2;
+        if (companions.length === 0) {
+          addCombatLog("❌ No companions available!");
+          return;
+        }
+        if (companionOnCooldown) {
+          addCombatLog("⏳ Companion is recovering... (1 more turn)");
+          return;
+        }
+        const companion = companions[Math.floor(Math.random() * companions.length)];
+        const companionDamage = Math.floor(Math.random() * 16) + 12;
+        playerDamageDealt = companionDamage;
+        playerLog = `🎁 ${companion.emoji} ${companion.name} attacks! Deal ${companionDamage} damage!`;
+        setPlayerLastAction("companion");
+        setPlayerDefending(false);
+        setCompanionOnCooldown(true);
         break;
     }
 
-    setBossHp((prev) => Math.max(0, prev - playerDamage));
+    addCombatLog(playerLog);
+
+    // ===== BOSS AI & ACTION =====
+    const bossAI = calculateBossAction(currentPhase, playerStats, bossHp, currentBoss.baseHp);
+    const bossAttack = currentPhase.moveset[bossAI];
+    let bossDamageDealt = bossAttack.damage;
+
+    // Boss damage scales with phase
+    bossDamageDealt = Math.floor(bossDamageDealt * (1 + currentBossPhase * 0.2));
+
+    // Apply defender bonus
+    if (playerDefending) {
+      bossDamageDealt = Math.floor(bossDamageDealt * 0.5);
+      addCombatLog(`${bossAttack.emoji} Boss uses "${bossAttack.name}" but your defense blocks half!`);
+    } else {
+      addCombatLog(`${bossAttack.emoji} Boss uses "${bossAttack.name}"! You take ${bossDamageDealt} damage!`);
+    }
+
+    setBossCurrentMove(bossAttack.name);
+    setBossPattern((prev) => (prev + 1) % 3);
+
+    // ===== APPLY DAMAGE =====
+    const newBossHp = Math.max(0, bossHp - playerDamageDealt);
+    const newPlayerHealth = Math.max(0, playerStats.health - bossDamageDealt);
+
+    setBossHp(newBossHp);
     setPlayerStats((prev) => ({
       ...prev,
-      health: Math.max(0, prev.health - bossDamage),
+      health: newPlayerHealth,
     }));
 
-    // Check phase transition
-    if (bossHp - playerDamage <= currentBoss.baseHp * (1 - (currentBossPhase + 1) / currentBoss.phases.length)) {
-      if (currentBossPhase < currentBoss.phases.length - 1) {
-        setCurrentBossPhase((prev) => prev + 1);
-      }
+    // ===== TURN-BASED MECHANICS =====
+    setBattleTurns(turn);
+
+    // Cooldown management
+    if (companionOnCooldown) {
+      setCompanionOnCooldown(false);
     }
 
-    // Check victory
-    if (bossHp - playerDamage <= 0) {
+    // Status effects countdown
+    setStatusEffects((prev) =>
+      prev
+        .map((effect) => ({ ...effect, turns: effect.turns - 1 }))
+        .filter((effect) => effect.turns > 0)
+    );
+
+    // ===== PHASE TRANSITIONS =====
+    const phaseThreshold = currentBoss.baseHp * (1 - (currentBossPhase + 1) / currentBoss.phases.length);
+    if (newBossHp <= phaseThreshold && currentBossPhase < currentBoss.phases.length - 1) {
+      const nextPhase = currentBossPhase + 1;
+      setCurrentBossPhase(nextPhase);
+      const nextPhaseData = currentBoss.phases[nextPhase];
+      addCombatLog(`💀 ${currentBoss.name} transforms! Phase ${nextPhase + 1}: ${nextPhaseData.description}`);
+    }
+
+    // ===== VICTORY CHECK =====
+    if (newBossHp <= 0) {
       setBossDefeated(true);
+      addCombatLog(`🎉 VICTORY! ${currentBoss.name} has been defeated!`);
       setCutsceneText(currentBoss.cutscene.victory);
     }
 
-    // Check defeat
-    if (playerStats.health - bossDamage <= 0) {
+    // ===== DEFEAT CHECK =====
+    if (newPlayerHealth <= 0) {
+      addCombatLog(`💔 You've been knocked out!`);
       setCutsceneText(currentBoss.cutscene.defeat);
       setGameMode("boss_cutscene");
+    }
+  };
+
+  const calculateBossAction = (phase: any, playerStats: PlayerStats, currentHp: number, maxHp: number): number => {
+    // Simple AI: vary attacks based on situation
+    const healthPercent = currentHp / maxHp;
+    const random = Math.floor(Math.random() * 3);
+
+    // Boss uses stronger attacks when healthier, desperate moves when low
+    if (healthPercent > 0.6) {
+      return random < 2 ? 0 : 1; // Prefer first attack
+    } else if (healthPercent > 0.3) {
+      return random; // Mix of attacks
+    } else {
+      return random > 0 ? 2 : random; // Prefer stronger attacks when desperate
     }
   };
 
@@ -1578,10 +1692,11 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
   if (gameMode === "boss_battle" && currentBoss) {
     const currentPhase = currentBoss.phases[currentBossPhase];
     const bossHpPercent = (bossHp / currentBoss.baseHp) * 100;
+    const playerHpPercent = (playerStats.health / playerStats.maxHealth) * 100;
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-900 via-purple-900 to-black p-4 space-y-4">
-        {/* Header */}
+      <div className="min-h-screen bg-gradient-to-br from-red-900 via-purple-900 to-black p-4 space-y-3">
+        {/* Header with Turn Counter */}
         <div className="flex justify-between items-center">
           <div className="flex-1">
             <p className="text-sm text-gray-300">Chapter {currentBoss.chapter}</p>
@@ -1589,170 +1704,199 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-300">Level {level}</p>
+            <p className="text-sm text-amber-400 font-bold">Turn {battleTurns}</p>
             <p className="text-sm text-gray-300">Phase {currentBossPhase + 1}/{currentBoss.phases.length}</p>
           </div>
         </div>
 
         {/* Boss Section */}
-        <Card className="p-6 bg-gradient-to-b from-gray-800 to-gray-900 border-2 border-red-500">
-          <div className="text-center mb-4">
-            <div className="text-6xl mb-2">{currentBoss.emoji}</div>
-            <p className="text-red-400 font-bold text-lg">{currentPhase.description}</p>
+        <Card className="p-4 bg-gradient-to-b from-gray-800 to-gray-900 border-2 border-red-500">
+          <div className="text-center mb-3">
+            <div className="text-5xl mb-2">{currentBoss.emoji}</div>
+            <p className="text-red-300 font-bold text-sm">{currentPhase.description}</p>
           </div>
 
-          {/* Boss Health */}
-          <div className="space-y-2 mb-4">
-            <p className="text-white font-bold">
-              {currentBoss.name} HP: {Math.max(0, bossHp)} / {currentBoss.baseHp}
+          {/* Boss Health with percentage */}
+          <div className="space-y-2">
+            <p className="text-white font-bold text-sm">
+              {currentBoss.name}: {Math.max(0, bossHp)}/{currentBoss.baseHp} HP
             </p>
-            <div className="bg-gray-700 rounded-full h-6 overflow-hidden">
+            <div className="bg-gray-700 rounded-full h-5 overflow-hidden">
               <motion.div
                 className="h-full bg-gradient-to-r from-red-600 to-red-400"
                 animate={{ width: `${Math.max(0, bossHpPercent)}%` }}
                 transition={{ duration: 0.3 }}
               />
             </div>
+            <p className="text-xs text-right text-red-300">{Math.round(bossHpPercent)}%</p>
           </div>
+        </Card>
 
-          {/* Boss Taunt / Myth */}
-          <div className="bg-red-900/50 border border-red-500 rounded-lg p-4 mb-4">
-            <p className="text-red-200 font-semibold text-sm mb-2">🗣️ Boss Taunt:</p>
-            {currentPhase.taunts && currentPhase.taunts.length > 0 && (
-              <>
-                <p className="text-white italic">"{currentPhase.taunts[0].myth}"</p>
-                <p className="text-red-300 text-xs mt-2">
-                  💬 Myth effect: {currentPhase.taunts[0].effect}
-                </p>
-                <p className="text-green-300 text-xs mt-1">
-                  ✓ Counter: {currentPhase.taunts[0].nutritionCounter}
-                </p>
-              </>
-            )}
+        {/* Combat Log - Main Game Feedback */}
+        <Card className="p-3 bg-gray-900/90 border border-amber-600 h-32 overflow-y-auto">
+          <p className="text-xs font-bold text-amber-400 mb-2">⚔️ COMBAT LOG:</p>
+          <div className="space-y-1">
+            {combatLog.map((log, idx) => (
+              <p key={idx} className="text-xs text-gray-200 font-mono">
+                {log}
+              </p>
+            ))}
           </div>
         </Card>
 
         {/* Player Section */}
-        <Card className="p-6 bg-gradient-to-b from-blue-800 to-blue-900 border-2 border-blue-500">
-          <div className="flex justify-between items-center mb-4">
+        <Card className="p-4 bg-gradient-to-b from-blue-800 to-blue-900 border-2 border-blue-500">
+          <div className="grid grid-cols-2 gap-3 mb-2">
             <div>
-              <p className="text-white font-bold">
-                Your HP: {playerStats.health} / {playerStats.maxHealth}
+              <p className="text-white font-bold text-sm">
+                Your HP: {playerStats.health}/{playerStats.maxHealth}
               </p>
-              <div className="bg-gray-700 rounded-full h-6 overflow-hidden mt-2">
+              <div className="bg-gray-700 rounded-full h-5 overflow-hidden mt-1">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-blue-600 to-cyan-400"
-                  animate={{ width: `${(playerStats.health / playerStats.maxHealth) * 100}%` }}
+                  className="h-full bg-gradient-to-r from-blue-500 to-cyan-400"
+                  animate={{ width: `${playerHpPercent}%` }}
                   transition={{ duration: 0.3 }}
                 />
               </div>
+              <p className="text-xs text-right text-blue-300">{Math.round(playerHpPercent)}%</p>
             </div>
-            <div className="text-right text-white">
-              <p className="text-sm">ATK: {playerStats.attack}</p>
-              <p className="text-sm">DEF: {playerStats.defense}</p>
-              <p className="text-sm">WIS: {playerStats.wisdom}</p>
+            <div className="text-right text-white text-xs space-y-1">
+              <p>⚔️ ATK: {playerStats.attack}</p>
+              <p>🛡️ DEF: {playerStats.defense}</p>
+              <p>💡 WIS: {playerStats.wisdom}</p>
             </div>
           </div>
 
-          {/* Companions */}
+          {/* Status Effects Display */}
+          {playerDefending && (
+            <div className="bg-blue-600/50 border border-blue-400 rounded px-2 py-1 text-xs text-blue-100 mb-2">
+              🛡️ Defending (50% damage reduction)
+            </div>
+          )}
+
           {companions.length > 0 && (
-            <div className="flex gap-2 mb-4 flex-wrap">
-              {companions.slice(0, 3).map((comp) => (
+            <div className="flex gap-1 flex-wrap">
+              {companions.slice(0, 2).map((comp) => (
                 <div
                   key={comp.id}
-                  className="bg-blue-700 px-3 py-1 rounded text-xs text-white"
+                  className={`px-2 py-1 rounded text-xs text-white ${
+                    companionOnCooldown
+                      ? "bg-gray-600 opacity-50"
+                      : "bg-green-600"
+                  }`}
                 >
                   {comp.emoji} {comp.name}
+                  {companionOnCooldown && " ⏳"}
                 </div>
               ))}
             </div>
           )}
         </Card>
 
-        {/* Battle Actions */}
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            onClick={() => handleBossAttack("attack")}
-            disabled={playerStats.health <= 0 || bossDefeated}
-            className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white py-3 text-lg font-bold"
-          >
-            <Sword className="w-5 h-5 mr-2" />
-            Attack
-          </Button>
-          <Button
-            onClick={() => handleBossAttack("defend")}
-            disabled={playerStats.health <= 0 || bossDefeated}
-            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white py-3 text-lg font-bold"
-          >
-            <Shield className="w-5 h-5 mr-2" />
-            Defend
-          </Button>
-          <Button
-            onClick={() => handleBossAttack("counter_myth")}
-            disabled={playerStats.health <= 0 || bossDefeated}
-            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-3 text-lg font-bold"
-          >
-            💡 Counter Myth
-          </Button>
-          {companions.length > 0 && (
+        {/* Battle Actions - Strategic Choices */}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
             <Button
-              onClick={() => handleBossAttack("use_companion")}
+              onClick={() => handleBossAttack("attack")}
               disabled={playerStats.health <= 0 || bossDefeated}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 text-lg font-bold"
+              className="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white py-2 text-sm font-bold"
+              title="High damage, no defense"
             >
-              🎁 Use Companion
+              💥 Attack
             </Button>
+            <p className="text-xs text-gray-400 mt-1 text-center">High damage</p>
+          </div>
+          <div>
+            <Button
+              onClick={() => handleBossAttack("defend")}
+              disabled={playerStats.health <= 0 || bossDefeated}
+              className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white py-2 text-sm font-bold"
+              title="Reduce next damage by 50%"
+            >
+              🛡️ Defend
+            </Button>
+            <p className="text-xs text-gray-400 mt-1 text-center">-50% next damage</p>
+          </div>
+          <div>
+            <Button
+              onClick={() => handleBossAttack("counter_myth")}
+              disabled={playerStats.health <= 0 || bossDefeated}
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 text-sm font-bold"
+              title="Wisdom-based damage, combo system"
+            >
+              💡 Counter
+            </Button>
+            <p className="text-xs text-gray-400 mt-1 text-center">Wisdom-based</p>
+          </div>
+          {companions.length > 0 && (
+            <div>
+              <Button
+                onClick={() => handleBossAttack("use_companion")}
+                disabled={playerStats.health <= 0 || bossDefeated || companionOnCooldown}
+                className={`w-full py-2 text-sm font-bold ${
+                  companionOnCooldown
+                    ? "bg-gray-500 text-gray-300"
+                    : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                }`}
+                title={companionOnCooldown ? "Recovering (1 turn)" : "Use companion ability"}
+              >
+                🎁 Companion
+              </Button>
+              <p className="text-xs text-gray-400 mt-1 text-center">
+                {companionOnCooldown ? "Recovering..." : "2-turn cooldown"}
+              </p>
+            </div>
           )}
         </div>
 
-        {/* Battle Status */}
+        {/* Victory Screen */}
         {bossDefeated && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="p-6 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white text-center space-y-4"
+            className="p-4 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white text-center space-y-3"
           >
-            <p className="text-3xl font-bold">🎉 VICTORY! 🎉</p>
-            <p className="text-lg">{currentBoss.name} has been defeated!</p>
+            <p className="text-2xl font-bold">🎉 VICTORY! 🎉</p>
+            <p>{currentBoss.name} defeated in {battleTurns} turns!</p>
             {!bossRewardShown && (
               <Button
                 onClick={handleClaimBossReward}
-                className="bg-white text-green-600 hover:bg-gray-100 font-bold py-2 px-4"
+                className="bg-white text-green-600 hover:bg-gray-100 font-bold py-2 px-4 w-full"
               >
-                <Trophy className="w-5 h-5 mr-2" />
+                <Trophy className="w-4 h-4 mr-2 inline" />
                 Claim Rewards
               </Button>
             )}
             {bossRewardShown && (
-              <div className="space-y-2">
-                <p className="font-bold">Rewards Claimed!</p>
-                <Button
-                  onClick={() => setGameMode("chapter_select")}
-                  className="w-full bg-white text-green-600 hover:bg-gray-100 font-bold"
-                >
-                  <SkipBack className="w-4 h-4 mr-2" />
-                  Return to Chapter Select
-                </Button>
-              </div>
+              <Button
+                onClick={() => setGameMode("chapter_select")}
+                className="w-full bg-white text-green-600 hover:bg-gray-100 font-bold py-2"
+              >
+                <SkipBack className="w-4 h-4 mr-2 inline" />
+                Return to Chapter
+              </Button>
             )}
           </motion.div>
         )}
 
+        {/* Defeat Screen */}
         {playerStats.health <= 0 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="p-6 rounded-lg bg-gradient-to-r from-red-600 to-pink-600 text-white text-center space-y-4"
+            className="p-4 rounded-lg bg-gradient-to-r from-red-600 to-pink-600 text-white text-center space-y-3"
           >
-            <p className="text-3xl font-bold">💔 DEFEATED! 💔</p>
-            <p className="text-lg">You've been knocked out by {currentBoss.name}!</p>
+            <p className="text-2xl font-bold">💔 DEFEATED! 💔</p>
+            <p>Knocked out after {battleTurns} turns.</p>
+            <p className="text-sm">Study the myth counters and try again!</p>
             <Button
               onClick={() => {
                 handleStartBossBattle(currentBoss.id);
               }}
-              className="bg-white text-red-600 hover:bg-gray-100 font-bold py-2 px-4"
+              className="bg-white text-red-600 hover:bg-gray-100 font-bold py-2 w-full"
             >
-              <SkipBack className="w-5 h-5 mr-2" />
-              Try Again
+              <SkipBack className="w-4 h-4 mr-2 inline" />
+              Retry Battle
             </Button>
           </motion.div>
         )}
