@@ -23,6 +23,7 @@ import { BOSSES, BOSS_CUTSCENES, WEEKLY_CHALLENGES } from "@/data/bossBattleSyst
 import type { BossData, FoodSpirit } from "@/data/bossBattleSystem";
 import { BattleArena } from "./BattleArena";
 import { InteractiveMiniBattle } from "./InteractiveMiniBattle";
+import { ChapterMap } from "./ChapterMap";
 
 interface ShokuikuSagaRPGProps {
   onBack?: () => void;
@@ -1525,22 +1526,21 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
     const minionIds = chapter?.minionIds || [];
     const minionList = minionIds.map((id) => CHAPTER_MINIONS[id]);
 
-    return (
-      <div className="space-y-6 p-4">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-purple-600">{chapter?.name}</h2>
-          <Button
-            onClick={() => setGameMode("chapter_select")}
-            variant="outline"
-            size="sm"
-          >
-            <SkipBack className="w-4 h-4" /> Back
-          </Button>
-        </div>
+    // If hero not yet selected, show selection screen
+    if (!hero) {
+      return (
+        <div className="space-y-6 p-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-bold text-purple-600">{chapter?.name}</h2>
+            <Button
+              onClick={() => setGameMode("chapter_select")}
+              variant="outline"
+              size="sm"
+            >
+              <SkipBack className="w-4 h-4" /> Back
+            </Button>
+          </div>
 
-        {/* Hero Selection */}
-        {!selectedChampion && (
           <Card className="p-6 bg-gradient-to-r from-blue-100 to-cyan-100 space-y-4">
             <h3 className="text-2xl font-bold text-blue-700">🏆 Select Your Hero Champion</h3>
             <p className="text-gray-700">
@@ -1565,89 +1565,27 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
               )}
             </div>
           </Card>
-        )}
+        </div>
+      );
+    }
 
-        {/* Battle Map */}
-        {hero && (
-          <Card className="p-6 bg-gradient-to-r from-purple-100 to-pink-100 space-y-6">
-            <h3 className="text-2xl font-bold text-purple-700">⚔️ Chapter Battle Map</h3>
-
-            {/* Hero vs Villains Visualization */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-white rounded-lg border-2 border-purple-300">
-                {/* Your Team */}
-                <div className="text-center space-y-2">
-                  <p className="text-sm font-bold text-purple-600">Your Team</p>
-                  <div className="text-5xl">{hero.emoji}</div>
-                  <p className="font-bold text-sm">{hero.name}</p>
-                  <div className="text-xs text-gray-600 space-y-1">
-                    <p>HP: {playerStats.health}/{playerStats.maxHealth}</p>
-                    <p>ATK: {playerStats.attack}</p>
-                    <p>DEF: {playerStats.defense}</p>
-                  </div>
-                </div>
-
-                {/* VS */}
-                <div className="text-3xl font-bold text-red-600">VS</div>
-
-                {/* Enemy Team */}
-                <div className="text-center space-y-2">
-                  <p className="text-sm font-bold text-red-600">Chapter Villains</p>
-                  <div className="space-y-1">
-                    {minionList.map((minion, idx) => (
-                      <div
-                        key={idx}
-                        className={`text-2xl ${idx === minionIndex ? "scale-125" : "opacity-60"}`}
-                      >
-                        {minion.emoji}
-                      </div>
-                    ))}
-                  </div>
-                  <p className="font-bold text-sm">
-                    {minionList[minionIndex]?.name}
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    {minionIndex + 1}/{minionList.length} Minions
-                  </p>
-                </div>
-              </div>
-
-              {/* Chapter Progression */}
-              <div className="space-y-2">
-                <p className="text-sm font-bold">Battle Progression:</p>
-                <div className="flex gap-2">
-                  {minionList.map((minion, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex-1 p-2 rounded text-center text-xs font-bold transition-all ${
-                        idx < minionIndex
-                          ? "bg-green-500 text-white"
-                          : idx === minionIndex
-                          ? "bg-yellow-500 text-white scale-105"
-                          : "bg-gray-300 text-gray-600"
-                      }`}
-                    >
-                      {idx === minionIndex ? "⚔️" : idx < minionIndex ? "✅" : "🔒"}
-                    </div>
-                  ))}
-                  <div className="flex-1 p-2 rounded text-center text-xs font-bold bg-red-500 text-white">
-                    🐲 Boss
-                  </div>
-                </div>
-              </div>
-
-              {/* Start Button */}
-              <Button
-                onClick={() => handleStartMinionBattle(selectedChapter)}
-                className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 text-lg font-bold"
-              >
-                <Sword className="w-5 h-5 mr-2" />
-                {minionIndex === 0 ? "Begin Chapter Battle" : `Face ${minionList[minionIndex]?.name}`}
-              </Button>
-            </div>
-          </Card>
-        )}
-      </div>
+    // Use new ChapterMap component for battle visualization
+    return (
+      <ChapterMap
+        chapterName={chapter?.name || ""}
+        heroName={hero.name}
+        heroEmoji={hero.emoji}
+        minionEmojis={minionList.map((minion, idx) => ({
+          emoji: minion.emoji,
+          name: minion.name,
+          isDefeated: idx < minionIndex,
+        }))}
+        bossEmoji={currentBoss?.emoji || "👹"}
+        bossName={chapter?.bossName || ""}
+        currentMinionIndex={minionIndex}
+        onStartBattle={() => handleStartMinionBattle(selectedChapter)}
+        onBack={() => setGameMode("chapter_select")}
+      />
     );
   }
 
