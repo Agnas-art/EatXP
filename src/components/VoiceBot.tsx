@@ -461,21 +461,90 @@ const VoiceBot = () => {
     const lastMessages = messageHistory.slice(-3);
     const lastInteraction = Date.now();
     
+    // Topic change detection - check if current input is about a different topic
+    const detectTopicChange = (currentInput: string, recentMessages: Message[]): boolean => {
+      if (recentMessages.length === 0) return false;
+      
+      const currentTopics = extractTopicsFromText(currentInput);
+      const recentTopics = recentMessages.slice(-2).map(m => extractTopicsFromText(m.content)).flat();
+      
+      // If current input has topics and none overlap with recent topics, it's a topic change
+      if (currentTopics.length > 0 && recentTopics.length > 0) {
+        const hasOverlap = currentTopics.some(topic => recentTopics.includes(topic));
+        return !hasOverlap;
+      }
+      
+      return false;
+    };
+    
+    // Extract topics from text for comparison
+    const extractTopicsFromText = (text: string): string[] => {
+      const lowerText = text.toLowerCase();
+      const topics = [];
+      
+      // Food topics
+      if (lowerText.match(/\b(food|cook|recipe|eat|nutrition|vitamin|protein|calorie|diet|meal|snack|fruit|vegetable|meat|grain|dairy)\b/)) {
+        topics.push('food');
+      }
+      
+      // Anime/Entertainment topics  
+      if (lowerText.match(/\b(anime|manga|naruto|tanjiro|deku|character|episode|series|watch|animation)\b/)) {
+        topics.push('anime');
+      }
+      
+      // Gaming topics
+      if (lowerText.match(/\b(game|gaming|play|level|boss|character|quest|rpg|strategy|puzzle)\b/)) {
+        topics.push('gaming');
+      }
+      
+      // Health/Fitness topics
+      if (lowerText.match(/\b(health|fitness|exercise|workout|gym|muscle|weight|cardio|strength)\b/)) {
+        topics.push('health');
+      }
+      
+      // Technology topics
+      if (lowerText.match(/\b(tech|technology|computer|software|app|website|coding|programming|ai|robot)\b/)) {
+        topics.push('technology');
+      }
+      
+      // Education topics
+      if (lowerText.match(/\b(learn|study|school|education|book|read|knowledge|skill|course|tutorial)\b/)) {
+        topics.push('education');
+      }
+      
+      return topics;
+    };
+    
+    const isTopicChange = detectTopicChange(input, lastMessages);
+    
+    console.log('🔄 TOPIC CHANGE DEBUG:', {
+      input,
+      isTopicChange,
+      currentTopics: extractTopicsFromText(input),
+      recentTopics: lastMessages.map(m => extractTopicsFromText(m.content)).flat(),
+      shouldIgnorePreviousContext: isTopicChange
+    });
+    
     // ULTRA-FAST contextual reference detection - minimal processing
     const hasContextualReference = 
       input.includes('these') || input.includes('which one') || input.includes('both') ||
       input.includes('them') || input.includes('it');
     
+    // Ignore contextual references if topic has changed
+    const shouldUseContext = hasContextualReference && !isTopicChange;
+    
     console.log('📋 MESSAGE HISTORY DEBUG:', {
       hasContextualReference,
+      isTopicChange,
+      shouldUseContext,
       messageHistoryLength: messageHistory.length,
       fullMessageHistory: messageHistory.map(m => ({ role: m.role, content: m.content.substring(0, 50) + '...' })),
-      willCheckContext: hasContextualReference && messageHistory.length > 1
+      willCheckContext: shouldUseContext && messageHistory.length > 1
     });
     
     let referencedItems = [];
     
-    if (hasContextualReference && messageHistory.length > 1) {
+    if (shouldUseContext && messageHistory.length > 1) {
       // INSTANT processing: Only check the very last message
       const lastMessage = messageHistory[messageHistory.length - 2]?.content?.toLowerCase() || '';
       
@@ -505,12 +574,41 @@ const VoiceBot = () => {
     });
     
     // Handle repeated or follow-up questions with context
-    if (isRepeatedQuestion && previousAssistantMessages.length > 0) {
+    if (isRepeatedQuestion && previousAssistantMessages.length > 0 && !isTopicChange) {
       return `${userName ? `${userName}, ` : ''}I think we talked about something similar before. To build on our previous discussion, what specific aspect would you like to explore further?`;
     }
     
-    // OPTIMIZED: Fast contextual response handling
-    if (hasContextualReference && referencedItems.length >= 2) {
+    // Handle topic changes gracefully
+    if (isTopicChange && messageHistory.length > 1) {
+      const currentTopics = extractTopicsFromText(input);
+      const topicName = currentTopics[0] || 'new topic';
+      return `${userName ? `Great, ${userName}! ` : ''}I see we're switching to ${topicName === 'new topic' ? 'a new topic' : topicName}! ${getTopicResponse(topicName, input, userName)}`;
+    }
+    
+    // Helper function to provide topic-specific responses
+    const getTopicResponse = (topic: string, userInput: string, userName: string): string => {
+      const name = userName ? `${userName}, ` : '';
+      
+      switch (topic) {
+        case 'food':
+          return `${name}I love discussing food and nutrition! What would you like to know about?`;
+        case 'anime':
+          return `${name}Anime is amazing! Which series are you interested in?`;
+        case 'gaming':
+          return `${name}Gaming is so much fun! What type of games do you enjoy?`;
+        case 'health':
+          return `${name}Health and fitness are so important! How can I help you on your wellness journey?`;
+        case 'technology':
+          return `${name}Technology is fascinating! What tech topic interests you?`;
+        case 'education':
+          return `${name}Learning is wonderful! What subject are you curious about?`;
+        default:
+          return `${name}That's interesting! Tell me more about what you'd like to discuss.`;
+      }
+    };
+    
+    // OPTIMIZED: Fast contextual response handling (only if not a topic change)
+    if (hasContextualReference && referencedItems.length >= 2 && !isTopicChange) {
       const item1 = referencedItems[0];
       const item2 = referencedItems[1];
       
