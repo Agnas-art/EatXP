@@ -1252,13 +1252,88 @@ const VoiceBot = () => {
         if (item1 === 'avocado' || item2 === 'avocado') {
           return `Between ${item1} and ${item2}, avocado has much more healthy fats! 🥑 Avocados contain about 15g of heart-healthy monounsaturated fats, while ${item1 === 'avocado' ? item2 : item1} has minimal fat content.`;
         }
-        return `For healthy fats, comparing ${item1} vs ${item2}...`;
+        
+        // Provide specific fat content comparisons for other foods
+        const getFatContent = (food: string): string => {
+          const fatData: { [key: string]: string } = {
+            'apple': 'virtually no fat (0.2g)',
+            'orange': 'virtually no fat (0.1g)',
+            'banana': 'minimal fat (0.3g)',
+            'nuts': 'high in healthy fats (14-20g)',
+            'almonds': 'rich in healthy fats (14g)',
+            'walnuts': 'very high in healthy fats (18g with omega-3)',
+            'olive oil': 'pure healthy fat (14g per tablespoon)',
+            'coconut oil': 'saturated fat (14g per tablespoon)',
+            'salmon': 'rich in omega-3 fats (4-8g)',
+            'chicken': 'moderate fat content (3-7g depending on cut)',
+            'egg': 'healthy fats (5g with omega-3)',
+            'cheese': 'moderate to high fat (6-9g)',
+            'yogurt': 'low to moderate fat (0-8g depending on type)'
+          };
+          return fatData[food.toLowerCase()] || 'variable fat content';
+        };
+        
+        const item1Fat = getFatContent(item1);
+        const item2Fat = getFatContent(item2);
+        
+        return `For healthy fats, comparing ${item1} vs ${item2}: ${item1} has ${item1Fat}, while ${item2} has ${item2Fat}. ${
+          (item1.includes('nut') || item1.includes('oil') || item1 === 'salmon') || 
+          (item2.includes('nut') || item2.includes('oil') || item2 === 'salmon') ?
+          'The one with nuts, oils, or fatty fish would be better for healthy fats!' :
+          'Both are quite low in fat - consider adding nuts, seeds, or avocado for healthy fats!'
+        }`;
       }
       if (input.includes('protein')) {
-        return `Protein comparison: ${item1} vs ${item2}...`;
+        const getProteinContent = (food: string): string => {
+          const proteinData: { [key: string]: string } = {
+            'apple': 'very low protein (0.5g)',
+            'orange': 'low protein (1.2g)',
+            'banana': 'low protein (1.3g)',
+            'chicken': 'very high protein (25-30g)',
+            'salmon': 'high protein (22-25g)',
+            'egg': 'good protein (6g)',
+            'quinoa': 'complete protein (8g)',
+            'almonds': 'moderate protein (6g)',
+            'yogurt': 'good protein (10-15g)',
+            'milk': 'good protein (8g)',
+            'cheese': 'high protein (20-25g)',
+            'beans': 'high protein (15g)',
+            'lentils': 'high protein (18g)'
+          };
+          return proteinData[food.toLowerCase()] || 'variable protein content';
+        };
+        
+        const item1Protein = getProteinContent(item1);
+        const item2Protein = getProteinContent(item2);
+        
+        return `Protein comparison: ${item1} has ${item1Protein}, while ${item2} has ${item2Protein}. ${
+          item1.includes('chicken') || item1.includes('salmon') || item1.includes('egg') ||
+          item2.includes('chicken') || item2.includes('salmon') || item2.includes('egg') ?
+          'Animal proteins provide complete amino acid profiles!' :
+          'For higher protein, consider adding lean meats, fish, eggs, or legumes!'
+        }`;
       }
       if (input.includes('calorie')) {
-        return `Calorie content: ${item1} vs ${item2}...`;
+        const getCalorieContent = (food: string): string => {
+          const calorieData: { [key: string]: string } = {
+            'apple': 'low calories (80-95 per medium apple)',
+            'orange': 'low calories (60-80 per medium orange)',
+            'banana': 'moderate calories (105-120 per medium banana)',
+            'avocado': 'high calories (320 per avocado)',
+            'nuts': 'high calories (160-200 per ounce)',
+            'almonds': 'high calories (160 per ounce)',
+            'rice': 'moderate calories (200 per cup cooked)',
+            'quinoa': 'moderate calories (220 per cup cooked)',
+            'chicken': 'moderate calories (165 per 3.5oz)',
+            'salmon': 'moderate-high calories (200 per 3.5oz)'
+          };
+          return calorieData[food.toLowerCase()] || 'variable calorie content';
+        };
+        
+        const item1Calories = getCalorieContent(item1);
+        const item2Calories = getCalorieContent(item2);
+        
+        return `Calorie comparison: ${item1} has ${item1Calories}, while ${item2} has ${item2Calories}. Choose based on your energy needs and goals!`;
       }
       if (input.includes('vitamin') || input.includes('nutrient')) {
         return `Nutritional comparison of ${item1} and ${item2}...`;
