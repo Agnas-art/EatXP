@@ -158,16 +158,6 @@ const VoiceBot = () => {
   const [inputMode, setInputMode] = useState<'voice' | 'text'>('voice');
   const [messages, setMessages] = useState<Message[]>([]);
 
-  // Auto-correct function
-  const autoCorrectText = useCallback((text: string): string => {
-    let correctedText = text;
-    Object.entries(FOOD_SPELL_CORRECTIONS).forEach(([wrong, correct]) => {
-      const regex = new RegExp(`\\b${wrong}\\b`, 'gi');
-      correctedText = correctedText.replace(regex, correct);
-    });
-    return correctedText;
-  }, []); // Empty dependencies since FOOD_SPELL_CORRECTIONS is a constant
-
   // Enhanced text input handler with auto-correction
   const handleTextInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
@@ -175,11 +165,17 @@ const VoiceBot = () => {
     
     // Auto-correct on space or punctuation
     if (rawValue.endsWith(' ') || /[.,!?]$/.test(rawValue)) {
-      const corrected = autoCorrectText(rawValue);
-      if (corrected !== rawValue) {
-        setTextInput(corrected);
+      // Use FOOD_SPELL_CORRECTIONS directly instead of autoCorrectText to avoid dependencies
+      let correctedText = rawValue;
+      Object.entries(FOOD_SPELL_CORRECTIONS).forEach(([wrong, correct]) => {
+        const regex = new RegExp(`\\b${wrong}\\b`, 'gi');
+        correctedText = correctedText.replace(regex, correct);
+      });
+      
+      if (correctedText !== rawValue) {
+        setTextInput(correctedText);
         // Optional: Show a brief toast for corrections
-        if (corrected.trim() !== rawValue.trim()) {
+        if (correctedText.trim() !== rawValue.trim()) {
           toast({
             description: `Auto-corrected text`,
             duration: 1000
@@ -187,7 +183,7 @@ const VoiceBot = () => {
         }
       }
     }
-  }, [autoCorrectText, toast]);
+  }, [toast]);
 
   const [currentResponse, setCurrentResponse] = useState('');
   const [conversationSummary, setConversationSummary] = useState<string>('');
