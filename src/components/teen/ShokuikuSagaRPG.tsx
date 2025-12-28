@@ -21,6 +21,7 @@ import {
 import { ANIME_CHARACTERS } from "@/data/animeCharacters";
 import { BOSSES, BOSS_CUTSCENES, WEEKLY_CHALLENGES } from "@/data/bossBattleSystem";
 import type { BossData, FoodSpirit } from "@/data/bossBattleSystem";
+import { BattleArena } from "./BattleArena";
 
 interface ShokuikuSagaRPGProps {
   onBack?: () => void;
@@ -2335,12 +2336,106 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
 
   // ============ BOSS BATTLE ============
   if (gameMode === "boss_battle" && currentBoss) {
+    const [playerAttacking, setPlayerAttacking] = useState(false);
+    const [bossAttacking, setBossAttacking] = useState(false);
     const currentPhase = currentBoss.phases[currentBossPhase];
-    const bossHpPercent = (bossHp / currentBoss.baseHp) * 100;
-    const playerHpPercent = (playerStats.health / playerStats.maxHealth) * 100;
+
+    // Override the attack handler to trigger animations
+    const handleBossAttackWithAnimation = (actionType: string) => {
+      setPlayerAttacking(true);
+      setTimeout(() => setPlayerAttacking(false), 600);
+      setTimeout(() => {
+        setBossAttacking(true);
+        setTimeout(() => setBossAttacking(false), 600);
+      }, 700);
+      handleBossAttack(actionType);
+    };
+
+    // Get hero emoji if selected
+    const heroEmoji = selectedChampion ? CHAPTER_HEROES[selectedChampion].emoji : "🧑";
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-900 via-purple-900 to-black p-4 space-y-3">
+      <BattleArena
+        playerEmoji={heroEmoji}
+        bossEmoji={currentBoss.emoji}
+        playerHp={playerStats.health}
+        playerMaxHp={playerStats.maxHealth}
+        bossHp={Math.max(0, bossHp)}
+        bossMaxHp={currentBoss.baseHp}
+        bossName={currentBoss.name}
+        onAttack={() => handleBossAttackWithAnimation("attack")}
+        onDefend={() => handleBossAttackWithAnimation("defend")}
+        onCounter={() => handleBossAttackWithAnimation("counter_myth")}
+        isPlayerAttacking={playerAttacking}
+        isBossAttacking={bossAttacking}
+        battleTurns={battleTurns}
+        chapter={currentBoss.chapter}
+        playerDefeated={playerStats.health <= 0}
+        bossDefeated={bossDefeated}
+      />
+    );
+  }
+
+  // ============ WEEKLY CHALLENGES ============
+  if (gameMode === "weekly_challenges") {
+    return (
+      <div className="space-y-6 p-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold text-purple-600">Weekly Challenge</h2>
+          <Button
+            onClick={() => setGameMode("chapter_select")}
+            variant="outline"
+            size="sm"
+          >
+            <SkipBack className="w-4 h-4" /> Back
+          </Button>
+        </div>
+
+        {weeklyChallenge && (
+          <Card className="p-6 space-y-4 border-2 border-gold-500">
+            <div className="text-center space-y-2">
+              <p className="text-2xl font-bold">Week {weeklyChallenge.week}</p>
+              <div className="text-6xl">{BOSSES[weeklyChallenge.boss_id]?.emoji}</div>
+              <h3 className="text-2xl font-bold text-purple-600">
+                {BOSSES[weeklyChallenge.boss_id]?.name}
+              </h3>
+            </div>
+
+            <div className="bg-gradient-to-r from-yellow-100 to-orange-100 p-4 rounded-lg space-y-2">
+              <p className="font-bold">Modifiers:</p>
+              <div className="flex flex-wrap gap-2">
+                {weeklyChallenge.modifiers.map((mod) => (
+                  <span
+                    key={mod}
+                    className="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+                  >
+                    ⚡ {mod}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="text-center space-y-2">
+              <p className="text-lg font-semibold">Difficulty: {weeklyChallenge.difficulty}</p>
+              <p className="text-sm text-gray-600">
+                Defeat {BOSSES[weeklyChallenge.boss_id]?.name} with the active modifiers!
+              </p>
+            </div>
+
+            <Button
+              onClick={handleStartWeeklyChallenge}
+              className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 text-lg font-bold"
+            >
+              <Sword className="w-5 h-5 mr-2" />
+              Accept Challenge
+            </Button>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  // ============ OLD BOSS BATTLE UI (REPLACED) ============
         {/* Header with Turn Counter */}
         <div className="flex justify-between items-center">
           <div className="flex-1">
