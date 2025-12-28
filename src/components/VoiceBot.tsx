@@ -321,7 +321,7 @@ const VoiceBot = () => {
     };
     
     initPermissions();
-  }, [checkMicrophonePermission, toast]);
+  }, [toast]); // Remove checkMicrophonePermission to avoid circular dependency
 
   // Save conversation to localStorage
   useEffect(() => {
@@ -1852,7 +1852,7 @@ Conversation to summarize:\n`;
     } finally {
       setIsProcessing(false);
     }
-  }, [messages, conversationSummary, generateSummary, speakText, toast]);
+  }, [messages, conversationSummary, toast]); // Remove generateSummary and speakText to avoid circular dependencies
 
   // Initialize speech recognition with platform-specific optimizations
   useEffect(() => {
@@ -2164,7 +2164,7 @@ Conversation to summarize:\n`;
     
     // Process the text message using the same logic as voice input
     await handleSendMessage(message);
-  }, [textInput, isProcessing, handleSendMessage]);
+  }, [textInput, isProcessing]); // Remove handleSendMessage dependency to avoid circular reference
 
   // Handle Enter key press in text input
   const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
