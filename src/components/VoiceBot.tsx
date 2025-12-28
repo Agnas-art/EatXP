@@ -339,7 +339,9 @@ const VoiceBot = () => {
       });
       
       // Super simple food detection - no RegEx, just includes check
-      const foods = ['avocado', 'pasta', 'rice', 'chicken', 'salmon', 'egg', 'apple', 'banana'];
+      const foods = ['avocado', 'pasta', 'rice', 'chicken', 'salmon', 'egg', 'apple', 'banana', 'bread', 'cheese', 'milk',
+                     'orange', 'strawberry', 'broccoli', 'spinach', 'potato', 'sweet potato', 'quinoa', 'oats', 'nuts',
+                     'almonds', 'yogurt', 'beef', 'turkey', 'tuna', 'carrots', 'tomato', 'cucumber', 'lettuce'];
       referencedItems = foods.filter(food => lastMessage.includes(food));
       
       console.log('🥑 REFERENCED ITEMS:', referencedItems);
@@ -392,7 +394,9 @@ const VoiceBot = () => {
     // Removed problematic previousContext reference that was undefined
     
     // Direct food comparison detection (for questions like "is avocado better than pasta")
-    const foods = ['avocado', 'pasta', 'rice', 'chicken', 'salmon', 'egg', 'apple', 'banana', 'bread', 'cheese', 'milk'];
+    const foods = ['avocado', 'pasta', 'rice', 'chicken', 'salmon', 'egg', 'apple', 'banana', 'bread', 'cheese', 'milk', 
+                   'orange', 'strawberry', 'broccoli', 'spinach', 'potato', 'sweet potato', 'quinoa', 'oats', 'nuts', 
+                   'almonds', 'yogurt', 'beef', 'turkey', 'tuna', 'carrots', 'tomato', 'cucumber', 'lettuce'];
     const mentionedFoods = foods.filter(food => input.includes(food));
     
     console.log('🔍 FOOD COMPARISON DEBUG:', {
@@ -407,12 +411,29 @@ const VoiceBot = () => {
       const food1 = mentionedFoods[0];
       const food2 = mentionedFoods[1];
       
-      // Specific comparisons
+      // Specific comparisons with detailed nutritional information
       if ((food1 === 'avocado' || food2 === 'avocado') && (food1 === 'pasta' || food2 === 'pasta')) {
         return `Great question! Avocado and pasta serve different nutritional purposes. 🥑 Avocado is rich in healthy fats, fiber, and vitamins, while pasta provides energy through carbohydrates. For overall nutrition density, avocado wins with its heart-healthy monounsaturated fats and potassium. But pasta is perfect for quick energy! What specific aspect interests you - calories, nutrients, or cooking uses?`;
       }
       
-      return `Interesting comparison between ${food1} and ${food2}! Both have unique nutritional benefits. What specific aspect would you like me to focus on - nutrition, taste, or cooking applications?`;
+      if ((food1 === 'apple' || food2 === 'apple') && (food1 === 'banana' || food2 === 'banana')) {
+        return `Excellent comparison! 🍎🍌 Both fruits are nutritious! Apples are great for fiber and antioxidants (about 95 calories, 4g fiber), while bananas provide quick energy and potassium (about 105 calories, 400mg potassium). Bananas are better pre-workout for instant energy, while apples are perfect for steady blood sugar. Both support heart health and digestion!`;
+      }
+      
+      if ((food1 === 'chicken' || food2 === 'chicken') && (food1 === 'salmon' || food2 === 'salmon')) {
+        return `Both are excellent protein sources! 🐔🐟 Chicken breast has lean protein (about 25g per 100g, 165 calories), while salmon offers high-quality protein plus omega-3 fatty acids (about 22g protein, 206 calories per 100g). Salmon wins for heart health with its omega-3s, but chicken is more budget-friendly and versatile. Both support muscle building!`;
+      }
+      
+      if ((food1 === 'rice' || food2 === 'rice') && (food1 === 'bread' || food2 === 'bread')) {
+        return `Great carb comparison! 🍚🍞 Both provide energy! Brown rice offers more fiber and nutrients (about 45g carbs, 3.5g fiber per cup), while whole grain bread provides similar benefits with added convenience. Rice is gluten-free and easier to digest, while bread offers more variety. Both fuel your body - choose based on your meal and dietary needs!`;
+      }
+      
+      if ((food1 === 'egg' || food2 === 'egg') && (food1 === 'milk' || food2 === 'milk')) {
+        return `Both are protein powerhouses! 🥚🥛 Eggs provide complete protein (6g per egg, 70 calories) plus choline for brain health, while milk offers protein (8g per cup) plus calcium for bones. Eggs are more versatile for cooking, while milk is perfect for smoothies and cereals. Both support muscle growth and bone health!`;
+      }
+      
+      // Generic but informative response for any other food combinations
+      return `Great comparison between ${food1} and ${food2}! 🍽️ Both foods have unique nutritional profiles and benefits. ${food1.charAt(0).toUpperCase() + food1.slice(1)} and ${food2} can both be part of a healthy diet. Would you like me to focus on a specific aspect like calories, protein content, vitamins, or how they fit into different meal plans?`;
     }
     
     // Context-aware responses based on conversation flow
