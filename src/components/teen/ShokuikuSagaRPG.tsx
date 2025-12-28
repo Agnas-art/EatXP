@@ -22,6 +22,7 @@ import { ANIME_CHARACTERS } from "@/data/animeCharacters";
 import { BOSSES, BOSS_CUTSCENES, WEEKLY_CHALLENGES } from "@/data/bossBattleSystem";
 import type { BossData, FoodSpirit } from "@/data/bossBattleSystem";
 import { BattleArena } from "./BattleArena";
+import { InteractiveMiniBattle } from "./InteractiveMiniBattle";
 
 interface ShokuikuSagaRPGProps {
   onBack?: () => void;
@@ -2152,135 +2153,41 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
 
   // ============ MINION BATTLE ============
   if (gameMode === "minion_battle" && currentMinion) {
+    const [playerAttacking, setPlayerAttacking] = useState(false);
+    const [minionAttacking, setMinionAttacking] = useState(false);
+
+    const handleMinionAttackWithAnimation = (actionType: string) => {
+      setPlayerAttacking(true);
+      setTimeout(() => setPlayerAttacking(false), 600);
+      setTimeout(() => {
+        setMinionAttacking(true);
+        setTimeout(() => setMinionAttacking(false), 600);
+      }, 700);
+      handleMinionAttack(actionType);
+    };
+
+    const heroEmoji = selectedChampion ? CHAPTER_HEROES[selectedChampion].emoji : "🧑";
+
     return (
-      <div className="space-y-4 p-4">
-        {/* Battle Header */}
-        <Card className="p-4 bg-gradient-to-r from-orange-500 to-red-600 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-2xl font-bold">{currentMinion.name}</h3>
-              <p className="text-sm opacity-90">{currentMinion.description}</p>
-            </div>
-            <div className="text-4xl">{currentMinion.emoji}</div>
-          </div>
-        </Card>
-
-        {/* Health Bars */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="p-4 space-y-2">
-            <p className="text-sm font-bold">Your Health</p>
-            <div className="bg-gray-300 rounded-full h-6 overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-green-500 to-emerald-500"
-                animate={{ width: `${(playerHp / 100) * 100}%` }}
-                transition={{ duration: 0.5 }}
-              />
-            </div>
-            <p className="text-xs text-gray-600 text-right">{playerHp}/100 HP</p>
-          </Card>
-
-          <Card className="p-4 space-y-2">
-            <p className="text-sm font-bold">Minion Health</p>
-            <div className="bg-gray-300 rounded-full h-6 overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-red-500 to-orange-500"
-                animate={{ width: `${(enemyHp / currentMinion.baseHp) * 100}%` }}
-                transition={{ duration: 0.5 }}
-              />
-            </div>
-            <p className="text-xs text-gray-600 text-right">
-              {Math.max(0, enemyHp)}/{currentMinion.baseHp} HP
-            </p>
-          </Card>
-        </div>
-
-        {/* Combat Log */}
-        <Card className="p-4 bg-gray-900 text-white max-h-32 overflow-y-auto space-y-1">
-          {combatLog.map((log, idx) => (
-            <p key={idx} className="text-sm">
-              {log}
-            </p>
-          ))}
-        </Card>
-
-        {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <Button
-              onClick={() => handleMinionAttack("attack")}
-              disabled={playerHp <= 0 || enemyHp <= 0}
-              className="w-full bg-red-600 hover:bg-red-700 text-white py-2 text-sm font-bold"
-            >
-              💥 Attack
-            </Button>
-          </div>
-          <div>
-            <Button
-              onClick={() => handleMinionAttack("defend")}
-              disabled={playerHp <= 0 || enemyHp <= 0}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 text-sm font-bold"
-            >
-              🛡️ Defend
-            </Button>
-          </div>
-          <div>
-            <Button
-              onClick={() => handleMinionAttack("counter_myth")}
-              disabled={playerHp <= 0 || enemyHp <= 0}
-              className="w-full bg-green-600 hover:bg-green-700 text-white py-2 text-sm font-bold"
-            >
-              💡 Counter
-            </Button>
-          </div>
-          <div>
-            <Button
-              onClick={() => handleMinionAttack("use_companion")}
-              disabled={playerHp <= 0 || enemyHp <= 0 || companions.length === 0}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 text-sm font-bold"
-            >
-              🎁 Companion
-            </Button>
-          </div>
-        </div>
-
-        {/* Victory Screen */}
-        {minionDefeated && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="p-4 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white text-center space-y-3"
-          >
-            <p className="text-2xl font-bold">🎉 Minion Defeated! 🎉</p>
-            <p>Proceed to the next challenge!</p>
-            <Button
-              onClick={handleContinueToNextMinion}
-              className="w-full bg-white text-green-600 hover:bg-gray-100 font-bold py-2"
-            >
-              <Zap className="w-4 h-4 mr-2 inline" />
-              Continue
-            </Button>
-          </motion.div>
-        )}
-
-        {/* Defeat Screen */}
-        {playerHp <= 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="p-4 rounded-lg bg-gradient-to-r from-red-600 to-pink-600 text-white text-center space-y-3"
-          >
-            <p className="text-2xl font-bold">💔 Defeated! 💔</p>
-            <p>Learn from this and try again!</p>
-            <Button
-              onClick={() => handleStartMinionBattle(selectedChapter!)}
-              className="w-full bg-white text-red-600 hover:bg-gray-100 font-bold py-2"
-            >
-              <SkipBack className="w-4 h-4 mr-2 inline" />
-              Retry
-            </Button>
-          </motion.div>
-        )}
-      </div>
+      <InteractiveMiniBattle
+        playerEmoji={heroEmoji}
+        enemyEmoji={currentMinion.emoji}
+        enemyName={currentMinion.name}
+        playerHp={playerHp}
+        playerMaxHp={100}
+        enemyHp={Math.max(0, enemyHp)}
+        enemyMaxHp={currentMinion.baseHp}
+        onAttack={() => handleMinionAttackWithAnimation("attack")}
+        onDefend={() => handleMinionAttackWithAnimation("defend")}
+        onCounter={() => handleMinionAttackWithAnimation("counter_myth")}
+        isPlayerAttacking={playerAttacking}
+        isEnemyAttacking={minionAttacking}
+        battleType="minion"
+        playerDefeated={playerHp <= 0}
+        enemyDefeated={minionDefeated}
+        turnCount={battleTurns}
+        battleLog={combatLog}
+      />
     );
   }
 
