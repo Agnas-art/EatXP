@@ -1077,20 +1077,23 @@ const VoiceBot = () => {
     
     // Recipe request detection - prioritize over contextual references and general food discussion
     const recipePatterns = [
-      /(?:recipe|cook|make|prepare|how to (?:make|cook|prepare)).*?(\w+)/i,
-      /(\w+).*?(?:recipe|cooking|preparation)/i,
-      /show me.*?(\w+).*?(?:recipe|how to make)/i,
-      /(?:give me|suggest|recommend).*?(?:recipe|dish)/i,
+      /(?:recip[ei]|cook|make|prepare|how to (?:make|cook|prepare)).*?(\w+)/i,
+      /(\w+).*?(?:recip[ei]|cooking|preparation)/i,
+      /show me.*?(\w+).*?(?:recip[ei]|how to make)/i,
+      /(?:give me|suggest|recommend).*?(?:recip[ei]|dish)/i,
       /how (?:do|can) i (?:make|cook|prepare).*?(\w+)/i,
-      /(?:recipe for|cooking) (\w+)/i,
+      /(?:recip[ei] for|cooking) (\w+)/i,
       /(?:make|cook) (\w+)/i,
-      /(?:get me|want).*?recipe.*?with.*?(\w+)/i
+      /(?:get me|want).*?recip[ei].*?with.*?(\w+)/i
     ];
+    
+    // Check for recipe keywords including misspellings
+    const hasRecipeKeyword = /recip[ei]|cook|make|prepare/i.test(input);
     
     let detectedRecipeRequest = null;
     for (const pattern of recipePatterns) {
       const match = input.match(pattern);
-      if (match && (input.includes('recipe') || input.includes('cook') || input.includes('make') || input.includes('prepare'))) {
+      if (match && hasRecipeKeyword) {
         // Extract the food item from the match
         const potentialFood = match[1] ? match[1].toLowerCase() : '';
         
@@ -1106,7 +1109,7 @@ const VoiceBot = () => {
         }
         
         // If no specific food detected but clear recipe request
-        if (input.includes('recipe') && !potentialFood) {
+        if (/recip[ei]/i.test(input) && !potentialFood) {
           detectedRecipeRequest = {
             food: 'healthy', // Default to healthy recipe
             pattern: pattern.source
@@ -1116,8 +1119,8 @@ const VoiceBot = () => {
       }
     }
     
-    // Also check for direct recipe requests without patterns
-    if (!detectedRecipeRequest && (input.includes('recipe') || (input.includes('cook') && (input.includes('how') || input.includes('make'))))) {
+    // Also check for direct recipe requests without patterns (including misspellings)
+    if (!detectedRecipeRequest && (/recip[ei]/i.test(input) || (input.includes('cook') && (input.includes('how') || input.includes('make'))))) {
       const words = input.split(' ');
       for (const word of words) {
         const cleanWord = word.toLowerCase().replace(/[^a-z]/g, '');
