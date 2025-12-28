@@ -2172,7 +2172,7 @@ Conversation to summarize:\n`;
       e.preventDefault();
       handleTextSubmit();
     }
-  }, [handleTextSubmit]);
+  }, []); // Remove handleTextSubmit dependency to avoid circular reference
 
   return (
     <>
