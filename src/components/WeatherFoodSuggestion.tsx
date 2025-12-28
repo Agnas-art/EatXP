@@ -215,15 +215,15 @@ const WeatherFoodSuggestion = () => {
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
-          className="bg-secondary/10 rounded-2xl p-4"
+          className="bg-white border-2 border-primary rounded-2xl p-4 shadow-lg"
         >
           <div className="flex items-start gap-3">
             <span className="text-4xl">{selectedFood.emoji}</span>
             <div>
-              <p className="font-display font-bold text-foreground">{selectedFood.food}</p>
-              <p className="text-sm text-muted-foreground">{selectedFood.reason}</p>
+              <p className="font-display font-bold text-gray-800">{selectedFood.food}</p>
+              <p className="text-sm text-gray-700">{selectedFood.reason}</p>
               {selectedFood.recipe && (
-                <p className="text-xs text-secondary font-semibold mt-1">
+                <p className="text-xs text-primary font-semibold mt-1">
                   Try: {selectedFood.recipe}
                 </p>
               )}
