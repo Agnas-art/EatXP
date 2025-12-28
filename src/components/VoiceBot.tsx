@@ -1075,38 +1075,7 @@ const VoiceBot = () => {
       }
     };
     
-    // OPTIMIZED: Fast contextual response handling (only if not a topic change)
-    if (hasContextualReference && referencedItems.length >= 2 && !isTopicChange) {
-      const item1 = referencedItems[0];
-      const item2 = referencedItems[1];
-      
-      console.log(`QUICK RESPONSE: ${item1} vs ${item2}`);
-      
-      // Fast nutrition comparison responses
-      if (input.includes('healthy fat') || input.includes('fat')) {
-        if (item1 === 'avocado' || item2 === 'avocado') {
-          return `Between ${item1} and ${item2}, avocado has much more healthy fats! 🥑 Avocados contain about 15g of heart-healthy monounsaturated fats, while ${item1 === 'avocado' ? item2 : item1} has minimal fat content.`;
-        }
-        return `For healthy fats, comparing ${item1} vs ${item2}...`;
-      }
-      if (input.includes('protein')) {
-        return `Protein comparison: ${item1} vs ${item2}...`;
-      }
-      if (input.includes('calorie')) {
-        return `Calorie content: ${item1} vs ${item2}...`;
-      }
-      if (input.includes('vitamin') || input.includes('nutrient')) {
-        return `Nutritional comparison of ${item1} and ${item2}...`;
-      }
-      if (input.includes('better') || input.includes('healthier')) {
-        return `Between ${item1} and ${item2}, both have benefits. Let me explain...`;
-      }
-      
-      return `Continuing about ${item1} and ${item2}...`;
-    }
-    // Removed problematic previousContext reference that was undefined
-    
-    // Recipe request detection - prioritize over general food discussion
+    // Recipe request detection - prioritize over contextual references and general food discussion
     const recipePatterns = [
       /(?:recipe|cook|make|prepare|how to (?:make|cook|prepare)).*?(\w+)/i,
       /(\w+).*?(?:recipe|cooking|preparation)/i,
@@ -1114,7 +1083,8 @@ const VoiceBot = () => {
       /(?:give me|suggest|recommend).*?(?:recipe|dish)/i,
       /how (?:do|can) i (?:make|cook|prepare).*?(\w+)/i,
       /(?:recipe for|cooking) (\w+)/i,
-      /(?:make|cook) (\w+)/i
+      /(?:make|cook) (\w+)/i,
+      /(?:get me|want).*?recipe.*?with.*?(\w+)/i
     ];
     
     let detectedRecipeRequest = null;
@@ -1173,6 +1143,37 @@ const VoiceBot = () => {
       // Generate recipe suggestion
       return generateRecipeSuggestion(food, input);
     }
+
+    // OPTIMIZED: Fast contextual response handling (only if not a topic change and not a recipe request)
+    if (hasContextualReference && referencedItems.length >= 2 && !isTopicChange) {
+      const item1 = referencedItems[0];
+      const item2 = referencedItems[1];
+      
+      console.log(`QUICK RESPONSE: ${item1} vs ${item2}`);
+      
+      // Fast nutrition comparison responses
+      if (input.includes('healthy fat') || input.includes('fat')) {
+        if (item1 === 'avocado' || item2 === 'avocado') {
+          return `Between ${item1} and ${item2}, avocado has much more healthy fats! 🥑 Avocados contain about 15g of heart-healthy monounsaturated fats, while ${item1 === 'avocado' ? item2 : item1} has minimal fat content.`;
+        }
+        return `For healthy fats, comparing ${item1} vs ${item2}...`;
+      }
+      if (input.includes('protein')) {
+        return `Protein comparison: ${item1} vs ${item2}...`;
+      }
+      if (input.includes('calorie')) {
+        return `Calorie content: ${item1} vs ${item2}...`;
+      }
+      if (input.includes('vitamin') || input.includes('nutrient')) {
+        return `Nutritional comparison of ${item1} and ${item2}...`;
+      }
+      if (input.includes('better') || input.includes('healthier')) {
+        return `Between ${item1} and ${item2}, both have benefits. Let me explain...`;
+      }
+      
+      return `Continuing about ${item1} and ${item2}...`;
+    }
+    // Removed problematic previousContext reference that was undefined
     
     // Dynamic AI-powered food comparison detection  
     const foodComparisonPatterns = [
