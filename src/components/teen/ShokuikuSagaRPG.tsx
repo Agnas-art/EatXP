@@ -15,8 +15,12 @@ import {
   Flame,
   Trophy,
   Star,
+  Heart,
+  Shield,
 } from "lucide-react";
 import { ANIME_CHARACTERS } from "@/data/animeCharacters";
+import { BOSSES, BOSS_CUTSCENES, WEEKLY_CHALLENGES } from "@/data/bossBattleSystem";
+import type { BossData, FoodSpirit } from "@/data/bossBattleSystem";
 
 interface ShokuikuSagaRPGProps {
   onBack?: () => void;
@@ -68,6 +72,22 @@ interface Chapter {
   emoji: string;
 }
 
+interface CollectedCompanion {
+  id: string;
+  name: string;
+  emoji: string;
+  ability: string;
+  rarity: string;
+}
+
+interface PlayerStats {
+  health: number;
+  maxHealth: number;
+  defense: number;
+  attack: number;
+  wisdom: number;
+}
+
 type GameMode =
   | "start"
   | "hero_selection"
@@ -75,7 +95,9 @@ type GameMode =
   | "chapter_select"
   | "quest_play"
   | "skill_tree"
-  | "battle";
+  | "boss_battle"
+  | "boss_cutscene"
+  | "weekly_challenges";
 
 const CHAPTERS: Chapter[] = [
   {
@@ -94,16 +116,16 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: 2,
-    name: "Chapter 1: Grain Plains",
-    region: "Grain Plains",
+    name: "Chapter 1 – Grain Plains",
+    region: "Golden Fields of the Grain Plains",
     narrative:
-      "Learn the importance of carbohydrates and whole grains. Energy for your adventures!",
+      "Vast golden fields of rice, wheat, oats, and barley stretch endlessly. The Refined Carb Phantom has drained the villagers' energy by spreading processed foods. As a Food Guardian, you must help farmers restore vitality and teach them the difference between whole grains and refined carbs. Learn how carbohydrates fuel your body's energy and why whole grains provide sustained power!",
     bossName: "Refined Carb Phantom",
-    bossDescription: "Drains energy by promoting refined carbs over whole grains",
+    bossDescription: "A ghostly manifestation that drains villagers' energy by promoting processed carbs. Its myths about refined foods being 'pure' and 'clean' have caused an energy crisis!",
     unlocked: true,
     completed: false,
-    questIds: [2, 3],
-    reward: "Carbohydrate Mastery Badge",
+    questIds: [2, 3, 4],
+    reward: "Sacred Plate Fragment + Carbohydrate Mastery",
     emoji: "🌾",
   },
   {
@@ -198,49 +220,81 @@ const QUESTS_DATA: Quest[] = [
   },
   {
     id: 2,
-    name: "Energy for Exams",
-    description: "Learn how carbs fuel your brain and body for peak performance",
-    reward: 150,
+    name: "Harvest the Truth: Whole Grains Quest",
+    description: "Help farmers identify and harvest whole grains from refined carbs",
+    reward: 120,
     difficulty: "Easy",
     completed: false,
-    theme: "Energy for Exams",
-    narrative: "Students in Grain Plains are losing energy. Help them understand carbs!",
+    theme: "Educational Quest",
+    narrative:
+      "🌾 GRAIN PLAINS PUZZLE: The fields are mixed with whole grains and refined grains! Farmers are confused about which provide sustained energy. Help them identify TRUE whole grains and learn how fiber sustains energy throughout the day. Match each grain to its energy level!",
     challenges: [
       {
         type: "quiz",
-        question: "Which is a whole grain?",
-        options: ["White bread", "Brown rice", "Instant noodles"],
+        question: "Which grain provides sustained energy with fiber?",
+        options: ["White Rice (Refined)", "Brown Rice (Whole Grain)", "White Bread (Processed)"],
         correctAnswer: 1,
+      },
+      {
+        type: "cooking",
+        question: "Which meal has balanced whole grain carbohydrates?",
       },
       {
         type: "collection",
         items: [
-          { name: "Oats", emoji: "🌾" },
-          { name: "Wheat", emoji: "🌾" },
-          { name: "Quinoa", emoji: "🌾" },
+          { name: "Brown Rice", emoji: "🍚" },
+          { name: "Rolled Oats", emoji: "🌾" },
+          { name: "Whole Wheat", emoji: "🌾" },
         ],
       },
     ],
   },
   {
     id: 3,
-    name: "Defeat the Refined Carb Phantom",
-    description: "Battle the boss that drains energy with refined carbs",
-    reward: 250,
-    difficulty: "Medium",
+    name: "⚔️ MINI-GAME: Harvest Rush",
+    description: "Race to harvest and identify whole grains before time runs out",
+    reward: 80,
+    difficulty: "Easy",
     completed: false,
-    theme: "Boss Battle",
-    narrative: "The Refined Carb Phantom awaits! Use your carb knowledge to defeat it.",
+    theme: "Mini-Game Quest",
+    narrative:
+      "🌾 HARVEST RACE: The fields are ripe! Show your speed and accuracy by harvesting WHOLE GRAINS only. Each grain correctly identified powers up the villagers. This harvest trains you for the battle ahead!",
     challenges: [
       {
-        type: "battle",
-        enemyName: "Refined Carb Phantom",
-        enemyHp: 60,
+        type: "collection",
+        items: [
+          { name: "Barley", emoji: "🌾" },
+          { name: "Oatmeal", emoji: "🍯" },
+          { name: "Rye", emoji: "🌾" },
+        ],
+      },
+      {
+        type: "mindfulness",
+        question:
+          "🧘 Feel the farmer's gratitude as energy returns with each whole grain you save.",
       },
     ],
   },
   {
     id: 4,
+    name: "🔥 BOSS BATTLE: Refined Carb Phantom",
+    description: "Defeat the phantom to restore energy to all villagers",
+    reward: 300,
+    difficulty: "Hard",
+    completed: false,
+    theme: "Boss Battle",
+    narrative:
+      "⚔️ THE FINAL TEST: The Refined Carb Phantom emerges! It feeds on confusion about 'pure white' foods. Use whole grain knowledge to counter its myths. Its Sugar Storm and Empty Bite Blast sap energy quickly. Counter with nutrition facts! Defeat it to restore vitality and earn the SACRED PLATE FRAGMENT!",
+    challenges: [
+      {
+        type: "battle",
+        enemyName: "Refined Carb Phantom",
+        enemyHp: 100,
+      },
+    ],
+  },
+  {
+    id: 5,
     name: "Vegetable Valley Rescue",
     description: "Help farmers save vegetables and learn about vitamins",
     reward: 150,
@@ -266,7 +320,7 @@ const QUESTS_DATA: Quest[] = [
     ],
   },
   {
-    id: 5,
+    id: 6,
     name: "Defeat the Junk Goblin",
     description: "Stop the Junk Goblin from tempting villagers with unhealthy snacks",
     reward: 250,
@@ -283,7 +337,7 @@ const QUESTS_DATA: Quest[] = [
     ],
   },
   {
-    id: 6,
+    id: 7,
     name: "Sports Power-Up",
     description: "Learn how proteins build strength and aid recovery",
     reward: 200,
@@ -523,6 +577,35 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
   const [enemyHp, setEnemyHp] = useState(0);
   const [playerHp, setPlayerHp] = useState(100);
   const [collectedItems, setCollectedItems] = useState<Set<number>>(new Set());
+  
+  // Boss Battle States
+  const [currentBoss, setCurrentBoss] = useState<BossData | null>(null);
+  const [currentBossPhase, setCurrentBossPhase] = useState(0);
+  const [bossHp, setBossHp] = useState(0);
+  const [showCutscene, setShowCutscene] = useState(false);
+  const [cutsceneText, setCutsceneText] = useState("");
+  const [playerStats, setPlayerStats] = useState<PlayerStats>({
+    health: 100,
+    maxHealth: 100,
+    defense: 10,
+    attack: 15,
+    wisdom: 10,
+  });
+  const [companions, setCompanions] = useState<CollectedCompanion[]>([]);
+  const [bossDefeated, setBossDefeated] = useState(false);
+  const [bossRewardShown, setBossRewardShown] = useState(false);
+  const [weeklyChallenge, setWeeklyChallenge] = useState(WEEKLY_CHALLENGES[0]);
+  
+  // Advanced Combat System States
+  const [battleTurns, setBattleTurns] = useState(0);
+  const [combatLog, setCombatLog] = useState<string[]>([]);
+  const [bossCurrentMove, setBossCurrentMove] = useState<string>("");
+  const [playerLastAction, setPlayerLastAction] = useState<string>("");
+  const [statusEffects, setStatusEffects] = useState<{ name: string; turns: number }[]>([]);
+  const [playerDefending, setPlayerDefending] = useState(false);
+  const [bossPattern, setBossPattern] = useState<number>(0);
+  const [companionOnCooldown, setCompanionOnCooldown] = useState(false);
+  const [mythsCountered, setMythsCountered] = useState(0);
 
   const heroData = selectedHero
     ? ANIME_CHARACTERS[selectedHero as keyof typeof ANIME_CHARACTERS]
@@ -531,6 +614,249 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
   const handleHeroSelect = (heroId: string) => {
     setSelectedHero(heroId);
     setGameMode("prologue");
+  };
+
+  const handleStartBossBattle = (bossId: string) => {
+    const boss = BOSSES[bossId as keyof typeof BOSSES];
+    if (boss) {
+      setCurrentBoss(boss);
+      setCurrentBossPhase(0);
+      setBossHp(boss.baseHp);
+      setPlayerStats({
+        health: 100,
+        maxHealth: 100,
+        defense: 10 + level * 2,
+        attack: 15 + level * 2,
+        wisdom: 10 + level,
+      });
+      setShowCutscene(true);
+      setCutsceneText(boss.cutscene.opening);
+      setGameMode("boss_cutscene");
+      setBossDefeated(false);
+      setBossRewardShown(false);
+    }
+  };
+
+  const handleBossBattleStart = () => {
+    setShowCutscene(false);
+    setGameMode("boss_battle");
+    setCombatLog(["⚔️ Battle Start! Choose your first action...", ""]);
+    setBattleTurns(0);
+  };
+
+  const addCombatLog = (message: string) => {
+    setCombatLog((prev) => [message, ...prev.slice(0, 9)]);
+  };
+
+  const handleBossAttack = (actionType: "attack" | "defend" | "counter_myth" | "use_companion") => {
+    if (!currentBoss || bossDefeated || playerStats.health <= 0) return;
+
+    const currentPhase = currentBoss.phases[currentBossPhase];
+    const turn = battleTurns + 1;
+
+    // ===== PLAYER ACTION RESOLUTION =====
+    let playerDamageDealt = 0;
+    let playerLog = "";
+
+    switch (actionType) {
+      case "attack":
+        // Basic attack: high variance, no protection
+        const attackDamage = Math.floor(Math.random() * 18) + playerStats.attack - 2;
+        playerDamageDealt = Math.max(1, attackDamage);
+        playerLog = `💥 You attack! Deal ${playerDamageDealt} damage!`;
+        setPlayerDefending(false);
+        setPlayerLastAction("attack");
+        break;
+
+      case "defend":
+        // Defend: reduce incoming damage significantly, small damage output
+        playerDamageDealt = Math.floor(Math.random() * 6) + 2;
+        playerLog = `🛡️ You take a defensive stance! (Reduce next damage by 50%)`;
+        setPlayerDefending(true);
+        setPlayerLastAction("defend");
+        break;
+
+      case "counter_myth":
+        // Counter myth: wisdom-based damage, special effect against taunts
+        const mythCounter = Math.floor(Math.random() * 10) + playerStats.wisdom + 5;
+        playerDamageDealt = mythCounter;
+        const mythCounterNum = mythsCountered + 1;
+        setMythsCountered(mythCounterNum);
+        playerLog = `💡 Counter Myth! "Truth Beats Lies!" Deal ${playerDamageDealt} wisdom damage! (${mythCounterNum}/3 myths countered)`;
+        setPlayerLastAction("counter");
+        setPlayerDefending(false);
+
+        // Add bonus for 3 consecutive myth counters
+        if (mythCounterNum >= 3) {
+          addCombatLog("⭐ COMBO! 3 myths countered! +100 XP bonus!");
+          setXp((prev) => prev + 100);
+          setMythsCountered(0);
+        }
+        break;
+
+      case "use_companion":
+        if (companions.length === 0) {
+          addCombatLog("❌ No companions available!");
+          return;
+        }
+        if (companionOnCooldown) {
+          addCombatLog("⏳ Companion is recovering... (1 more turn)");
+          return;
+        }
+        const companion = companions[Math.floor(Math.random() * companions.length)];
+        const companionDamage = Math.floor(Math.random() * 16) + 12;
+        playerDamageDealt = companionDamage;
+        playerLog = `🎁 ${companion.emoji} ${companion.name} attacks! Deal ${companionDamage} damage!`;
+        setPlayerLastAction("companion");
+        setPlayerDefending(false);
+        setCompanionOnCooldown(true);
+        break;
+    }
+
+    addCombatLog(playerLog);
+
+    // ===== BOSS AI & ACTION =====
+    const bossAI = calculateBossAction(currentPhase, playerStats, bossHp, currentBoss.baseHp);
+    const bossAttack = currentPhase.moveset[bossAI];
+    let bossDamageDealt = bossAttack.damage;
+
+    // Boss damage scales with phase
+    bossDamageDealt = Math.floor(bossDamageDealt * (1 + currentBossPhase * 0.2));
+
+    // Apply defender bonus
+    if (playerDefending) {
+      bossDamageDealt = Math.floor(bossDamageDealt * 0.5);
+      addCombatLog(`${bossAttack.emoji} Boss uses "${bossAttack.name}" but your defense blocks half!`);
+    } else {
+      addCombatLog(`${bossAttack.emoji} Boss uses "${bossAttack.name}"! You take ${bossDamageDealt} damage!`);
+    }
+
+    setBossCurrentMove(bossAttack.name);
+    setBossPattern((prev) => (prev + 1) % 3);
+
+    // ===== APPLY DAMAGE =====
+    const newBossHp = Math.max(0, bossHp - playerDamageDealt);
+    const newPlayerHealth = Math.max(0, playerStats.health - bossDamageDealt);
+
+    setBossHp(newBossHp);
+    setPlayerStats((prev) => ({
+      ...prev,
+      health: newPlayerHealth,
+    }));
+
+    // ===== TURN-BASED MECHANICS =====
+    setBattleTurns(turn);
+
+    // Cooldown management
+    if (companionOnCooldown) {
+      setCompanionOnCooldown(false);
+    }
+
+    // Status effects countdown
+    setStatusEffects((prev) =>
+      prev
+        .map((effect) => ({ ...effect, turns: effect.turns - 1 }))
+        .filter((effect) => effect.turns > 0)
+    );
+
+    // ===== PHASE TRANSITIONS =====
+    const phaseThreshold = currentBoss.baseHp * (1 - (currentBossPhase + 1) / currentBoss.phases.length);
+    if (newBossHp <= phaseThreshold && currentBossPhase < currentBoss.phases.length - 1) {
+      const nextPhase = currentBossPhase + 1;
+      setCurrentBossPhase(nextPhase);
+      const nextPhaseData = currentBoss.phases[nextPhase];
+      addCombatLog(`💀 ${currentBoss.name} transforms! Phase ${nextPhase + 1}: ${nextPhaseData.description}`);
+    }
+
+    // ===== VICTORY CHECK =====
+    if (newBossHp <= 0) {
+      setBossDefeated(true);
+      addCombatLog(`🎉 VICTORY! ${currentBoss.name} has been defeated!`);
+      setCutsceneText(currentBoss.cutscene.victory);
+    }
+
+    // ===== DEFEAT CHECK =====
+    if (newPlayerHealth <= 0) {
+      addCombatLog(`💔 You've been knocked out!`);
+      setCutsceneText(currentBoss.cutscene.defeat);
+      setGameMode("boss_cutscene");
+    }
+  };
+
+  const calculateBossAction = (phase: any, playerStats: PlayerStats, currentHp: number, maxHp: number): number => {
+    // Simple AI: vary attacks based on situation
+    const healthPercent = currentHp / maxHp;
+    const random = Math.floor(Math.random() * 3);
+
+    // Boss uses stronger attacks when healthier, desperate moves when low
+    if (healthPercent > 0.6) {
+      return random < 2 ? 0 : 1; // Prefer first attack
+    } else if (healthPercent > 0.3) {
+      return random; // Mix of attacks
+    } else {
+      return random > 0 ? 2 : random; // Prefer stronger attacks when desperate
+    }
+  };
+
+  const handleClaimBossReward = () => {
+    if (!currentBoss) return;
+
+    // Award XP for boss defeat
+    const rewardXp = currentBoss.baseHp * 3;
+    setXp((prev) => {
+      const newXp = prev + rewardXp;
+      // Check for level up
+      if (newXp >= level * 500) {
+        setLevel((prev) => prev + 1);
+        // Unlock new skills on level up
+        setSkills((prev) =>
+          prev.map((skill) =>
+            skill.requiredLevel === level + 1
+              ? { ...skill, unlocked: true }
+              : skill
+          )
+        );
+        return 0;
+      }
+      return newXp;
+    });
+
+    // Award companion if exists
+    if (currentBoss.rewards_spirit) {
+      setCompanions((prev) => [...prev, {
+        id: currentBoss.rewards_spirit!.id,
+        name: currentBoss.rewards_spirit!.name,
+        emoji: currentBoss.rewards_spirit!.emoji,
+        ability: currentBoss.rewards_spirit!.ability,
+        rarity: currentBoss.rewards_spirit!.rarity,
+      }]);
+    }
+
+    // Mark chapter as completed
+    setChapters((prev) =>
+      prev.map((ch) =>
+        ch.id === currentBoss.chapter ? { ...ch, completed: true, unlocked: true } : {
+          ...ch,
+          unlocked: ch.id <= currentBoss.chapter + 1,
+        }
+      )
+    );
+
+    // Complete the associated quest
+    if (selectedQuest) {
+      setQuests((prev) =>
+        prev.map((q) =>
+          q.id === selectedQuest ? { ...q, completed: true } : q
+        )
+      );
+    }
+
+    setBossRewardShown(true);
+  };
+
+  const handleStartWeeklyChallenge = () => {
+    const bossId = weeklyChallenge.boss_id;
+    handleStartBossBattle(bossId);
   };
 
   const handleStartQuest = (questId: number) => {
@@ -604,7 +930,30 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
 
   const handleCompleteQuest = (questId: number) => {
     const quest = quests.find((q) => q.id === questId);
+    const currentChapter = chapters.find((c) => c.questIds.includes(questId));
+    
     if (quest && !quest.completed) {
+      // Check if this is the final quest of a chapter (boss quest)
+      if (currentChapter && quest.theme === "Boss Battle") {
+        // Trigger boss battle instead of just completing
+        const bossId = currentChapter.bossName.toLowerCase().replace(/\s+/g, "_");
+        
+        // Find matching boss in BOSSES data
+        const bosses = Object.entries(BOSSES).find(
+          ([key, boss]) => boss.name === currentChapter.bossName
+        );
+        
+        if (bosses) {
+          // Award some XP for reaching the boss
+          setXp((prev) => prev + Math.floor(quest.reward * 0.3));
+          
+          // Start the boss battle
+          handleStartBossBattle(bosses[0]);
+          return; // Don't complete quest yet, will complete after boss is defeated
+        }
+      }
+      
+      // Regular quest completion
       setXp((prev) => prev + quest.reward);
       if (xp + quest.reward >= level * 500) {
         setLevel((prev) => prev + 1);
@@ -1283,6 +1632,331 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
                   : "Complete Quest"}
               </Button>
             )}
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  // ============ BOSS CUTSCENE ============
+  if (gameMode === "boss_cutscene" && currentBoss) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-black p-4 flex items-center justify-center">
+        <Card className="max-w-2xl w-full bg-black border-4 border-purple-500 p-8 space-y-6">
+          <div className="text-center space-y-4">
+            <div className="text-6xl animate-bounce">{currentBoss.emoji}</div>
+            <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-purple-600">
+              {currentBoss.name}
+            </h2>
+          </div>
+
+          <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-6 rounded-lg h-48 overflow-y-auto">
+            <p className="text-white text-lg leading-relaxed">
+              {showCutscene ? cutsceneText : currentBoss.cutscene.opening}
+            </p>
+          </div>
+
+          <div className="flex gap-3">
+            {bossDefeated ? (
+              <Button
+                onClick={() => setGameMode("boss_battle")}
+                className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-lg py-3"
+              >
+                <Trophy className="w-5 h-5 mr-2" />
+                Claim Victory!
+              </Button>
+            ) : playerStats.health <= 0 ? (
+              <Button
+                onClick={() => setGameMode("chapter_select")}
+                className="flex-1 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white text-lg py-3"
+              >
+                <SkipBack className="w-5 h-5 mr-2" />
+                Return to Chapter
+              </Button>
+            ) : (
+              <Button
+                onClick={handleBossBattleStart}
+                className="flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white text-lg py-3"
+              >
+                <Sword className="w-5 h-5 mr-2" />
+                Enter Battle!
+              </Button>
+            )}
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // ============ BOSS BATTLE ============
+  if (gameMode === "boss_battle" && currentBoss) {
+    const currentPhase = currentBoss.phases[currentBossPhase];
+    const bossHpPercent = (bossHp / currentBoss.baseHp) * 100;
+    const playerHpPercent = (playerStats.health / playerStats.maxHealth) * 100;
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-900 via-purple-900 to-black p-4 space-y-3">
+        {/* Header with Turn Counter */}
+        <div className="flex justify-between items-center">
+          <div className="flex-1">
+            <p className="text-sm text-gray-300">Chapter {currentBoss.chapter}</p>
+            <h2 className="text-3xl font-bold text-white">{currentBoss.name}</h2>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-gray-300">Level {level}</p>
+            <p className="text-sm text-amber-400 font-bold">Turn {battleTurns}</p>
+            <p className="text-sm text-gray-300">Phase {currentBossPhase + 1}/{currentBoss.phases.length}</p>
+          </div>
+        </div>
+
+        {/* Boss Section */}
+        <Card className="p-4 bg-gradient-to-b from-gray-800 to-gray-900 border-2 border-red-500">
+          <div className="text-center mb-3">
+            <div className="text-5xl mb-2">{currentBoss.emoji}</div>
+            <p className="text-red-300 font-bold text-sm">{currentPhase.description}</p>
+          </div>
+
+          {/* Boss Health with percentage */}
+          <div className="space-y-2">
+            <p className="text-white font-bold text-sm">
+              {currentBoss.name}: {Math.max(0, bossHp)}/{currentBoss.baseHp} HP
+            </p>
+            <div className="bg-gray-700 rounded-full h-5 overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-red-600 to-red-400"
+                animate={{ width: `${Math.max(0, bossHpPercent)}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+            <p className="text-xs text-right text-red-300">{Math.round(bossHpPercent)}%</p>
+          </div>
+        </Card>
+
+        {/* Combat Log - Main Game Feedback */}
+        <Card className="p-3 bg-gray-900/90 border border-amber-600 h-32 overflow-y-auto">
+          <p className="text-xs font-bold text-amber-400 mb-2">⚔️ COMBAT LOG:</p>
+          <div className="space-y-1">
+            {combatLog.map((log, idx) => (
+              <p key={idx} className="text-xs text-gray-200 font-mono">
+                {log}
+              </p>
+            ))}
+          </div>
+        </Card>
+
+        {/* Player Section */}
+        <Card className="p-4 bg-gradient-to-b from-blue-800 to-blue-900 border-2 border-blue-500">
+          <div className="grid grid-cols-2 gap-3 mb-2">
+            <div>
+              <p className="text-white font-bold text-sm">
+                Your HP: {playerStats.health}/{playerStats.maxHealth}
+              </p>
+              <div className="bg-gray-700 rounded-full h-5 overflow-hidden mt-1">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-blue-500 to-cyan-400"
+                  animate={{ width: `${playerHpPercent}%` }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+              <p className="text-xs text-right text-blue-300">{Math.round(playerHpPercent)}%</p>
+            </div>
+            <div className="text-right text-white text-xs space-y-1">
+              <p>⚔️ ATK: {playerStats.attack}</p>
+              <p>🛡️ DEF: {playerStats.defense}</p>
+              <p>💡 WIS: {playerStats.wisdom}</p>
+            </div>
+          </div>
+
+          {/* Status Effects Display */}
+          {playerDefending && (
+            <div className="bg-blue-600/50 border border-blue-400 rounded px-2 py-1 text-xs text-blue-100 mb-2">
+              🛡️ Defending (50% damage reduction)
+            </div>
+          )}
+
+          {companions.length > 0 && (
+            <div className="flex gap-1 flex-wrap">
+              {companions.slice(0, 2).map((comp) => (
+                <div
+                  key={comp.id}
+                  className={`px-2 py-1 rounded text-xs text-white ${
+                    companionOnCooldown
+                      ? "bg-gray-600 opacity-50"
+                      : "bg-green-600"
+                  }`}
+                >
+                  {comp.emoji} {comp.name}
+                  {companionOnCooldown && " ⏳"}
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        {/* Battle Actions - Strategic Choices */}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Button
+              onClick={() => handleBossAttack("attack")}
+              disabled={playerStats.health <= 0 || bossDefeated}
+              className="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white py-2 text-sm font-bold"
+              title="High damage, no defense"
+            >
+              💥 Attack
+            </Button>
+            <p className="text-xs text-gray-400 mt-1 text-center">High damage</p>
+          </div>
+          <div>
+            <Button
+              onClick={() => handleBossAttack("defend")}
+              disabled={playerStats.health <= 0 || bossDefeated}
+              className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white py-2 text-sm font-bold"
+              title="Reduce next damage by 50%"
+            >
+              🛡️ Defend
+            </Button>
+            <p className="text-xs text-gray-400 mt-1 text-center">-50% next damage</p>
+          </div>
+          <div>
+            <Button
+              onClick={() => handleBossAttack("counter_myth")}
+              disabled={playerStats.health <= 0 || bossDefeated}
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 text-sm font-bold"
+              title="Wisdom-based damage, combo system"
+            >
+              💡 Counter
+            </Button>
+            <p className="text-xs text-gray-400 mt-1 text-center">Wisdom-based</p>
+          </div>
+          {companions.length > 0 && (
+            <div>
+              <Button
+                onClick={() => handleBossAttack("use_companion")}
+                disabled={playerStats.health <= 0 || bossDefeated || companionOnCooldown}
+                className={`w-full py-2 text-sm font-bold ${
+                  companionOnCooldown
+                    ? "bg-gray-500 text-gray-300"
+                    : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                }`}
+                title={companionOnCooldown ? "Recovering (1 turn)" : "Use companion ability"}
+              >
+                🎁 Companion
+              </Button>
+              <p className="text-xs text-gray-400 mt-1 text-center">
+                {companionOnCooldown ? "Recovering..." : "2-turn cooldown"}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Victory Screen */}
+        {bossDefeated && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="p-4 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white text-center space-y-3"
+          >
+            <p className="text-2xl font-bold">🎉 VICTORY! 🎉</p>
+            <p>{currentBoss.name} defeated in {battleTurns} turns!</p>
+            {!bossRewardShown && (
+              <Button
+                onClick={handleClaimBossReward}
+                className="bg-white text-green-600 hover:bg-gray-100 font-bold py-2 px-4 w-full"
+              >
+                <Trophy className="w-4 h-4 mr-2 inline" />
+                Claim Rewards
+              </Button>
+            )}
+            {bossRewardShown && (
+              <Button
+                onClick={() => setGameMode("chapter_select")}
+                className="w-full bg-white text-green-600 hover:bg-gray-100 font-bold py-2"
+              >
+                <SkipBack className="w-4 h-4 mr-2 inline" />
+                Return to Chapter
+              </Button>
+            )}
+          </motion.div>
+        )}
+
+        {/* Defeat Screen */}
+        {playerStats.health <= 0 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="p-4 rounded-lg bg-gradient-to-r from-red-600 to-pink-600 text-white text-center space-y-3"
+          >
+            <p className="text-2xl font-bold">💔 DEFEATED! 💔</p>
+            <p>Knocked out after {battleTurns} turns.</p>
+            <p className="text-sm">Study the myth counters and try again!</p>
+            <Button
+              onClick={() => {
+                handleStartBossBattle(currentBoss.id);
+              }}
+              className="bg-white text-red-600 hover:bg-gray-100 font-bold py-2 w-full"
+            >
+              <SkipBack className="w-4 h-4 mr-2 inline" />
+              Retry Battle
+            </Button>
+          </motion.div>
+        )}
+      </div>
+    );
+  }
+
+  // ============ WEEKLY CHALLENGES ============
+  if (gameMode === "weekly_challenges") {
+    return (
+      <div className="space-y-6 p-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold text-purple-600">Weekly Challenge</h2>
+          <Button
+            onClick={() => setGameMode("chapter_select")}
+            variant="outline"
+            size="sm"
+          >
+            <SkipBack className="w-4 h-4" /> Back
+          </Button>
+        </div>
+
+        {weeklyChallenge && (
+          <Card className="p-6 space-y-4 border-2 border-gold-500">
+            <div className="text-center space-y-2">
+              <p className="text-2xl font-bold">Week {weeklyChallenge.week}</p>
+              <div className="text-6xl">{BOSSES[weeklyChallenge.boss_id]?.emoji}</div>
+              <h3 className="text-2xl font-bold text-purple-600">
+                {BOSSES[weeklyChallenge.boss_id]?.name}
+              </h3>
+            </div>
+
+            <div className="bg-gradient-to-r from-yellow-100 to-orange-100 p-4 rounded-lg space-y-2">
+              <p className="font-bold">Modifiers:</p>
+              <div className="flex flex-wrap gap-2">
+                {weeklyChallenge.modifiers.map((mod) => (
+                  <span
+                    key={mod}
+                    className="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+                  >
+                    ⚡ {mod}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="text-center space-y-2">
+              <p className="text-lg font-semibold">Difficulty: {weeklyChallenge.difficulty}</p>
+              <p className="text-sm text-gray-600">
+                Defeat {BOSSES[weeklyChallenge.boss_id]?.name} with the active modifiers!
+              </p>
+            </div>
+
+            <Button
+              onClick={handleStartWeeklyChallenge}
+              className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 text-lg font-bold"
+            >
+              <Sword className="w-5 h-5 mr-2" />
+              Accept Challenge
+            </Button>
           </Card>
         )}
       </div>
