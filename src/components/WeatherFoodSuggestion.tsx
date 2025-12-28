@@ -142,7 +142,7 @@ const WeatherFoodSuggestion = () => {
           async (position) => {
             const { latitude, longitude } = position.coords;
             
-            // Reverse geocoding using Open-Meteo
+            // Reverse geocoding using Nominatim
             try {
               const response = await fetch(
                 `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
@@ -150,50 +150,102 @@ const WeatherFoodSuggestion = () => {
               const data = await response.json();
               const city = data.address?.city || data.address?.town || data.address?.village || "Your Area";
               
-              // Now fetch weather for this location
+              // Now fetch REAL weather for this location using Open-Meteo API
               const weatherData = await fetchWeatherFromAPI(city);
               if (weatherData) {
                 setWeather(weatherData);
                 setLocationInput(city);
+                console.log("✅ Real weather loaded:", weatherData);
               } else {
-                // Fallback
+                console.error("Failed to fetch weather data");
                 setWeather({
-                  condition: "sunny",
-                  temperature: 22,
+                  condition: "cloudy",
+                  temperature: 20,
                   location: city,
                   country: data.address?.country || "Local",
                 });
               }
             } catch (error) {
               console.error("Reverse geocoding error:", error);
-              setWeather({
-                condition: "sunny",
-                temperature: 22,
-                location: "Your Area",
-                country: "Local",
-              });
+              // Try direct weather fetch with coordinates as fallback
+              try {
+                const weatherResponse = await fetch(
+                  `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,visibility&timezone=auto`
+                );
+                const weatherData = await weatherResponse.json();
+                const current = weatherData.current;
+                
+                const mapWeatherCode = (code: number): WeatherData["condition"] => {
+                  if (code === 0 || code === 1) return "sunny";
+                  if (code === 2 || code === 3) return "cloudy";
+                  if (code === 45 || code === 48) return "cloudy";
+                  if (code >= 50 && code <= 67) return "rainy";
+                  if (code >= 71 && code <= 77) return "snowy";
+                  if (code >= 80 && code <= 82) return "rainy";
+                  if (code === 85 || code === 86) return "snowy";
+                  if (code >= 90 && code <= 99) return "rainy";
+                  return "cloudy";
+                };
+                
+                setWeather({
+                  condition: mapWeatherCode(current.weather_code),
+                  temperature: Math.round(current.temperature_2m),
+                  location: "Your Area",
+                  country: "Local",
+                  humidity: current.relative_humidity_2m,
+                  windSpeed: Math.round(current.wind_speed_10m),
+                  visibility: Math.round(current.visibility / 1000),
+                  feelsLike: Math.round(current.temperature_2m - current.wind_speed_10m * 0.2),
+                });
+                console.log("✅ Weather loaded from coordinates");
+              } catch (coordError) {
+                console.error("Coordinate weather error:", coordError);
+                setWeather({
+                  condition: "cloudy",
+                  temperature: 20,
+                  location: "Your Area",
+                  country: "Local",
+                });
+              }
             }
             setLoading(false);
           },
           () => {
             // Default weather if location denied
-            setWeather({
-              condition: "sunny",
-              temperature: 22,
-              location: "Unknown",
-              country: "World",
+            console.log("⚠️ Geolocation permission denied. Using default London weather.");
+            fetchWeatherFromAPI("London").then((data) => {
+              if (data) {
+                setWeather(data);
+                setLocationInput("London");
+              } else {
+                setWeather({
+                  condition: "cloudy",
+                  temperature: 15,
+                  location: "London",
+                  country: "UK",
+                });
+              }
+              setLoading(false);
             });
-            setLoading(false);
           }
         );
       } else {
-        setWeather({
-          condition: "sunny",
-          temperature: 22,
-          location: "Unknown",
-          country: "World",
+        // Geolocation not supported - use London as default
+        console.log("⚠️ Geolocation not supported. Using default London weather.");
+        fetchWeatherFromAPI("London").then((data) => {
+          if (data) {
+            setWeather(data);
+            setLocationInput("London");
+          } else {
+            setWeather({
+              condition: "cloudy",
+              temperature: 15,
+              location: "London",
+              country: "UK",
+            });
+          }
+          setLoading(false);
         });
-        setLoading(false);
       }
     };
 
