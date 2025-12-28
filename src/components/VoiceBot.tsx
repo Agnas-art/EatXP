@@ -125,6 +125,70 @@ const VoiceBot = () => {
   const [textInput, setTextInput] = useState('');
   const [inputMode, setInputMode] = useState<'voice' | 'text'>('voice');
   const [messages, setMessages] = useState<Message[]>([]);
+
+  // Enhanced spell checker for food-related terms
+  const foodSpellCorrections: { [key: string]: string } = {
+    'receipe': 'recipe',
+    'recepie': 'recipe', 
+    'recipie': 'recipe',
+    'recepy': 'recipe',
+    'bannana': 'banana',
+    'banna': 'banana',
+    'avacado': 'avocado',
+    'avocodo': 'avocado',
+    'quinao': 'quinoa',
+    'qinoa': 'quinoa',
+    'tommato': 'tomato',
+    'tomatoe': 'tomato',
+    'potatoe': 'potato',
+    'carrotts': 'carrots',
+    'spinich': 'spinach',
+    'brocolli': 'broccoli',
+    'brocoli': 'broccoli',
+    'protien': 'protein',
+    'protean': 'protein',
+    'vitimins': 'vitamins',
+    'vitamine': 'vitamin',
+    'nutricious': 'nutritious',
+    'nutrious': 'nutritious',
+    'healty': 'healthy',
+    'helthy': 'healthy',
+    'recipies': 'recipes',
+    'vegitable': 'vegetable',
+    'vegtable': 'vegetable'
+  };
+
+  // Auto-correct function
+  const autoCorrectText = useCallback((text: string): string => {
+    let correctedText = text;
+    Object.entries(foodSpellCorrections).forEach(([wrong, correct]) => {
+      const regex = new RegExp(`\\b${wrong}\\b`, 'gi');
+      correctedText = correctedText.replace(regex, correct);
+    });
+    return correctedText;
+  }, []);
+
+  // Enhanced text input handler with auto-correction
+  const handleTextInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    setTextInput(rawValue);
+    
+    // Auto-correct on space or punctuation
+    if (rawValue.endsWith(' ') || /[.,!?]$/.test(rawValue)) {
+      const corrected = autoCorrectText(rawValue);
+      if (corrected !== rawValue) {
+        setTextInput(corrected);
+        // Optional: Show a brief toast for corrections
+        if (corrected.trim() !== rawValue.trim()) {
+          toast({
+            description: `Auto-corrected text`,
+            duration: 1000
+          });
+        }
+      }
+    }
+  }, [autoCorrectText, toast]);
+
   const [currentResponse, setCurrentResponse] = useState('');
   const [conversationSummary, setConversationSummary] = useState<string>('');
   const [speechSupport, setSpeechSupport] = useState(getSpeechRecognitionSupport());
@@ -2269,11 +2333,15 @@ Conversation to summarize:\n`;
                 <div className="flex items-center gap-2">
                   <Input
                     value={textInput}
-                    onChange={(e) => setTextInput(e.target.value)}
+                    onChange={handleTextInputChange}
                     onKeyPress={handleKeyPress}
                     placeholder="Type your message..."
                     disabled={isProcessing}
                     className="flex-1"
+                    spellCheck={true}
+                    autoCorrect="on"
+                    autoComplete="on"
+                    autoCapitalize="sentences"
                   />
                   <Button
                     onClick={handleTextSubmit}
