@@ -157,6 +157,15 @@ const VoiceBot = () => {
   const [textInput, setTextInput] = useState('');
   const [inputMode, setInputMode] = useState<'voice' | 'text'>('voice');
   const [messages, setMessages] = useState<Message[]>([]);
+  const [currentResponse, setCurrentResponse] = useState('');
+  const [conversationSummary, setConversationSummary] = useState<string>('');
+  const [speechSupport, setSpeechSupport] = useState(getSpeechRecognitionSupport());
+  const [micPermissionGranted, setMicPermissionGranted] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const { toast } = useToast(); // Move this to the top before any useCallback that uses it
 
   // Enhanced text input handler with auto-correction
   const handleTextInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,16 +193,6 @@ const VoiceBot = () => {
       }
     }
   }, [toast]);
-
-  const [currentResponse, setCurrentResponse] = useState('');
-  const [conversationSummary, setConversationSummary] = useState<string>('');
-  const [speechSupport, setSpeechSupport] = useState(getSpeechRecognitionSupport());
-  const [micPermissionGranted, setMicPermissionGranted] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  
-  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
-  const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const { toast } = useToast();
 
   // Check microphone permission status
   const checkMicrophonePermission = useCallback(async () => {
