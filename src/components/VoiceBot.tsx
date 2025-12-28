@@ -2065,8 +2065,8 @@ Conversation to summarize:\n`;
     setTextInput('');
     
     // Process the text message using the same logic as voice input
-    await sendMessage(message);
-  }, [textInput, isProcessing, sendMessage]);
+    await handleSendMessage(message);
+  }, [textInput, isProcessing, handleSendMessage]);
 
   // Handle Enter key press in text input
   const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
