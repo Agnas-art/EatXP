@@ -58,6 +58,37 @@ interface Skill {
   effect: string;
 }
 
+interface ChapterHero {
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  ability: string;
+  abilityBonus: { [key: string]: number };
+  rarity: "common" | "rare" | "epic" | "legendary";
+  storyRole: string;
+}
+
+interface ChapterMinion {
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  baseHp: number;
+  moveset: Array<{
+    name: string;
+    emoji: string;
+    damage: number;
+  }>;
+  cutscene: {
+    opening: string;
+    victory: string;
+    defeat: string;
+  };
+  mythToCounter: string;
+  villainType: string;
+}
+
 interface Chapter {
   id: number;
   name: string;
@@ -70,6 +101,10 @@ interface Chapter {
   questIds: number[];
   reward: string;
   emoji: string;
+  heroId?: string;
+  minionIds?: string[];
+  villainName: string;
+  villainDescription: string;
 }
 
 interface CollectedCompanion {
@@ -93,11 +128,170 @@ type GameMode =
   | "hero_selection"
   | "prologue"
   | "chapter_select"
+  | "chapter_map"
+  | "minion_battle"
+  | "minion_cutscene"
   | "quest_play"
   | "skill_tree"
   | "boss_battle"
   | "boss_cutscene"
   | "weekly_challenges";
+
+const CHAPTER_HEROES: { [key: string]: ChapterHero } = {
+  quinoa_spirit: {
+    id: "quinoa_spirit",
+    name: "Quinoa Spirit",
+    emoji: "🌾",
+    description: "A wise companion of complete proteins and balanced nutrition",
+    ability: "Complete Restoration",
+    abilityBonus: { health: 20, wisdom: 15 },
+    rarity: "rare",
+    storyRole: "Your loyal ally of the Grain Plains, teaching the power of whole grains",
+  },
+  carrot_sage: {
+    id: "carrot_sage",
+    name: "Carrot Sage",
+    emoji: "🥕",
+    description: "An ancient vegetable guardian with protective vision",
+    ability: "Nutrient Shield",
+    abilityBonus: { defense: 25, wisdom: 10 },
+    rarity: "rare",
+    storyRole: "A wise vegetable elder guiding you through the Veggie Forest",
+  },
+  bean_warrior: {
+    id: "bean_warrior",
+    name: "Bean Warrior",
+    emoji: "🫘",
+    description: "A fierce protector of protein balance",
+    ability: "Protein Surge",
+    abilityBonus: { attack: 30, health: 15 },
+    rarity: "epic",
+    storyRole: "A mighty warrior of the Protein Peaks, testing your strength",
+  },
+  yogurt_guardian: {
+    id: "yogurt_guardian",
+    name: "Yogurt Guardian",
+    emoji: "🥛",
+    description: "A probiotic protector of wellness",
+    ability: "Digestive Harmony",
+    abilityBonus: { health: 25, wisdom: 12 },
+    rarity: "rare",
+    storyRole: "A guardian of Dairy Valley, teaching balance and wellness",
+  },
+  berry_mage: {
+    id: "berry_mage",
+    name: "Berry Mage",
+    emoji: "🫐",
+    description: "A magical fruit conjurer with antioxidant power",
+    ability: "Antioxidant Burst",
+    abilityBonus: { attack: 20, wisdom: 20 },
+    rarity: "epic",
+    storyRole: "A mystical mage of the Fruit Isles, wielding nature's power",
+  },
+  harmony_paladin: {
+    id: "harmony_paladin",
+    name: "Harmony Paladin",
+    emoji: "⚔️",
+    description: "The ultimate guardian of nutritional balance",
+    ability: "Perfect Balance",
+    abilityBonus: { attack: 25, defense: 25, wisdom: 15 },
+    rarity: "legendary",
+    storyRole: "The legendary champion of the Sacred Realm",
+  },
+};
+
+const CHAPTER_MINIONS: { [key: string]: ChapterMinion } = {
+  sugar_imp: {
+    id: "sugar_imp",
+    name: "Sugar Imp",
+    emoji: "👿",
+    description: "A mischievous minion spreading refined carb chaos",
+    baseHp: 40,
+    moveset: [
+      { name: "Refined Strike", emoji: "💥", damage: 8 },
+      { name: "Empty Taste", emoji: "😝", damage: 6 },
+    ],
+    cutscene: {
+      opening: "A mischievous Sugar Imp emerges from the refined carb wasteland! 'I'll confuse you about carbs!'",
+      victory: "The Sugar Imp dissolves into enlightened particles of whole grain knowledge!",
+      defeat: "You were overwhelmed by refined carb confusion. Try again with whole grain wisdom!"
+    },
+    mythToCounter: "White foods are pure and clean",
+    villainType: "Grain Plains Minion",
+  },
+  junk_sprite: {
+    id: "junk_sprite",
+    name: "Junk Sprite",
+    emoji: "👾",
+    description: "A fast-moving minion spreading junk food temptations",
+    baseHp: 35,
+    moveset: [
+      { name: "Fried Temptation", emoji: "🍟", damage: 7 },
+      { name: "Greasy Rush", emoji: "💨", damage: 6 },
+    ],
+    cutscene: {
+      opening: "A Junk Sprite zips around the Veggie Forest! 'Fried foods taste better!'",
+      victory: "The Junk Sprite fades, replaced by fresh vegetable energy!",
+      defeat: "The Junk Sprite's temptations overwhelmed your defenses. Learn the veggie secrets!"
+    },
+    mythToCounter: "Vegetables are boring",
+    villainType: "Veggie Forest Minion",
+  },
+  excess_goblin: {
+    id: "excess_goblin",
+    name: "Excess Goblin",
+    emoji: "🏔️",
+    description: "A greedy minion promoting overconsumption",
+    baseHp: 45,
+    moveset: [
+      { name: "Gluttony Strike", emoji: "😵", damage: 10 },
+      { name: "Overfeed", emoji: "🍖", damage: 8 },
+    ],
+    cutscene: {
+      opening: "An Excess Goblin blocks your path on the Protein Peaks! 'More is always better!'",
+      victory: "The Excess Goblin shrinks away, learning about balanced portions!",
+      defeat: "The Excess Goblin's overwhelming greed defeated you. Master portion control!"
+    },
+    mythToCounter: "You need huge amounts of protein",
+    villainType: "Protein Peaks Minion",
+  },
+  lactose_wraith: {
+    id: "lactose_wraith",
+    name: "Lactose Wraith",
+    emoji: "👻",
+    description: "A deceptive minion spreading dairy myths",
+    baseHp: 38,
+    moveset: [
+      { name: "Dairy Deception", emoji: "🥛", damage: 7 },
+      { name: "Intolerance Lie", emoji: "😢", damage: 8 },
+    ],
+    cutscene: {
+      opening: "A Lactose Wraith materializes in Dairy Valley! 'Everyone is lactose intolerant!'",
+      victory: "The Wraith dissipates, revealing the truth about dairy diversity!",
+      defeat: "The Wraith's deceptions were too strong. Learn about dairy alternatives!"
+    },
+    mythToCounter: "All dairy is unhealthy",
+    villainType: "Dairy Valley Minion",
+  },
+  sugar_fiend: {
+    id: "sugar_fiend",
+    name: "Sugar Fiend",
+    emoji: "🔥",
+    description: "A dangerous minion addicting with excess sugar",
+    baseHp: 42,
+    moveset: [
+      { name: "Sugar Rush", emoji: "⚡", damage: 9 },
+      { name: "Addiction Trap", emoji: "🎣", damage: 7 },
+    ],
+    cutscene: {
+      opening: "A Sugar Fiend erupts in the Fruit Isles! 'Eat more sugar! Feel the rush!'",
+      victory: "The Fiend fades, revealing the natural sweetness of whole fruits!",
+      defeat: "The Sugar Fiend's sweet temptations were too strong. Master natural sugars!"
+    },
+    mythToCounter: "Fruits are just as bad as soda",
+    villainType: "Fruit Isles Minion",
+  },
+};
 
 const CHAPTERS: Chapter[] = [
   {
@@ -113,6 +307,8 @@ const CHAPTERS: Chapter[] = [
     questIds: [1],
     reward: "Food Guardian Title",
     emoji: "🍽️",
+    villainName: "Diet Myth Swarm",
+    villainDescription: "Manifestations of confusion",
   },
   {
     id: 2,
@@ -127,6 +323,10 @@ const CHAPTERS: Chapter[] = [
     questIds: [2, 3, 4],
     reward: "Sacred Plate Fragment + Carbohydrate Mastery",
     emoji: "🌾",
+    heroId: "quinoa_spirit",
+    minionIds: ["sugar_imp"],
+    villainName: "Refined Carb Phantom",
+    villainDescription: "Master of processed carbs",
   },
   {
     id: 3,
@@ -141,6 +341,10 @@ const CHAPTERS: Chapter[] = [
     questIds: [4, 5],
     reward: "Vegetable Expert Badge",
     emoji: "🥕",
+    heroId: "carrot_sage",
+    minionIds: ["junk_sprite"],
+    villainName: "Junk Goblin",
+    villainDescription: "King of fried temptations",
   },
   {
     id: 4,
@@ -155,6 +359,10 @@ const CHAPTERS: Chapter[] = [
     questIds: [6, 7],
     reward: "Protein Balance Master Badge",
     emoji: "💪",
+    heroId: "bean_warrior",
+    minionIds: ["excess_goblin"],
+    villainName: "Overload Ogre",
+    villainDescription: "Master of overconsumption",
   },
   {
     id: 5,
@@ -169,6 +377,10 @@ const CHAPTERS: Chapter[] = [
     questIds: [8],
     reward: "Dairy Expert Badge",
     emoji: "🥛",
+    heroId: "yogurt_guardian",
+    minionIds: ["lactose_wraith"],
+    villainName: "Lactose Leviathan",
+    villainDescription: "Spreader of dairy deception",
   },
   {
     id: 6,
@@ -183,6 +395,10 @@ const CHAPTERS: Chapter[] = [
     questIds: [9],
     reward: "Fruit Master Badge",
     emoji: "🍎",
+    heroId: "berry_mage",
+    minionIds: ["sugar_fiend"],
+    villainName: "Sugar Siren",
+    villainDescription: "Temptress of excess sweetness",
   },
   {
     id: 7,
@@ -198,6 +414,10 @@ const CHAPTERS: Chapter[] = [
     questIds: [10],
     reward: "Food Guardian Mastery",
     emoji: "⚔️",
+    heroId: "harmony_paladin",
+    minionIds: ["sugar_imp", "junk_sprite", "excess_goblin", "lactose_wraith", "sugar_fiend"],
+    villainName: "Chaos Diet Dragon",
+    villainDescription: "Ultimate embodiment of dietary chaos",
   },
 ];
 
@@ -578,6 +798,12 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
   const [playerHp, setPlayerHp] = useState(100);
   const [collectedItems, setCollectedItems] = useState<Set<number>>(new Set());
   
+  // Chapter Hero/Minion States
+  const [selectedChampion, setSelectedChampion] = useState<string | null>(null);
+  const [currentMinion, setCurrentMinion] = useState<ChapterMinion | null>(null);
+  const [minionDefeated, setMinionDefeated] = useState(false);
+  const [minionIndex, setMinionIndex] = useState(0);
+  
   // Boss Battle States
   const [currentBoss, setCurrentBoss] = useState<BossData | null>(null);
   const [currentBossPhase, setCurrentBossPhase] = useState(0);
@@ -616,19 +842,139 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
     setGameMode("prologue");
   };
 
+  const handleStartChapterMap = (chapterId: number) => {
+    const chapter = chapters.find(ch => ch.id === chapterId);
+    if (chapter) {
+      setSelectedChapter(chapterId);
+      setSelectedChampion(chapter.heroId || null);
+      setMinionIndex(0);
+      setGameMode("chapter_map");
+    }
+  };
+
+  const handleSelectChampion = (heroId: string) => {
+    setSelectedChampion(heroId);
+    const hero = CHAPTER_HEROES[heroId];
+    if (hero) {
+      // Apply hero bonuses to player stats
+      setPlayerStats((prev) => ({
+        ...prev,
+        health: prev.health + (hero.abilityBonus.health || 0),
+        maxHealth: prev.maxHealth + (hero.abilityBonus.health || 0),
+        defense: prev.defense + (hero.abilityBonus.defense || 0),
+        attack: prev.attack + (hero.abilityBonus.attack || 0),
+        wisdom: prev.wisdom + (hero.abilityBonus.wisdom || 0),
+      }));
+    }
+  };
+
+  const handleStartMinionBattle = (chapterId: number) => {
+    const chapter = chapters.find(ch => ch.id === chapterId);
+    if (!chapter || !chapter.minionIds || minionIndex >= chapter.minionIds.length) return;
+
+    const minionId = chapter.minionIds[minionIndex];
+    const minion = CHAPTER_MINIONS[minionId];
+    if (minion) {
+      setCurrentMinion(minion);
+      setShowCutscene(true);
+      setCutsceneText(minion.cutscene.opening);
+      setGameMode("minion_cutscene");
+      setMinionDefeated(false);
+    }
+  };
+
+  const handleMinionBattleStart = () => {
+    if (!currentMinion) return;
+    setShowCutscene(false);
+    setGameMode("minion_battle");
+    setPlayerHp(100);
+    setEnemyHp(currentMinion.baseHp);
+    setCombatLog(["⚔️ Minion Battle Start! Choose your first action...", ""]);
+    setBattleTurns(0);
+  };
+
+  const handleMinionAttack = (actionType: "attack" | "defend" | "counter_myth" | "use_companion") => {
+    if (!currentMinion || minionDefeated || playerHp <= 0 || enemyHp <= 0) return;
+
+    let playerDamage = 0;
+    let playerLog = "";
+
+    switch (actionType) {
+      case "attack":
+        playerDamage = Math.floor(Math.random() * 12) + playerStats.attack - 2;
+        playerLog = `💥 You attack! Deal ${playerDamage} damage!`;
+        break;
+      case "defend":
+        playerDamage = Math.floor(Math.random() * 4) + 1;
+        playerLog = `🛡️ You defend! (-50% next damage)`;
+        break;
+      case "counter_myth":
+        playerDamage = Math.floor(Math.random() * 8) + playerStats.wisdom + 3;
+        playerLog = `💡 Counter: "${currentMinion.mythToCounter}" is FALSE! Deal ${playerDamage} wisdom damage!`;
+        break;
+      case "use_companion":
+        if (companions.length === 0) {
+          addCombatLog("❌ No companions available!");
+          return;
+        }
+        const companion = companions[0];
+        playerDamage = Math.floor(Math.random() * 10) + 10;
+        playerLog = `🎁 ${companion.emoji} ${companion.name} attacks! Deal ${playerDamage} damage!`;
+        break;
+    }
+
+    addCombatLog(playerLog);
+
+    const newEnemyHp = Math.max(0, enemyHp - playerDamage);
+    setEnemyHp(newEnemyHp);
+
+    // Minion counterattack
+    const minionAttack = currentMinion.moveset[Math.floor(Math.random() * currentMinion.moveset.length)];
+    const enemyDamage = minionAttack.damage;
+    addCombatLog(`${minionAttack.emoji} ${currentMinion.name} uses "${minionAttack.name}"! You take ${enemyDamage} damage!`);
+
+    const newPlayerHp = Math.max(0, playerHp - enemyDamage);
+    setPlayerHp(newPlayerHp);
+    setBattleTurns((prev) => prev + 1);
+
+    if (newEnemyHp <= 0) {
+      setMinionDefeated(true);
+      addCombatLog(`🎉 Minion defeated! Moving to next challenge...`);
+    }
+    if (newPlayerHp <= 0) {
+      addCombatLog(`💔 You've been knocked out!`);
+    }
+  };
+
+  const handleContinueToNextMinion = () => {
+    const chapter = chapters.find(ch => ch.id === selectedChapter);
+    if (!chapter) return;
+
+    if (chapter.minionIds && minionIndex < chapter.minionIds.length - 1) {
+      setMinionIndex((prev) => prev + 1);
+      handleStartMinionBattle(selectedChapter!);
+    } else {
+      // All minions defeated, proceed to boss battle
+      const boss = BOSSES[chapter.bossName.toLowerCase().replace(/\s+/g, "_") as keyof typeof BOSSES];
+      if (boss) {
+        handleStartBossBattle(boss.id);
+      } else {
+        setGameMode("chapter_map");
+      }
+    }
+  };
+
   const handleStartBossBattle = (bossId: string) => {
     const boss = BOSSES[bossId as keyof typeof BOSSES];
     if (boss) {
       setCurrentBoss(boss);
       setCurrentBossPhase(0);
       setBossHp(boss.baseHp);
-      setPlayerStats({
-        health: 100,
-        maxHealth: 100,
-        defense: 10 + level * 2,
-        attack: 15 + level * 2,
-        wisdom: 10 + level,
-      });
+      setPlayerStats((prev) => ({
+        ...prev,
+        health: Math.max(100, prev.health),
+        maxHealth: Math.max(100, prev.maxHealth),
+      }));
       setShowCutscene(true);
       setCutsceneText(boss.cutscene.opening);
       setGameMode("boss_cutscene");
@@ -1170,6 +1516,139 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
     );
   }
 
+  // ============ CHAPTER MAP (Heroes vs Villains) ============
+  if (gameMode === "chapter_map" && selectedChapter) {
+    const chapter = chapters.find((ch) => ch.id === selectedChapter);
+    const hero = selectedChampion ? CHAPTER_HEROES[selectedChampion] : null;
+    const minionIds = chapter?.minionIds || [];
+    const minionList = minionIds.map((id) => CHAPTER_MINIONS[id]);
+
+    return (
+      <div className="space-y-6 p-4">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold text-purple-600">{chapter?.name}</h2>
+          <Button
+            onClick={() => setGameMode("chapter_select")}
+            variant="outline"
+            size="sm"
+          >
+            <SkipBack className="w-4 h-4" /> Back
+          </Button>
+        </div>
+
+        {/* Hero Selection */}
+        {!selectedChampion && (
+          <Card className="p-6 bg-gradient-to-r from-blue-100 to-cyan-100 space-y-4">
+            <h3 className="text-2xl font-bold text-blue-700">🏆 Select Your Hero Champion</h3>
+            <p className="text-gray-700">
+              {chapter?.region} has a hero companion that will aid you in battle!
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {chapter?.heroId && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  onClick={() => handleSelectChampion(chapter.heroId!)}
+                  className="p-4 rounded-lg bg-white border-2 border-blue-400 hover:border-blue-600 text-center space-y-2"
+                >
+                  <div className="text-4xl">{CHAPTER_HEROES[chapter.heroId].emoji}</div>
+                  <p className="font-bold text-blue-700">{CHAPTER_HEROES[chapter.heroId].name}</p>
+                  <p className="text-xs text-gray-600">{CHAPTER_HEROES[chapter.heroId].ability}</p>
+                  <div className="text-xs text-green-600 font-semibold mt-2">
+                    {Object.entries(CHAPTER_HEROES[chapter.heroId].abilityBonus)
+                      .map(([key, val]) => `+${val} ${key}`)
+                      .join(", ")}
+                  </div>
+                </motion.button>
+              )}
+            </div>
+          </Card>
+        )}
+
+        {/* Battle Map */}
+        {hero && (
+          <Card className="p-6 bg-gradient-to-r from-purple-100 to-pink-100 space-y-6">
+            <h3 className="text-2xl font-bold text-purple-700">⚔️ Chapter Battle Map</h3>
+
+            {/* Hero vs Villains Visualization */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-white rounded-lg border-2 border-purple-300">
+                {/* Your Team */}
+                <div className="text-center space-y-2">
+                  <p className="text-sm font-bold text-purple-600">Your Team</p>
+                  <div className="text-5xl">{hero.emoji}</div>
+                  <p className="font-bold text-sm">{hero.name}</p>
+                  <div className="text-xs text-gray-600 space-y-1">
+                    <p>HP: {playerStats.health}/{playerStats.maxHealth}</p>
+                    <p>ATK: {playerStats.attack}</p>
+                    <p>DEF: {playerStats.defense}</p>
+                  </div>
+                </div>
+
+                {/* VS */}
+                <div className="text-3xl font-bold text-red-600">VS</div>
+
+                {/* Enemy Team */}
+                <div className="text-center space-y-2">
+                  <p className="text-sm font-bold text-red-600">Chapter Villains</p>
+                  <div className="space-y-1">
+                    {minionList.map((minion, idx) => (
+                      <div
+                        key={idx}
+                        className={`text-2xl ${idx === minionIndex ? "scale-125" : "opacity-60"}`}
+                      >
+                        {minion.emoji}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="font-bold text-sm">
+                    {minionList[minionIndex]?.name}
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    {minionIndex + 1}/{minionList.length} Minions
+                  </p>
+                </div>
+              </div>
+
+              {/* Chapter Progression */}
+              <div className="space-y-2">
+                <p className="text-sm font-bold">Battle Progression:</p>
+                <div className="flex gap-2">
+                  {minionList.map((minion, idx) => (
+                    <div
+                      key={idx}
+                      className={`flex-1 p-2 rounded text-center text-xs font-bold transition-all ${
+                        idx < minionIndex
+                          ? "bg-green-500 text-white"
+                          : idx === minionIndex
+                          ? "bg-yellow-500 text-white scale-105"
+                          : "bg-gray-300 text-gray-600"
+                      }`}
+                    >
+                      {idx === minionIndex ? "⚔️" : idx < minionIndex ? "✅" : "🔒"}
+                    </div>
+                  ))}
+                  <div className="flex-1 p-2 rounded text-center text-xs font-bold bg-red-500 text-white">
+                    🐲 Boss
+                  </div>
+                </div>
+              </div>
+
+              {/* Start Button */}
+              <Button
+                onClick={() => handleStartMinionBattle(selectedChapter)}
+                className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 text-lg font-bold"
+              >
+                <Sword className="w-5 h-5 mr-2" />
+                {minionIndex === 0 ? "Begin Chapter Battle" : `Face ${minionList[minionIndex]?.name}`}
+              </Button>
+            </div>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
   // ============ CHAPTER SELECT ============
   if (gameMode === "chapter_select" && heroData) {
     return (
@@ -1255,12 +1734,7 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
               </div>
               {chapter.unlocked && !chapter.completed && (
                 <Button
-                  onClick={() => {
-                    setSelectedChapter(chapter.id);
-                    // Start first quest of chapter
-                    const firstQuestId = chapter.questIds[0];
-                    handleStartQuest(firstQuestId);
-                  }}
+                  onClick={() => handleStartChapterMap(chapter.id)}
                   className="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white"
                 >
                   <Zap className="w-4 h-4 mr-2" />
@@ -1638,6 +2112,177 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
     );
   }
 
+  // ============ MINION CUTSCENE ============
+  if (gameMode === "minion_cutscene" && currentMinion) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-900 via-red-900 to-black p-4 flex items-center justify-center">
+        <Card className="max-w-2xl w-full bg-black border-4 border-orange-500 p-8 space-y-6">
+          <div className="text-center space-y-4">
+            <div className="text-6xl animate-bounce">{currentMinion.emoji}</div>
+            <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">
+              {currentMinion.name}
+            </h2>
+            <p className="text-orange-300 text-sm font-bold">{currentMinion.villainType}</p>
+          </div>
+
+          <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-6 rounded-lg h-48 overflow-y-auto">
+            <p className="text-white text-lg leading-relaxed">
+              {cutsceneText}
+            </p>
+          </div>
+
+          <div className="bg-orange-900 bg-opacity-50 p-4 rounded-lg">
+            <p className="text-orange-200 text-sm font-semibold">
+              Myth to Counter: <span className="text-white">"{currentMinion.mythToCounter}"</span>
+            </p>
+          </div>
+
+          <Button
+            onClick={handleMinionBattleStart}
+            className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white text-lg py-3 font-bold"
+          >
+            <Sword className="w-5 h-5 mr-2" />
+            Battle Minion!
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
+  // ============ MINION BATTLE ============
+  if (gameMode === "minion_battle" && currentMinion) {
+    return (
+      <div className="space-y-4 p-4">
+        {/* Battle Header */}
+        <Card className="p-4 bg-gradient-to-r from-orange-500 to-red-600 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-2xl font-bold">{currentMinion.name}</h3>
+              <p className="text-sm opacity-90">{currentMinion.description}</p>
+            </div>
+            <div className="text-4xl">{currentMinion.emoji}</div>
+          </div>
+        </Card>
+
+        {/* Health Bars */}
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="p-4 space-y-2">
+            <p className="text-sm font-bold">Your Health</p>
+            <div className="bg-gray-300 rounded-full h-6 overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-green-500 to-emerald-500"
+                animate={{ width: `${(playerHp / 100) * 100}%` }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+            <p className="text-xs text-gray-600 text-right">{playerHp}/100 HP</p>
+          </Card>
+
+          <Card className="p-4 space-y-2">
+            <p className="text-sm font-bold">Minion Health</p>
+            <div className="bg-gray-300 rounded-full h-6 overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-red-500 to-orange-500"
+                animate={{ width: `${(enemyHp / currentMinion.baseHp) * 100}%` }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+            <p className="text-xs text-gray-600 text-right">
+              {Math.max(0, enemyHp)}/{currentMinion.baseHp} HP
+            </p>
+          </Card>
+        </div>
+
+        {/* Combat Log */}
+        <Card className="p-4 bg-gray-900 text-white max-h-32 overflow-y-auto space-y-1">
+          {combatLog.map((log, idx) => (
+            <p key={idx} className="text-sm">
+              {log}
+            </p>
+          ))}
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Button
+              onClick={() => handleMinionAttack("attack")}
+              disabled={playerHp <= 0 || enemyHp <= 0}
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-2 text-sm font-bold"
+            >
+              💥 Attack
+            </Button>
+          </div>
+          <div>
+            <Button
+              onClick={() => handleMinionAttack("defend")}
+              disabled={playerHp <= 0 || enemyHp <= 0}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 text-sm font-bold"
+            >
+              🛡️ Defend
+            </Button>
+          </div>
+          <div>
+            <Button
+              onClick={() => handleMinionAttack("counter_myth")}
+              disabled={playerHp <= 0 || enemyHp <= 0}
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-2 text-sm font-bold"
+            >
+              💡 Counter
+            </Button>
+          </div>
+          <div>
+            <Button
+              onClick={() => handleMinionAttack("use_companion")}
+              disabled={playerHp <= 0 || enemyHp <= 0 || companions.length === 0}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 text-sm font-bold"
+            >
+              🎁 Companion
+            </Button>
+          </div>
+        </div>
+
+        {/* Victory Screen */}
+        {minionDefeated && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="p-4 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white text-center space-y-3"
+          >
+            <p className="text-2xl font-bold">🎉 Minion Defeated! 🎉</p>
+            <p>Proceed to the next challenge!</p>
+            <Button
+              onClick={handleContinueToNextMinion}
+              className="w-full bg-white text-green-600 hover:bg-gray-100 font-bold py-2"
+            >
+              <Zap className="w-4 h-4 mr-2 inline" />
+              Continue
+            </Button>
+          </motion.div>
+        )}
+
+        {/* Defeat Screen */}
+        {playerHp <= 0 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="p-4 rounded-lg bg-gradient-to-r from-red-600 to-pink-600 text-white text-center space-y-3"
+          >
+            <p className="text-2xl font-bold">💔 Defeated! 💔</p>
+            <p>Learn from this and try again!</p>
+            <Button
+              onClick={() => handleStartMinionBattle(selectedChapter!)}
+              className="w-full bg-white text-red-600 hover:bg-gray-100 font-bold py-2"
+            >
+              <SkipBack className="w-4 h-4 mr-2 inline" />
+              Retry
+            </Button>
+          </motion.div>
+        )}
+      </div>
+    );
+  }
+
   // ============ BOSS CUTSCENE ============
   if (gameMode === "boss_cutscene" && currentBoss) {
     return (
@@ -1667,7 +2312,7 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
               </Button>
             ) : playerStats.health <= 0 ? (
               <Button
-                onClick={() => setGameMode("chapter_select")}
+                onClick={() => setGameMode("chapter_map")}
                 className="flex-1 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white text-lg py-3"
               >
                 <SkipBack className="w-5 h-5 mr-2" />
