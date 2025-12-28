@@ -94,25 +94,59 @@ const fetchWeatherFromAPI = async (location: string): Promise<WeatherData | null
     const weatherData = await weatherResponse.json();
     const current = weatherData.current;
     
-    // Map weather codes to conditions
-    const mapWeatherCode = (code: number): WeatherData["condition"] => {
-      if (code === 0 || code === 1) return "sunny";
-      if (code === 2 || code === 3) return "cloudy";
-      if (code === 45 || code === 48) return "cloudy";
-      if (code >= 50 && code <= 67) return "rainy";
-      if (code >= 71 && code <= 77) return "snowy";
-      if (code >= 80 && code <= 82) return "rainy";
-      if (code === 85 || code === 86) return "snowy";
-      if (code >= 90 && code <= 99) return "rainy";
-      return "cloudy";
+    // Map weather codes to conditions with temperature and humidity adjustments
+    const mapWeatherCode = (code: number, temp: number, humidity: number): WeatherData["condition"] => {
+      console.log(`🌤️ Weather Code: ${code}, Temp: ${temp}°C, Humidity: ${humidity}%`);
+      
+      // CRITICAL: 0°C or below should NEVER be sunny
+      if (temp <= 0) {
+        console.log(`❄️ Temperature ${temp}°C is freezing - forcing snowy/cold weather`);
+        return "snowy";
+      }
+      
+      // Direct weather code mapping
+      let baseCondition: WeatherData["condition"] = "cloudy";
+      
+      if (code === 0 || code === 1) baseCondition = "sunny";
+      if (code === 2 || code === 3) baseCondition = "cloudy";
+      if (code === 45 || code === 48) baseCondition = "cloudy";
+      if (code >= 50 && code <= 67) baseCondition = "rainy";
+      if (code >= 71 && code <= 77) baseCondition = "snowy";
+      if (code >= 80 && code <= 82) baseCondition = "rainy";
+      if (code === 85 || code === 86) baseCondition = "snowy";
+      if (code >= 90 && code <= 99) baseCondition = "rainy";
+      
+      // High humidity with cool temp (0-15°C) = likely rainy
+      if (temp > 0 && temp <= 15 && humidity > 70 && baseCondition === "sunny") {
+        console.log(`🌧️ Cool temp (${temp}°C) with high humidity (${humidity}%) - forcing rainy`);
+        return "rainy";
+      }
+      
+      // Very high humidity (>80%) with any non-cold temp = rainy
+      if (temp > 0 && humidity > 80 && baseCondition === "sunny") {
+        console.log(`🌧️ Very high humidity (${humidity}%) - forcing rainy`);
+        return "rainy";
+      }
+      
+      // Hot temp but sunny code with lower humidity
+      if (temp > 28 && baseCondition === "sunny") {
+        console.log(`☀️ Hot sunny day (${temp}°C) - keeping sunny`);
+        return "sunny";
+      }
+      
+      console.log(`✅ Final condition: ${baseCondition}`);
+      return baseCondition;
     };
     
+    const temperature = Math.round(current.temperature_2m);
+    const humidity = current.relative_humidity_2m;
+    
     return {
-      condition: mapWeatherCode(current.weather_code),
-      temperature: Math.round(current.temperature_2m),
+      condition: mapWeatherCode(current.weather_code, temperature, humidity),
+      temperature: temperature,
       location: place.name,
       country: place.country || "",
-      humidity: current.relative_humidity_2m,
+      humidity: humidity,
       windSpeed: Math.round(current.wind_speed_10m),
       visibility: Math.round(current.visibility / 1000), // Convert to km
       feelsLike: Math.round(current.temperature_2m - current.wind_speed_10m * 0.2), // Rough approximation
@@ -187,12 +221,38 @@ const WeatherFoodSuggestion = () => {
                   return "cloudy";
                 };
                 
+                const tempValue = Math.round(current.temperature_2m);
+                const humidityValue = current.relative_humidity_2m;
+                
+                // CRITICAL: 0°C or below should NEVER be sunny
+                let finalCondition: WeatherData["condition"];
+                if (tempValue <= 0) {
+                  finalCondition = "snowy";
+                  console.log(`❄️ Fallback: Temperature ${tempValue}°C is freezing - forcing snowy`);
+                } else {
+                  const baseCondition = mapWeatherCode(current.weather_code);
+                  
+                  // High humidity with cool temp = rainy
+                  if (tempValue > 0 && tempValue <= 15 && humidityValue > 70 && baseCondition === "sunny") {
+                    finalCondition = "rainy";
+                    console.log(`🌧️ Fallback: Cool + humid - forcing rainy`);
+                  }
+                  // Very high humidity = rainy
+                  else if (tempValue > 0 && humidityValue > 80 && baseCondition === "sunny") {
+                    finalCondition = "rainy";
+                    console.log(`🌧️ Fallback: High humidity - forcing rainy`);
+                  }
+                  else {
+                    finalCondition = baseCondition;
+                  }
+                }
+                
                 setWeather({
-                  condition: mapWeatherCode(current.weather_code),
-                  temperature: Math.round(current.temperature_2m),
+                  condition: finalCondition,
+                  temperature: tempValue,
                   location: "Your Area",
                   country: "Local",
-                  humidity: current.relative_humidity_2m,
+                  humidity: humidityValue,
                   windSpeed: Math.round(current.wind_speed_10m),
                   visibility: Math.round(current.visibility / 1000),
                   feelsLike: Math.round(current.temperature_2m - current.wind_speed_10m * 0.2),
