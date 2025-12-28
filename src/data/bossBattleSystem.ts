@@ -66,17 +66,31 @@ export interface BossData {
 
 export const BOSS_CUTSCENES = {
   refined_carb_phantom_opening: `
-    ⚡ CUTSCENE: REFINED CARB PHANTOM ⚡
+    ⚡ REFINED CARB PHANTOM - THE PHANTOM EMERGES ⚡
     
-    The Grain Plains grow dark as a ghostly figure emerges from the shadows.
-    Its form shimmers with the shimmer of white bread and sugary cereals.
+    The golden Grain Plains grow dark as a ghostly figure emerges from the shadows.
+    Its form shimmers with the shimmer of white bread, instant noodles, and sugary cereals.
+    The phantom drains the golden color from the crops as it approaches.
     
-    "Welcome, young guardian... I've been draining the energy from these lands!
-    Why eat whole grains when refined carbs taste so much better?
-    Refined is superior! White is pure! Give in to the sweetness!"
+    "WELCOME, young Food Guardian... I am the Refined Carb Phantom!
+    I've been draining the ENERGY from these lands for far too long!
     
-    The Phantom laughs as your energy starts to fade...
-    You must teach it the truth about nutrition!
+    Why should anyone eat whole grains when refined carbs taste SO much better?
+    White bread is PURE and CLEAN! Refined flour is SUPERIOR!
+    Why suffer through brown rice when WHITE is so much more refined?
+    
+    The villagers LOVE me... they crave the SWEETNESS I bring!
+    The temporary energy rush... the taste... they'll never choose fiber over ME!
+    
+    Your pathetic whole grain knowledge means NOTHING against my power!
+    SURRENDER NOW and join me in the glory of processed perfection!"
+    
+    The Phantom's laughter echoes as your energy begins to fade.
+    The farmers collapse around you, drained of vitality.
+    You must teach it the TRUTH about nutrition...
+    The power of WHOLE GRAINS... FIBER... SUSTAINED ENERGY!
+    
+    This battle will determine the fate of the Grain Plains!
   `,
   
   junk_goblin_opening: `
@@ -152,42 +166,54 @@ export const BOSSES: Record<string, BossData> = {
     name: "Refined Carb Phantom",
     emoji: "👻",
     chapter: 1,
-    description: "A ghostly manifestation of refined carbs that drains your energy",
-    foodChallenge: "Refined Carbohydrates vs Whole Grains",
-    baseHp: 80,
+    description: "A ghostly manifestation that drains villagers' energy by promoting refined carbs and processed foods",
+    foodChallenge: "Whole Grains vs Refined Carbohydrates",
+    baseHp: 100,
     phases: [
       {
         phaseNumber: 1,
         healthPercent: 100,
         moveset: [
           {
-            name: "White Bread Assault",
-            description: "Blast of refined carbs saps your energy",
-            damage: 8,
-            emoji: "🍞",
+            name: "Sugar Storm",
+            description: "Blasts of refined sugar crash your energy levels",
+            damage: 12,
+            emoji: "⛈️",
           },
           {
-            name: "Sugar Crash",
-            description: "Sudden energy drain from processed foods",
-            damage: 6,
+            name: "Empty Bite Blast",
+            description: "Processed food with no nutrition drains your vigor",
+            damage: 10,
             emoji: "💥",
+          },
+          {
+            name: "White Bread Barrage",
+            description: "Soft, processed carbs sap your strength",
+            damage: 8,
+            emoji: "🍞",
           },
         ],
         taunts: [
           {
-            myth: "Refined carbs taste better than whole grains",
-            effect: "Reduce player defense by 15%",
+            myth: "Refined carbs taste better than whole grains - it's scientifically proven!",
+            effect: "Reduce player defense by 20%",
             nutritionCounter:
-              "Whole grains provide sustained energy AND taste great!",
+              "Whole grains provide COMPLEX FLAVORS and sustained energy! Taste improves with fiber!",
           },
           {
-            myth: "White bread is cleaner and purer",
-            effect: "Confuse player (reduce accuracy)",
+            myth: "White bread is cleaner and purer than brown bread",
+            effect: "Confuse player (reduce next action effectiveness)",
             nutritionCounter:
-              "Whole grains have MORE nutrients and fiber for your body!",
+              "Whole grains have the BRAN and GERM - packed with MORE nutrients, vitamins, and minerals!",
+          },
+          {
+            myth: "Refined carbs are easier to digest - that's why they're better",
+            effect: "Reduce player max HP by 10%",
+            nutritionCounter:
+              "Whole grain FIBER aids digestion and feeds beneficial gut bacteria for BETTER health!",
           },
         ],
-        description: "Phase 1: The phantom is agile and quick",
+        description: "Phase 1: The phantom is swift and relentless - its energy is overwhelming the plains!",
       },
       {
         phaseNumber: 2,
@@ -195,65 +221,83 @@ export const BOSSES: Record<string, BossData> = {
         moveset: [
           {
             name: "Instant Noodle Cyclone",
-            description: "Refined carb tornado hits hard",
-            damage: 12,
+            description: "A tornado of refined carbs hits with devastating force",
+            damage: 15,
             emoji: "🌪️",
           },
           {
             name: "Donut Downpour",
-            description: "Sugar-coated attack",
-            damage: 10,
+            description: "Sugar-coated processed treats rain down",
+            damage: 13,
             emoji: "🍩",
+          },
+          {
+            name: "Processed Onslaught",
+            description: "Wave of ultra-processed foods attacks!",
+            damage: 14,
+            emoji: "🔥",
           },
         ],
         taunts: [
           {
-            myth: "You can't feel full on whole grains",
+            myth: "You can't feel full or satisfied on whole grains - you'll always be hungry!",
             effect: "Reduce player max HP temporarily",
             nutritionCounter:
-              "Fiber in whole grains makes you feel full LONGER!",
+              "FIBER in whole grains makes you feel full LONGER and keeps you satisfied for HOURS!",
+          },
+          {
+            myth: "Refined carbs give you instant energy - whole grains are too slow!",
+            effect: "Reduce player attack power by 15%",
+            nutritionCounter:
+              "Whole grains provide SUSTAINED ENERGY without crashes! Complex carbs = steady power!",
+          },
+          {
+            myth: "Elite athletes only eat refined carbs for performance",
+            effect: "Apply confusion debuff",
+            nutritionCounter:
+              "Top athletes fuel with WHOLE GRAINS for sustained endurance and recovery power!",
           },
         ],
-        description: "Phase 2: Phantom becomes more aggressive!",
+        description: "Phase 2: The phantom grows desperate and MORE AGGRESSIVE! Its true power emerges!",
       },
     ],
     cutscene: {
       opening: BOSS_CUTSCENES.refined_carb_phantom_opening,
       victory:
-        "The phantom dissipates as the truth about whole grains shines through!\n\n✨ You've learned the POWER OF WHOLE GRAINS!",
+        "🌾 The phantom dissipates as GOLDEN LIGHT shines through!\n\nThe truth about whole grains overwhelms the confusion!\n\n✨ VICTORY! The Grain Plains are restored!\n\n📜 You've earned the SACRED PLATE FRAGMENT!\n\n🎓 LESSON LEARNED: Whole grains provide sustained energy, fiber, vitamins, and minerals!\nRefined carbs cause energy crashes. Balance matters!",
       defeat:
-        "The phantom's energy drain is too much... You've been defeated.\nBut don't give up! Try again and use nutrition facts to counter!",
+        "💔 The phantom's energy drain is too overwhelming...\nThe villagers collapse. You've been defeated.\n\nBut don't give up! The truth about nutrition is your greatest weapon!\nTry again and counter each myth with NUTRITION FACTS!\n\nRemember: Fiber = Sustained Energy!",
     },
     rewards: [
       {
         type: "recipe",
         name: "Whole Grain Power Bowl",
-        description: "A delicious and energizing bowl recipe",
+        description: "Brown rice, quinoa, and whole grains for sustained energy recovery",
         emoji: "🍚",
         effect: "+50% Energy Recovery",
       },
       {
         type: "cosmetic",
         name: "Grain Guardian Outfit",
-        description: "Anime-style gear inspired by whole grain power",
+        description: "Anime-style guardian gear inspired by whole grain strength",
         emoji: "👘",
-        effect: "Look like a nutrition expert!",
+        effect: "Unlock appearance - Look like a nutrition guardian!",
       },
       {
         type: "companion",
         name: "Quinoa Spirit",
         description: "A wise spirit companion from the grain realm",
         emoji: "✨",
-        effect: "+10% XP gain",
+        effect: "+10% XP gain in next chapter",
       },
     ],
     rewards_spirit: {
       id: "quinoa_spirit",
       name: "Quinoa",
-      food: "Quinoa",
+      food: "Quinoa (Complete Protein Whole Grain)",
       emoji: "🌾",
-      personality: "Wise and patient, always has steady energy",
-      ability: "Sustained Energy - Restore 10 HP each turn",
+      personality: "Wise, patient, and radiating steady energy. Always calm and centered.",
+      ability: "Sustained Energy - Restore 15 HP each turn in battle",
       rarity: "rare",
     },
   },

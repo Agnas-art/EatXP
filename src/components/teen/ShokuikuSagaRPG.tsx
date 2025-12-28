@@ -116,16 +116,16 @@ const CHAPTERS: Chapter[] = [
   },
   {
     id: 2,
-    name: "Chapter 1: Grain Plains",
-    region: "Grain Plains",
+    name: "Chapter 1 – Grain Plains",
+    region: "Golden Fields of the Grain Plains",
     narrative:
-      "Learn the importance of carbohydrates and whole grains. Energy for your adventures!",
+      "Vast golden fields of rice, wheat, oats, and barley stretch endlessly. The Refined Carb Phantom has drained the villagers' energy by spreading processed foods. As a Food Guardian, you must help farmers restore vitality and teach them the difference between whole grains and refined carbs. Learn how carbohydrates fuel your body's energy and why whole grains provide sustained power!",
     bossName: "Refined Carb Phantom",
-    bossDescription: "Drains energy by promoting refined carbs over whole grains",
+    bossDescription: "A ghostly manifestation that drains villagers' energy by promoting processed carbs. Its myths about refined foods being 'pure' and 'clean' have caused an energy crisis!",
     unlocked: true,
     completed: false,
-    questIds: [2, 3],
-    reward: "Carbohydrate Mastery Badge",
+    questIds: [2, 3, 4],
+    reward: "Sacred Plate Fragment + Carbohydrate Mastery",
     emoji: "🌾",
   },
   {
@@ -220,49 +220,81 @@ const QUESTS_DATA: Quest[] = [
   },
   {
     id: 2,
-    name: "Energy for Exams",
-    description: "Learn how carbs fuel your brain and body for peak performance",
-    reward: 150,
+    name: "Harvest the Truth: Whole Grains Quest",
+    description: "Help farmers identify and harvest whole grains from refined carbs",
+    reward: 120,
     difficulty: "Easy",
     completed: false,
-    theme: "Energy for Exams",
-    narrative: "Students in Grain Plains are losing energy. Help them understand carbs!",
+    theme: "Educational Quest",
+    narrative:
+      "🌾 GRAIN PLAINS PUZZLE: The fields are mixed with whole grains and refined grains! Farmers are confused about which provide sustained energy. Help them identify TRUE whole grains and learn how fiber sustains energy throughout the day. Match each grain to its energy level!",
     challenges: [
       {
         type: "quiz",
-        question: "Which is a whole grain?",
-        options: ["White bread", "Brown rice", "Instant noodles"],
+        question: "Which grain provides sustained energy with fiber?",
+        options: ["White Rice (Refined)", "Brown Rice (Whole Grain)", "White Bread (Processed)"],
         correctAnswer: 1,
+      },
+      {
+        type: "cooking",
+        question: "Which meal has balanced whole grain carbohydrates?",
       },
       {
         type: "collection",
         items: [
-          { name: "Oats", emoji: "🌾" },
-          { name: "Wheat", emoji: "🌾" },
-          { name: "Quinoa", emoji: "🌾" },
+          { name: "Brown Rice", emoji: "🍚" },
+          { name: "Rolled Oats", emoji: "🌾" },
+          { name: "Whole Wheat", emoji: "🌾" },
         ],
       },
     ],
   },
   {
     id: 3,
-    name: "Defeat the Refined Carb Phantom",
-    description: "Battle the boss that drains energy with refined carbs",
-    reward: 250,
-    difficulty: "Medium",
+    name: "⚔️ MINI-GAME: Harvest Rush",
+    description: "Race to harvest and identify whole grains before time runs out",
+    reward: 80,
+    difficulty: "Easy",
     completed: false,
-    theme: "Boss Battle",
-    narrative: "The Refined Carb Phantom awaits! Use your carb knowledge to defeat it.",
+    theme: "Mini-Game Quest",
+    narrative:
+      "🌾 HARVEST RACE: The fields are ripe! Show your speed and accuracy by harvesting WHOLE GRAINS only. Each grain correctly identified powers up the villagers. This harvest trains you for the battle ahead!",
     challenges: [
       {
-        type: "battle",
-        enemyName: "Refined Carb Phantom",
-        enemyHp: 60,
+        type: "collection",
+        items: [
+          { name: "Barley", emoji: "🌾" },
+          { name: "Oatmeal", emoji: "🍯" },
+          { name: "Rye", emoji: "🌾" },
+        ],
+      },
+      {
+        type: "mindfulness",
+        question:
+          "🧘 Feel the farmer's gratitude as energy returns with each whole grain you save.",
       },
     ],
   },
   {
     id: 4,
+    name: "🔥 BOSS BATTLE: Refined Carb Phantom",
+    description: "Defeat the phantom to restore energy to all villagers",
+    reward: 300,
+    difficulty: "Hard",
+    completed: false,
+    theme: "Boss Battle",
+    narrative:
+      "⚔️ THE FINAL TEST: The Refined Carb Phantom emerges! It feeds on confusion about 'pure white' foods. Use whole grain knowledge to counter its myths. Its Sugar Storm and Empty Bite Blast sap energy quickly. Counter with nutrition facts! Defeat it to restore vitality and earn the SACRED PLATE FRAGMENT!",
+    challenges: [
+      {
+        type: "battle",
+        enemyName: "Refined Carb Phantom",
+        enemyHp: 100,
+      },
+    ],
+  },
+  {
+    id: 5,
     name: "Vegetable Valley Rescue",
     description: "Help farmers save vegetables and learn about vitamins",
     reward: 150,
@@ -288,7 +320,7 @@ const QUESTS_DATA: Quest[] = [
     ],
   },
   {
-    id: 5,
+    id: 6,
     name: "Defeat the Junk Goblin",
     description: "Stop the Junk Goblin from tempting villagers with unhealthy snacks",
     reward: 250,
@@ -305,7 +337,7 @@ const QUESTS_DATA: Quest[] = [
     ],
   },
   {
-    id: 6,
+    id: 7,
     name: "Sports Power-Up",
     description: "Learn how proteins build strength and aid recovery",
     reward: 200,
