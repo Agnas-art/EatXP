@@ -21,6 +21,9 @@ import {
 import { ANIME_CHARACTERS } from "@/data/animeCharacters";
 import { BOSSES, BOSS_CUTSCENES, WEEKLY_CHALLENGES } from "@/data/bossBattleSystem";
 import type { BossData, FoodSpirit } from "@/data/bossBattleSystem";
+import { BattleArena } from "./BattleArena";
+import { InteractiveMiniBattle } from "./InteractiveMiniBattle";
+import { ChapterMap } from "./ChapterMap";
 
 interface ShokuikuSagaRPGProps {
   onBack?: () => void;
@@ -1523,22 +1526,21 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
     const minionIds = chapter?.minionIds || [];
     const minionList = minionIds.map((id) => CHAPTER_MINIONS[id]);
 
-    return (
-      <div className="space-y-6 p-4">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-purple-600">{chapter?.name}</h2>
-          <Button
-            onClick={() => setGameMode("chapter_select")}
-            variant="outline"
-            size="sm"
-          >
-            <SkipBack className="w-4 h-4" /> Back
-          </Button>
-        </div>
+    // If hero not yet selected, show selection screen
+    if (!hero) {
+      return (
+        <div className="space-y-6 p-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-bold text-purple-600">{chapter?.name}</h2>
+            <Button
+              onClick={() => setGameMode("chapter_select")}
+              variant="outline"
+              size="sm"
+            >
+              <SkipBack className="w-4 h-4" /> Back
+            </Button>
+          </div>
 
-        {/* Hero Selection */}
-        {!selectedChampion && (
           <Card className="p-6 bg-gradient-to-r from-blue-100 to-cyan-100 space-y-4">
             <h3 className="text-2xl font-bold text-blue-700">🏆 Select Your Hero Champion</h3>
             <p className="text-gray-700">
@@ -1563,89 +1565,27 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
               )}
             </div>
           </Card>
-        )}
+        </div>
+      );
+    }
 
-        {/* Battle Map */}
-        {hero && (
-          <Card className="p-6 bg-gradient-to-r from-purple-100 to-pink-100 space-y-6">
-            <h3 className="text-2xl font-bold text-purple-700">⚔️ Chapter Battle Map</h3>
-
-            {/* Hero vs Villains Visualization */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-white rounded-lg border-2 border-purple-300">
-                {/* Your Team */}
-                <div className="text-center space-y-2">
-                  <p className="text-sm font-bold text-purple-600">Your Team</p>
-                  <div className="text-5xl">{hero.emoji}</div>
-                  <p className="font-bold text-sm">{hero.name}</p>
-                  <div className="text-xs text-gray-600 space-y-1">
-                    <p>HP: {playerStats.health}/{playerStats.maxHealth}</p>
-                    <p>ATK: {playerStats.attack}</p>
-                    <p>DEF: {playerStats.defense}</p>
-                  </div>
-                </div>
-
-                {/* VS */}
-                <div className="text-3xl font-bold text-red-600">VS</div>
-
-                {/* Enemy Team */}
-                <div className="text-center space-y-2">
-                  <p className="text-sm font-bold text-red-600">Chapter Villains</p>
-                  <div className="space-y-1">
-                    {minionList.map((minion, idx) => (
-                      <div
-                        key={idx}
-                        className={`text-2xl ${idx === minionIndex ? "scale-125" : "opacity-60"}`}
-                      >
-                        {minion.emoji}
-                      </div>
-                    ))}
-                  </div>
-                  <p className="font-bold text-sm">
-                    {minionList[minionIndex]?.name}
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    {minionIndex + 1}/{minionList.length} Minions
-                  </p>
-                </div>
-              </div>
-
-              {/* Chapter Progression */}
-              <div className="space-y-2">
-                <p className="text-sm font-bold">Battle Progression:</p>
-                <div className="flex gap-2">
-                  {minionList.map((minion, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex-1 p-2 rounded text-center text-xs font-bold transition-all ${
-                        idx < minionIndex
-                          ? "bg-green-500 text-white"
-                          : idx === minionIndex
-                          ? "bg-yellow-500 text-white scale-105"
-                          : "bg-gray-300 text-gray-600"
-                      }`}
-                    >
-                      {idx === minionIndex ? "⚔️" : idx < minionIndex ? "✅" : "🔒"}
-                    </div>
-                  ))}
-                  <div className="flex-1 p-2 rounded text-center text-xs font-bold bg-red-500 text-white">
-                    🐲 Boss
-                  </div>
-                </div>
-              </div>
-
-              {/* Start Button */}
-              <Button
-                onClick={() => handleStartMinionBattle(selectedChapter)}
-                className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 text-lg font-bold"
-              >
-                <Sword className="w-5 h-5 mr-2" />
-                {minionIndex === 0 ? "Begin Chapter Battle" : `Face ${minionList[minionIndex]?.name}`}
-              </Button>
-            </div>
-          </Card>
-        )}
-      </div>
+    // Use new ChapterMap component for battle visualization
+    return (
+      <ChapterMap
+        chapterName={chapter?.name || ""}
+        heroName={hero.name}
+        heroEmoji={hero.emoji}
+        minionEmojis={minionList.map((minion, idx) => ({
+          emoji: minion.emoji,
+          name: minion.name,
+          isDefeated: idx < minionIndex,
+        }))}
+        bossEmoji={currentBoss?.emoji || "👹"}
+        bossName={chapter?.bossName || ""}
+        currentMinionIndex={minionIndex}
+        onStartBattle={() => handleStartMinionBattle(selectedChapter)}
+        onBack={() => setGameMode("chapter_select")}
+      />
     );
   }
 
@@ -2151,135 +2091,41 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
 
   // ============ MINION BATTLE ============
   if (gameMode === "minion_battle" && currentMinion) {
+    const [playerAttacking, setPlayerAttacking] = useState(false);
+    const [minionAttacking, setMinionAttacking] = useState(false);
+
+    const handleMinionAttackWithAnimation = (actionType: string) => {
+      setPlayerAttacking(true);
+      setTimeout(() => setPlayerAttacking(false), 600);
+      setTimeout(() => {
+        setMinionAttacking(true);
+        setTimeout(() => setMinionAttacking(false), 600);
+      }, 700);
+      handleMinionAttack(actionType);
+    };
+
+    const heroEmoji = selectedChampion ? CHAPTER_HEROES[selectedChampion].emoji : "🧑";
+
     return (
-      <div className="space-y-4 p-4">
-        {/* Battle Header */}
-        <Card className="p-4 bg-gradient-to-r from-orange-500 to-red-600 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-2xl font-bold">{currentMinion.name}</h3>
-              <p className="text-sm opacity-90">{currentMinion.description}</p>
-            </div>
-            <div className="text-4xl">{currentMinion.emoji}</div>
-          </div>
-        </Card>
-
-        {/* Health Bars */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="p-4 space-y-2">
-            <p className="text-sm font-bold">Your Health</p>
-            <div className="bg-gray-300 rounded-full h-6 overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-green-500 to-emerald-500"
-                animate={{ width: `${(playerHp / 100) * 100}%` }}
-                transition={{ duration: 0.5 }}
-              />
-            </div>
-            <p className="text-xs text-gray-600 text-right">{playerHp}/100 HP</p>
-          </Card>
-
-          <Card className="p-4 space-y-2">
-            <p className="text-sm font-bold">Minion Health</p>
-            <div className="bg-gray-300 rounded-full h-6 overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-red-500 to-orange-500"
-                animate={{ width: `${(enemyHp / currentMinion.baseHp) * 100}%` }}
-                transition={{ duration: 0.5 }}
-              />
-            </div>
-            <p className="text-xs text-gray-600 text-right">
-              {Math.max(0, enemyHp)}/{currentMinion.baseHp} HP
-            </p>
-          </Card>
-        </div>
-
-        {/* Combat Log */}
-        <Card className="p-4 bg-gray-900 text-white max-h-32 overflow-y-auto space-y-1">
-          {combatLog.map((log, idx) => (
-            <p key={idx} className="text-sm">
-              {log}
-            </p>
-          ))}
-        </Card>
-
-        {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <Button
-              onClick={() => handleMinionAttack("attack")}
-              disabled={playerHp <= 0 || enemyHp <= 0}
-              className="w-full bg-red-600 hover:bg-red-700 text-white py-2 text-sm font-bold"
-            >
-              💥 Attack
-            </Button>
-          </div>
-          <div>
-            <Button
-              onClick={() => handleMinionAttack("defend")}
-              disabled={playerHp <= 0 || enemyHp <= 0}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 text-sm font-bold"
-            >
-              🛡️ Defend
-            </Button>
-          </div>
-          <div>
-            <Button
-              onClick={() => handleMinionAttack("counter_myth")}
-              disabled={playerHp <= 0 || enemyHp <= 0}
-              className="w-full bg-green-600 hover:bg-green-700 text-white py-2 text-sm font-bold"
-            >
-              💡 Counter
-            </Button>
-          </div>
-          <div>
-            <Button
-              onClick={() => handleMinionAttack("use_companion")}
-              disabled={playerHp <= 0 || enemyHp <= 0 || companions.length === 0}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 text-sm font-bold"
-            >
-              🎁 Companion
-            </Button>
-          </div>
-        </div>
-
-        {/* Victory Screen */}
-        {minionDefeated && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="p-4 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white text-center space-y-3"
-          >
-            <p className="text-2xl font-bold">🎉 Minion Defeated! 🎉</p>
-            <p>Proceed to the next challenge!</p>
-            <Button
-              onClick={handleContinueToNextMinion}
-              className="w-full bg-white text-green-600 hover:bg-gray-100 font-bold py-2"
-            >
-              <Zap className="w-4 h-4 mr-2 inline" />
-              Continue
-            </Button>
-          </motion.div>
-        )}
-
-        {/* Defeat Screen */}
-        {playerHp <= 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="p-4 rounded-lg bg-gradient-to-r from-red-600 to-pink-600 text-white text-center space-y-3"
-          >
-            <p className="text-2xl font-bold">💔 Defeated! 💔</p>
-            <p>Learn from this and try again!</p>
-            <Button
-              onClick={() => handleStartMinionBattle(selectedChapter!)}
-              className="w-full bg-white text-red-600 hover:bg-gray-100 font-bold py-2"
-            >
-              <SkipBack className="w-4 h-4 mr-2 inline" />
-              Retry
-            </Button>
-          </motion.div>
-        )}
-      </div>
+      <InteractiveMiniBattle
+        playerEmoji={heroEmoji}
+        enemyEmoji={currentMinion.emoji}
+        enemyName={currentMinion.name}
+        playerHp={playerHp}
+        playerMaxHp={100}
+        enemyHp={Math.max(0, enemyHp)}
+        enemyMaxHp={currentMinion.baseHp}
+        onAttack={() => handleMinionAttackWithAnimation("attack")}
+        onDefend={() => handleMinionAttackWithAnimation("defend")}
+        onCounter={() => handleMinionAttackWithAnimation("counter_myth")}
+        isPlayerAttacking={playerAttacking}
+        isEnemyAttacking={minionAttacking}
+        battleType="minion"
+        playerDefeated={playerHp <= 0}
+        enemyDefeated={minionDefeated}
+        turnCount={battleTurns}
+        battleLog={combatLog}
+      />
     );
   }
 
@@ -2335,12 +2181,106 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
 
   // ============ BOSS BATTLE ============
   if (gameMode === "boss_battle" && currentBoss) {
+    const [playerAttacking, setPlayerAttacking] = useState(false);
+    const [bossAttacking, setBossAttacking] = useState(false);
     const currentPhase = currentBoss.phases[currentBossPhase];
-    const bossHpPercent = (bossHp / currentBoss.baseHp) * 100;
-    const playerHpPercent = (playerStats.health / playerStats.maxHealth) * 100;
+
+    // Override the attack handler to trigger animations
+    const handleBossAttackWithAnimation = (actionType: string) => {
+      setPlayerAttacking(true);
+      setTimeout(() => setPlayerAttacking(false), 600);
+      setTimeout(() => {
+        setBossAttacking(true);
+        setTimeout(() => setBossAttacking(false), 600);
+      }, 700);
+      handleBossAttack(actionType);
+    };
+
+    // Get hero emoji if selected
+    const heroEmoji = selectedChampion ? CHAPTER_HEROES[selectedChampion].emoji : "🧑";
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-900 via-purple-900 to-black p-4 space-y-3">
+      <BattleArena
+        playerEmoji={heroEmoji}
+        bossEmoji={currentBoss.emoji}
+        playerHp={playerStats.health}
+        playerMaxHp={playerStats.maxHealth}
+        bossHp={Math.max(0, bossHp)}
+        bossMaxHp={currentBoss.baseHp}
+        bossName={currentBoss.name}
+        onAttack={() => handleBossAttackWithAnimation("attack")}
+        onDefend={() => handleBossAttackWithAnimation("defend")}
+        onCounter={() => handleBossAttackWithAnimation("counter_myth")}
+        isPlayerAttacking={playerAttacking}
+        isBossAttacking={bossAttacking}
+        battleTurns={battleTurns}
+        chapter={currentBoss.chapter}
+        playerDefeated={playerStats.health <= 0}
+        bossDefeated={bossDefeated}
+      />
+    );
+  }
+
+  // ============ WEEKLY CHALLENGES ============
+  if (gameMode === "weekly_challenges") {
+    return (
+      <div className="space-y-6 p-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold text-purple-600">Weekly Challenge</h2>
+          <Button
+            onClick={() => setGameMode("chapter_select")}
+            variant="outline"
+            size="sm"
+          >
+            <SkipBack className="w-4 h-4" /> Back
+          </Button>
+        </div>
+
+        {weeklyChallenge && (
+          <Card className="p-6 space-y-4 border-2 border-gold-500">
+            <div className="text-center space-y-2">
+              <p className="text-2xl font-bold">Week {weeklyChallenge.week}</p>
+              <div className="text-6xl">{BOSSES[weeklyChallenge.boss_id]?.emoji}</div>
+              <h3 className="text-2xl font-bold text-purple-600">
+                {BOSSES[weeklyChallenge.boss_id]?.name}
+              </h3>
+            </div>
+
+            <div className="bg-gradient-to-r from-yellow-100 to-orange-100 p-4 rounded-lg space-y-2">
+              <p className="font-bold">Modifiers:</p>
+              <div className="flex flex-wrap gap-2">
+                {weeklyChallenge.modifiers.map((mod) => (
+                  <span
+                    key={mod}
+                    className="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+                  >
+                    ⚡ {mod}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="text-center space-y-2">
+              <p className="text-lg font-semibold">Difficulty: {weeklyChallenge.difficulty}</p>
+              <p className="text-sm text-gray-600">
+                Defeat {BOSSES[weeklyChallenge.boss_id]?.name} with the active modifiers!
+              </p>
+            </div>
+
+            <Button
+              onClick={handleStartWeeklyChallenge}
+              className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 text-lg font-bold"
+            >
+              <Sword className="w-5 h-5 mr-2" />
+              Accept Challenge
+            </Button>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  // ============ OLD BOSS BATTLE UI (REPLACED) ============
         {/* Header with Turn Counter */}
         <div className="flex justify-between items-center">
           <div className="flex-1">
