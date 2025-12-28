@@ -835,6 +835,8 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
   const [bossPattern, setBossPattern] = useState<number>(0);
   const [companionOnCooldown, setCompanionOnCooldown] = useState(false);
   const [mythsCountered, setMythsCountered] = useState(0);
+  const [playerAttacking, setPlayerAttacking] = useState(false);
+  const [bossAttacking, setBossAttacking] = useState(false);
 
   const heroData = selectedHero
     ? ANIME_CHARACTERS[selectedHero as keyof typeof ANIME_CHARACTERS]
@@ -2181,8 +2183,6 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
 
   // ============ BOSS BATTLE ============
   if (gameMode === "boss_battle" && currentBoss) {
-    const [playerAttacking, setPlayerAttacking] = useState(false);
-    const [bossAttacking, setBossAttacking] = useState(false);
     const currentPhase = currentBoss.phases[currentBossPhase];
 
     // Override the attack handler to trigger animations
