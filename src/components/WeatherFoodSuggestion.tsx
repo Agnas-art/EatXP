@@ -475,7 +475,7 @@ const WeatherFoodSuggestion = () => {
         <h4 className="font-display font-bold text-foreground">
           🍽️ {t("weather_section.title")}
         </h4>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-black font-semibold">
           Perfect foods based on today's {weather.condition} weather in {weather.location}
         </p>
         <div className="grid grid-cols-3 gap-2">
