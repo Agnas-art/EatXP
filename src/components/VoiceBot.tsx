@@ -1141,22 +1141,36 @@ const VoiceBot = () => {
     
     // Recipe request detection - prioritize over contextual references and general food discussion
     const recipePatterns = [
+      /(?:get me|want|give me).*?recip[ei].*?with.*?(\w+)/i,
       /(?:recip[ei]|cook|make|prepare|how to (?:make|cook|prepare)).*?(\w+)/i,
       /(\w+).*?(?:recip[ei]|cooking|preparation)/i,
       /show me.*?(\w+).*?(?:recip[ei]|how to make)/i,
       /(?:give me|suggest|recommend).*?(?:recip[ei]|dish)/i,
       /how (?:do|can) i (?:make|cook|prepare).*?(\w+)/i,
       /(?:recip[ei] for|cooking) (\w+)/i,
-      /(?:make|cook) (\w+)/i,
-      /(?:get me|want).*?recip[ei].*?with.*?(\w+)/i
+      /(?:make|cook) (\w+)/i
     ];
     
     // Check for recipe keywords including misspellings
     const hasRecipeKeyword = /recip[ei]|cook|make|prepare/i.test(input);
     
+    console.log('🔍 RECIPE KEYWORD CHECK:', {
+      input,
+      hasRecipeKeyword,
+      keywordTest: /recip[ei]|cook|make|prepare/i.test(input),
+      recipeMatches: input.match(/recip[ei]/i),
+      cookMatches: input.match(/cook|make|prepare/i)
+    });
+    
     let detectedRecipeRequest = null;
     for (const pattern of recipePatterns) {
       const match = input.match(pattern);
+      console.log(`🧪 TESTING PATTERN: ${pattern.source}`, {
+        match: match ? match[0] : null,
+        capturedGroup: match ? match[1] : null,
+        hasKeyword: hasRecipeKeyword
+      });
+      
       if (match && hasRecipeKeyword) {
         // Extract the food item from the match
         const potentialFood = match[1] ? match[1].toLowerCase() : '';
@@ -1194,6 +1208,26 @@ const VoiceBot = () => {
             pattern: 'direct_mention'
           };
           break;
+        }
+      }
+      
+      // If still no specific food found but clear recipe request, extract from common patterns
+      if (!detectedRecipeRequest && /recip[ei]/i.test(input)) {
+        const withMatch = input.match(/with\s+(\w+)/i);
+        const forMatch = input.match(/(?:for|using|of)\s+(\w+)/i);
+        const ingredient = withMatch?.[1] || forMatch?.[1];
+        
+        if (ingredient) {
+          detectedRecipeRequest = {
+            food: ingredient.toLowerCase(),
+            pattern: 'with_pattern'
+          };
+        } else {
+          // Default recipe request without specific ingredient
+          detectedRecipeRequest = {
+            food: 'healthy',
+            pattern: 'general_recipe'
+          };
         }
       }
     }
