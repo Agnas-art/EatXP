@@ -1,27 +1,17 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
-import FoodMatchGame from "./games/FoodMatchGame";
 import FoodQuizGame from "./games/FoodQuizGame";
 import CookingCatchGame from "./games/CookingCatchGame";
-import { Gamepad2, Brain, Target, Sparkles } from "lucide-react";
+import { Brain, Target, Sparkles } from "lucide-react";
 
 interface GamesHubProps {
   ageGroup: string;
   onBack?: () => void;
 }
 
-type GameType = "hub" | "match" | "quiz" | "catch";
+type GameType = "hub" | "quiz" | "catch";
 
 const games = [
-  {
-    id: "match" as const,
-    title: "Food Match",
-    emoji: "🎴",
-    description: "Find matching food pairs!",
-    icon: Gamepad2,
-    color: "from-kawaii-pink to-accent",
-    difficulty: "Easy",
-  },
   {
     id: "quiz" as const,
     title: "Food Quiz",
@@ -49,15 +39,6 @@ const GamesHub = ({ ageGroup, onBack }: GamesHubProps) => {
   const handleGameComplete = (score: number) => {
     setTotalPoints(p => p + score);
   };
-
-  if (currentGame === "match") {
-    return (
-      <FoodMatchGame
-        onComplete={handleGameComplete}
-        onBack={() => setCurrentGame("hub")}
-      />
-    );
-  }
 
   if (currentGame === "quiz") {
     return (
