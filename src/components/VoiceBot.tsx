@@ -116,6 +116,38 @@ interface ConversationContext {
   lastActiveTime: number;
 }
 
+// Enhanced spell checker for food-related terms - moved outside component to avoid re-creation
+const FOOD_SPELL_CORRECTIONS: { [key: string]: string } = {
+  'receipe': 'recipe',
+  'recepie': 'recipe', 
+  'recipie': 'recipe',
+  'recepy': 'recipe',
+  'bannana': 'banana',
+  'banna': 'banana',
+  'avacado': 'avocado',
+  'avocodo': 'avocado',
+  'quinao': 'quinoa',
+  'qinoa': 'quinoa',
+  'tommato': 'tomato',
+  'tomatoe': 'tomato',
+  'potatoe': 'potato',
+  'carrotts': 'carrots',
+  'spinich': 'spinach',
+  'brocolli': 'broccoli',
+  'brocoli': 'broccoli',
+  'protien': 'protein',
+  'protean': 'protein',
+  'vitimins': 'vitamins',
+  'vitamine': 'vitamin',
+  'nutricious': 'nutritious',
+  'nutrious': 'nutritious',
+  'healty': 'healthy',
+  'helthy': 'healthy',
+  'recipies': 'recipes',
+  'vegitable': 'vegetable',
+  'vegtable': 'vegetable'
+};
+
 const VoiceBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -126,47 +158,15 @@ const VoiceBot = () => {
   const [inputMode, setInputMode] = useState<'voice' | 'text'>('voice');
   const [messages, setMessages] = useState<Message[]>([]);
 
-  // Enhanced spell checker for food-related terms
-  const foodSpellCorrections: { [key: string]: string } = {
-    'receipe': 'recipe',
-    'recepie': 'recipe', 
-    'recipie': 'recipe',
-    'recepy': 'recipe',
-    'bannana': 'banana',
-    'banna': 'banana',
-    'avacado': 'avocado',
-    'avocodo': 'avocado',
-    'quinao': 'quinoa',
-    'qinoa': 'quinoa',
-    'tommato': 'tomato',
-    'tomatoe': 'tomato',
-    'potatoe': 'potato',
-    'carrotts': 'carrots',
-    'spinich': 'spinach',
-    'brocolli': 'broccoli',
-    'brocoli': 'broccoli',
-    'protien': 'protein',
-    'protean': 'protein',
-    'vitimins': 'vitamins',
-    'vitamine': 'vitamin',
-    'nutricious': 'nutritious',
-    'nutrious': 'nutritious',
-    'healty': 'healthy',
-    'helthy': 'healthy',
-    'recipies': 'recipes',
-    'vegitable': 'vegetable',
-    'vegtable': 'vegetable'
-  };
-
   // Auto-correct function
   const autoCorrectText = useCallback((text: string): string => {
     let correctedText = text;
-    Object.entries(foodSpellCorrections).forEach(([wrong, correct]) => {
+    Object.entries(FOOD_SPELL_CORRECTIONS).forEach(([wrong, correct]) => {
       const regex = new RegExp(`\\b${wrong}\\b`, 'gi');
       correctedText = correctedText.replace(regex, correct);
     });
     return correctedText;
-  }, []);
+  }, []); // Empty dependencies since FOOD_SPELL_CORRECTIONS is a constant
 
   // Enhanced text input handler with auto-correction
   const handleTextInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
