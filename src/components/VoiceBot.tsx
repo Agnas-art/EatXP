@@ -954,7 +954,7 @@ const VoiceBot = () => {
     }
 
     return comparison;
-  }, []);
+  }, [analyzeFood]);
 
   // Enhanced local response generator with comprehensive context awareness
   const generateLocalResponse = useCallback(async (userInput: string, messageHistory: Message[], context: ConversationContext): Promise<string> => {
@@ -1591,7 +1591,7 @@ const VoiceBot = () => {
     ];
     
     return contextualResponses[Math.floor(Math.random() * contextualResponses.length)];
-  }, [analyzeFood]);
+  }, [analyzeFood, generateFoodComparison, generateRecipeSuggestion]);
 
   // Generate conversation summary for long conversations with better context
   const generateSummary = useCallback(async (allMessages: Message[]): Promise<string> => {
