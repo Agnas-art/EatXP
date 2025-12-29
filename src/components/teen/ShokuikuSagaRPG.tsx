@@ -973,9 +973,12 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
       handleStartMinionBattle(selectedChapter!);
     } else {
       // All minions defeated, proceed to boss battle
-      const boss = BOSSES[chapter.bossName.toLowerCase().replace(/\s+/g, "_") as keyof typeof BOSSES];
-      if (boss) {
-        handleStartBossBattle(boss.id);
+      // Find boss by chapter ID
+      const bossByChapter = Object.entries(BOSSES).find(
+        ([key, boss]) => boss.chapter === selectedChapter
+      );
+      if (bossByChapter) {
+        handleStartBossBattle(bossByChapter[0]);
       } else {
         setGameMode("chapter_map");
       }
