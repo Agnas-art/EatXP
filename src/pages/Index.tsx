@@ -33,8 +33,11 @@ import { AboutEatXP } from "@/components/AboutEatXP";
 import { RealLifeMissions } from "@/components/teen/RealLifeMissions";
 import HealthyFoodHeroesDetail from "@/components/HealthyFoodHeroesDetail";
 import { DietaryPreferencesModal } from "@/components/DietaryPreferencesModal";
+import { PremiumBadge } from "@/components/PremiumBadge";
+import { PremiumMembershipModal } from "@/components/PremiumMembershipModal";
 import { useAuth } from "@/hooks/useAuth";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
+import { usePremium } from "@/context/PremiumContext";
 import { foodCategories, healthyFoods, recipes, foodFacts, achievements, foodHeroesByCategory } from "@/data/foodData";
 
 const Index = () => {
@@ -62,7 +65,9 @@ const Index = () => {
   const [showRealMissions, setShowRealMissions] = useState(false);
   const [showAboutEatXP, setShowAboutEatXP] = useState(false);
   const [selectedFoodHero, setSelectedFoodHero] = useState<string | null>(null);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
   const { transcript, isListening } = useVoiceRecognition();
+  const { isPremium } = usePremium();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -456,6 +461,7 @@ const Index = () => {
               >
                 {t("common.change_age")}
               </motion.button>
+              {isPremium && <PremiumBadge onClick={() => setShowPremiumModal(true)} />}
               <UserProfile />
             </div>
           </div>
@@ -995,6 +1001,12 @@ const Index = () => {
         <DietaryPreferencesModal
           isOpen={showDietaryPreferences}
           onClose={() => setShowDietaryPreferences(false)}
+        />
+
+        {/* Premium Membership Modal */}
+        <PremiumMembershipModal
+          isOpen={showPremiumModal}
+          onClose={() => setShowPremiumModal(false)}
         />
       </div>
     </div>
