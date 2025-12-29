@@ -35,7 +35,7 @@ import HealthyFoodHeroesDetail from "@/components/HealthyFoodHeroesDetail";
 import { DietaryPreferencesModal } from "@/components/DietaryPreferencesModal";
 import { useAuth } from "@/hooks/useAuth";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
-import { foodCategories, healthyFoods, recipes, foodFacts, achievements } from "@/data/foodData";
+import { foodCategories, healthyFoods, recipes, foodFacts, achievements, foodHeroesByCategory } from "@/data/foodData";
 
 const Index = () => {
   const { t } = useTranslation();
@@ -716,6 +716,28 @@ const Index = () => {
                     onClick={() => setActiveCategory(cat.id)}
                   />
                 ))}
+              </div>
+
+              {/* Category Food Heroes */}
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-4 border border-purple-200 dark:border-purple-700">
+                <h4 className="font-bold text-purple-900 dark:text-purple-200 mb-3 flex items-center gap-2">
+                  <span className="text-xl">✨</span>
+                  Food Heroes in {foodCategories.find(c => c.id === activeCategory)?.label}
+                </h4>
+                <div className="grid grid-cols-3 gap-2">
+                  {foodHeroesByCategory[activeCategory as keyof typeof foodHeroesByCategory]?.map((hero, idx) => (
+                    <motion.div
+                      key={idx}
+                      whileHover={{ y: -5, scale: 1.05 }}
+                      className="bg-white dark:bg-slate-800 rounded-xl p-3 text-center border border-purple-200 dark:border-purple-600"
+                    >
+                      <div className="text-3xl mb-1">{hero.emoji}</div>
+                      <p className="text-xs font-bold text-foreground">{hero.name}</p>
+                      <p className="text-xs text-muted-foreground">{hero.trait}</p>
+                      <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold mt-1">{hero.description}</p>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
 
               {/* Food Grid */}

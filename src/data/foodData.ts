@@ -9,6 +9,40 @@ export const foodCategories = [
   { id: "snacks", emoji: "🥜", label: "Snacks" },
 ];
 
+// Food Heroes that change based on category
+export const foodHeroesByCategory = {
+  fruits: [
+    { name: "Berry Mage", emoji: "🍓", trait: "Sweet Power", description: "Master of antioxidants" },
+    { name: "Citrus Knight", emoji: "🍊", trait: "Vitamin C Shield", description: "Immune defender" },
+    { name: "Tropical Queen", emoji: "🥭", trait: "Energy Burst", description: "Exotic vitality" },
+  ],
+  veggies: [
+    { name: "Green Guardian", emoji: "🥬", trait: "Iron Fortitude", description: "Leafy strength" },
+    { name: "Root Warrior", emoji: "🥕", trait: "Vision Sight", description: "Orange power" },
+    { name: "Crucible Knight", emoji: "🥦", trait: "Immune Surge", description: "Antioxidant champion" },
+  ],
+  proteins: [
+    { name: "Muscle Sage", emoji: "🐟", trait: "Omega Force", description: "Fish wisdom" },
+    { name: "Egg Champion", emoji: "🥚", trait: "Complete Power", description: "Perfect protein" },
+    { name: "Bean Warrior", emoji: "🫘", trait: "Plant Strength", description: "Fiber builder" },
+  ],
+  grains: [
+    { name: "Carb Master", emoji: "🌾", trait: "Energy Flow", description: "Whole grain power" },
+    { name: "Quinoa Spirit", emoji: "✨", trait: "Complete Nutrition", description: "Ancient wisdom" },
+    { name: "Oat Guardian", emoji: "🌽", trait: "Fiber Shield", description: "Heart protector" },
+  ],
+  dairy: [
+    { name: "Calcium Knight", emoji: "🧀", trait: "Bone Builder", description: "Dairy strength" },
+    { name: "Probiotic Sage", emoji: "🥛", trait: "Gut Healer", description: "Yogurt wisdom" },
+    { name: "Cream Guardian", emoji: "🥶", trait: "Nutrient Dense", description: "Rich goodness" },
+  ],
+  snacks: [
+    { name: "Crunch Master", emoji: "🥜", trait: "Protein Burst", description: "Nutty power" },
+    { name: "Sweet Scout", emoji: "🍯", trait: "Energy Swift", description: "Natural sugars" },
+    { name: "Snack Hero", emoji: "⚡", trait: "Quick Fuel", description: "Portable nutrition" },
+  ],
+};
+
 export const healthyFoods = {
   kids: [
     {
@@ -42,6 +76,22 @@ export const healthyFoods = {
       benefits: ["Strong bones", "Tasty treat"],
       funFact: "There are over 2000 types of cheese!",
       color: "bg-kawaii-yellow/30",
+    },
+    {
+      name: "Papaya",
+      emoji: "🧡",
+      category: "Fruit",
+      benefits: ["Digestive help", "Tropical sweet"],
+      funFact: "Papaya trees grow very fast!",
+      color: "bg-orange/20",
+    },
+    {
+      name: "Pumpkin",
+      emoji: "🎃",
+      category: "Veggie",
+      benefits: ["Beta carotene", "Autumn favorite"],
+      funFact: "Pumpkins are technically fruits!",
+      color: "bg-orange/30",
     },
   ],
   tweens: [
@@ -77,6 +127,38 @@ export const healthyFoods = {
       funFact: "Eggs contain every vitamin except vitamin C!",
       color: "bg-kawaii-yellow/20",
     },
+    {
+      name: "Dragon Fruit",
+      emoji: "🐉",
+      category: "Fruit",
+      benefits: ["Vitamin C", "Exotic nutrition"],
+      funFact: "Dragon fruit grows on a cactus!",
+      color: "bg-pink/20",
+    },
+    {
+      name: "Tahini",
+      emoji: "🌱",
+      category: "Snacks",
+      benefits: ["Calcium", "Plant protein"],
+      funFact: "Tahini is made from sesame seeds!",
+      color: "bg-amber/20",
+    },
+    {
+      name: "Pomegranate",
+      emoji: "🎯",
+      category: "Fruit",
+      benefits: ["Antioxidants", "Heart health"],
+      funFact: "Pomegranates have hundreds of seeds!",
+      color: "bg-red/20",
+    },
+    {
+      name: "Miso",
+      emoji: "🍶",
+      category: "Snacks",
+      benefits: ["Probiotics", "Umami flavor"],
+      funFact: "Miso is fermented soybean paste!",
+      color: "bg-amber/30",
+    },
   ],
   teens: [
     {
@@ -110,6 +192,70 @@ export const healthyFoods = {
       benefits: ["Lean protein", "B vitamins"],
       funFact: "Chicken is the most popular meat in the world!",
       color: "bg-kawaii-yellow/30",
+    },
+    {
+      name: "Spirulina",
+      emoji: "💙",
+      category: "Snacks",
+      benefits: ["Super protein", "Detox power"],
+      funFact: "Spirulina is a blue-green algae from lakes!",
+      color: "bg-blue/20",
+    },
+    {
+      name: "Goji Berries",
+      emoji: "🔴",
+      category: "Fruit",
+      benefits: ["Energy boost", "Immunity"],
+      funFact: "Goji berries are used in Chinese medicine!",
+      color: "bg-red/30",
+    },
+    {
+      name: "Matcha",
+      emoji: "💚",
+      category: "Snacks",
+      benefits: ["Antioxidants", "Calm focus"],
+      funFact: "Matcha is powdered green tea from Japan!",
+      color: "bg-green/20",
+    },
+    {
+      name: "Chia Seeds",
+      emoji: "⚫",
+      category: "Snacks",
+      benefits: ["Omega-3s", "Fiber boost"],
+      funFact: "Chia seeds absorb 10x their weight in water!",
+      color: "bg-gray/30",
+    },
+    {
+      name: "Kale",
+      emoji: "🥬",
+      category: "Veggie",
+      benefits: ["Superfood", "Calcium rich"],
+      funFact: "Kale is sweeter after frost!",
+      color: "bg-green/30",
+    },
+    {
+      name: "Tempeh",
+      emoji: "🍲",
+      category: "Protein",
+      benefits: ["Plant protein", "Probiotic"],
+      funFact: "Tempeh is fermented soybeans!",
+      color: "bg-amber/20",
+    },
+    {
+      name: "Acai Berries",
+      emoji: "🟣",
+      category: "Fruit",
+      benefits: ["Antioxidants", "Energy"],
+      funFact: "Acai berries are from Amazon rainforest!",
+      color: "bg-purple/20",
+    },
+    {
+      name: "Nutritional Yeast",
+      emoji: "💛",
+      category: "Snacks",
+      benefits: ["B vitamins", "Umami taste"],
+      funFact: "Nutritional yeast has a cheesy flavor!",
+      color: "bg-yellow/20",
     },
   ],
 };
