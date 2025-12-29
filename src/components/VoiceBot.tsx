@@ -1104,8 +1104,8 @@ const VoiceBot = () => {
       return similarity && m.content !== userInput;
     });
     
-    // Handle repeated or follow-up questions with context
-    if (isRepeatedQuestion && previousAssistantMessages.length > 0 && !isTopicChange) {
+    // Handle repeated or follow-up questions with context (only if context should be used)
+    if (shouldUseContext && isRepeatedQuestion && previousAssistantMessages.length > 0 && !isTopicChange) {
       return `${userName ? `${userName}, ` : ''}I think we talked about something similar before. To build on our previous discussion, what specific aspect would you like to explore further?`;
     }
     
@@ -1381,6 +1381,40 @@ const VoiceBot = () => {
       return generateFoodComparison(food1, food2, input);
     }
     
+    // PRIORITY: Handle individual food nutrition questions (when shouldUseContext is false)
+    if (!shouldUseContext && (input.includes('nutrition') || input.includes('nutritional') || 
+        (input.includes('what') && input.includes('value')) || input.includes('how much') || 
+        input.includes('tell me about'))) {
+      
+      // Extract food item from nutrition question
+      const extractFood = (text: string): string | null => {
+        const foodItems = ['beetroot', 'apple', 'banana', 'orange', 'mango', 'spinach', 'kale', 'broccoli', 
+                          'carrot', 'potato', 'tomato', 'quinoa', 'ragi', 'jowar', 'bajra', 'millet', 'oats', 
+                          'rice', 'wheat', 'chicken', 'salmon', 'egg', 'almonds', 'walnuts', 'chia', 'flax'];
+        
+        for (const food of foodItems) {
+          if (text.includes(food)) return food;
+        }
+        
+        // Fallback: extract word after "of" or "about"
+        const match = text.match(/(?:of|about)\s+(\w+)/i);
+        return match ? match[1].toLowerCase() : null;
+      };
+      
+      const foodItem = extractFood(input);
+      if (foodItem) {
+        console.log(`🥗 ANALYZING INDIVIDUAL FOOD: ${foodItem}`);
+        const analysis = analyzeFood(foodItem);
+        
+        return `Here's the nutritional information for ${foodItem}:\n\n` +
+               `🌟 **Key Nutrients**: ${analysis.keyNutrients}\n` +
+               `💪 **Health Benefits**: ${analysis.healthBenefits}\n` +
+               `📊 **Nutritional Value**: ${analysis.nutritionalValue}\n` +
+               `🍽️ **Best Uses**: ${analysis.bestUses}\n\n` +
+               `${analysis.additionalTips ? `💡 **Pro Tip**: ${analysis.additionalTips}` : ''}`;
+      }
+    }
+
     // Context-aware responses based on conversation flow
     if (input.includes('food') || input.includes('cook') || input.includes('recipe') || input.includes('eat') || 
         input.includes('fruit') || input.includes('vegetable') || input.includes('nuts') || input.includes('oil') || 
