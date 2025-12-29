@@ -2158,6 +2158,7 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
         enemyDefeated={minionDefeated}
         turnCount={battleTurns}
         battleLog={combatLog}
+        onContinue={handleContinueToNextMinion}
       />
     );
   }

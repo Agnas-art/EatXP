@@ -22,6 +22,7 @@ interface MiniBattleProps {
   enemyDefeated: boolean;
   turnCount: number;
   battleLog?: string[];
+  onContinue?: () => void;
 }
 
 export function InteractiveMiniBattle({
@@ -42,6 +43,7 @@ export function InteractiveMiniBattle({
   enemyDefeated,
   turnCount,
   battleLog = [],
+  onContinue,
 }: MiniBattleProps) {
   const playerHpPercent = (playerHp / playerMaxHp) * 100;
   const enemyHpPercent = (enemyHp / enemyMaxHp) * 100;
@@ -289,6 +291,14 @@ export function InteractiveMiniBattle({
             <p className="font-bold text-lg">Victory!</p>
             <p className="text-sm">Defeated {enemyName}!</p>
           </div>
+          {onContinue && (
+            <Button
+              onClick={onContinue}
+              className="mt-3 w-full bg-white text-green-600 hover:bg-gray-100 font-bold"
+            >
+              Continue →
+            </Button>
+          )}
         </motion.div>
       )}
 
