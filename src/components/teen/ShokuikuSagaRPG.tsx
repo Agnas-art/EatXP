@@ -853,11 +853,19 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
       setSelectedChapter(chapterId);
       setSelectedChampion(chapter.heroId || null);
       setMinionIndex(0);
-      // Find the boss for this chapter
-      const boss = Object.values(BOSSES).find(b => b.chapter === chapterId);
-      if (boss) {
-        setCurrentBoss(boss);
+      
+      // Initialize the boss for this chapter
+      if (chapter.bossName) {
+        const boss = Object.entries(BOSSES).find(
+          ([key, boss]) => boss.name === chapter.bossName
+        );
+        if (boss) {
+          setCurrentBoss(boss[1] as BossData);
+          setCurrentBossPhase(0);
+          setBossHp((boss[1] as BossData).baseHp);
+        }
       }
+      
       setGameMode("chapter_map");
     }
   };
@@ -965,9 +973,12 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
       handleStartMinionBattle(selectedChapter!);
     } else {
       // All minions defeated, proceed to boss battle
-      const boss = BOSSES[chapter.bossName.toLowerCase().replace(/\s+/g, "_") as keyof typeof BOSSES];
-      if (boss) {
-        handleStartBossBattle(boss.id);
+      // Find boss by chapter ID
+      const bossByChapter = Object.entries(BOSSES).find(
+        ([key, boss]) => boss.chapter === selectedChapter
+      );
+      if (bossByChapter) {
+        handleStartBossBattle(bossByChapter[0]);
       } else {
         setGameMode("chapter_map");
       }
@@ -1577,6 +1588,23 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
     }
 
     // Use new ChapterMap component for battle visualization
+    // Handler that routes to either minion or boss battle
+    const handleChapterBattle = () => {
+      if (minionIndex < minionList.length) {
+        // Still have minions to fight
+        handleStartMinionBattle(selectedChapter);
+      } else {
+        // All minions defeated, start boss battle
+        // Find boss by chapter ID
+        const bossByChapter = Object.entries(BOSSES).find(
+          ([key, boss]) => boss.chapter === selectedChapter
+        );
+        if (bossByChapter) {
+          handleStartBossBattle(bossByChapter[0]);
+        }
+      }
+    };
+
     return (
       <ChapterMap
         chapterName={chapter?.name || ""}
@@ -1590,7 +1618,8 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
         bossEmoji={currentBoss?.emoji || "👹"}
         bossName={chapter?.bossName || ""}
         currentMinionIndex={minionIndex}
-        onStartBattle={() => handleStartMinionBattle(selectedChapter)}
+        onStartBattle={handleChapterBattle}
+        onBossClick={handleChapterBattle}
         onBack={() => setGameMode("chapter_select")}
       />
     );
@@ -2132,6 +2161,7 @@ export const ShokuikuSagaRPG = ({ onBack }: ShokuikuSagaRPGProps) => {
         enemyDefeated={minionDefeated}
         turnCount={battleTurns}
         battleLog={combatLog}
+        onContinue={handleContinueToNextMinion}
       />
     );
   }

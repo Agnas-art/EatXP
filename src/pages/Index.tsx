@@ -33,9 +33,12 @@ import { AboutEatXP } from "@/components/AboutEatXP";
 import { RealLifeMissions } from "@/components/teen/RealLifeMissions";
 import HealthyFoodHeroesDetail from "@/components/HealthyFoodHeroesDetail";
 import { DietaryPreferencesModal } from "@/components/DietaryPreferencesModal";
+import { PremiumBadge } from "@/components/PremiumBadge";
+import { PremiumMembershipModal } from "@/components/PremiumMembershipModal";
 import { useAuth } from "@/hooks/useAuth";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
-import { foodCategories, healthyFoods, recipes, foodFacts, achievements } from "@/data/foodData";
+import { usePremium } from "@/context/PremiumContext";
+import { foodCategories, healthyFoods, recipes, foodFacts, achievements, foodHeroesByCategory } from "@/data/foodData";
 
 const Index = () => {
   const { t } = useTranslation();
@@ -62,7 +65,9 @@ const Index = () => {
   const [showRealMissions, setShowRealMissions] = useState(false);
   const [showAboutEatXP, setShowAboutEatXP] = useState(false);
   const [selectedFoodHero, setSelectedFoodHero] = useState<string | null>(null);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
   const { transcript, isListening } = useVoiceRecognition();
+  const { isPremium } = usePremium();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -456,6 +461,7 @@ const Index = () => {
               >
                 {t("common.change_age")}
               </motion.button>
+              {isPremium && <PremiumBadge onClick={() => setShowPremiumModal(true)} />}
               <UserProfile />
             </div>
           </div>
@@ -718,6 +724,28 @@ const Index = () => {
                 ))}
               </div>
 
+              {/* Category Food Heroes */}
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-4 border border-purple-200 dark:border-purple-700">
+                <h4 className="font-bold text-purple-900 dark:text-purple-200 mb-3 flex items-center gap-2">
+                  <span className="text-xl">✨</span>
+                  Food Heroes in {foodCategories.find(c => c.id === activeCategory)?.label}
+                </h4>
+                <div className="grid grid-cols-3 gap-2">
+                  {foodHeroesByCategory[activeCategory as keyof typeof foodHeroesByCategory]?.map((hero, idx) => (
+                    <motion.div
+                      key={idx}
+                      whileHover={{ y: -5, scale: 1.05 }}
+                      className="bg-white dark:bg-slate-800 rounded-xl p-3 text-center border border-purple-200 dark:border-purple-600"
+                    >
+                      <div className="text-3xl mb-1">{hero.emoji}</div>
+                      <p className="text-xs font-bold text-foreground">{hero.name}</p>
+                      <p className="text-xs text-muted-foreground">{hero.trait}</p>
+                      <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold mt-1">{hero.description}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
               {/* Food Grid */}
               <div className="grid grid-cols-2 gap-3">
                 {currentFoods.map((food, i) => (
@@ -973,6 +1001,12 @@ const Index = () => {
         <DietaryPreferencesModal
           isOpen={showDietaryPreferences}
           onClose={() => setShowDietaryPreferences(false)}
+        />
+
+        {/* Premium Membership Modal */}
+        <PremiumMembershipModal
+          isOpen={showPremiumModal}
+          onClose={() => setShowPremiumModal(false)}
         />
       </div>
     </div>

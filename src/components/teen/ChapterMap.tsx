@@ -16,6 +16,7 @@ interface ChapterMapProps {
   bossName: string;
   currentMinionIndex: number;
   onStartBattle: () => void;
+  onBossClick?: () => void;
   onBack: () => void;
 }
 
@@ -28,6 +29,7 @@ export function ChapterMap({
   bossName,
   currentMinionIndex,
   onStartBattle,
+  onBossClick,
   onBack,
 }: ChapterMapProps) {
   return (
@@ -175,7 +177,7 @@ export function ChapterMap({
 
         {/* Boss Position - Right */}
         <motion.div
-          className="absolute right-8 top-1/2 transform -translate-y-1/2 text-center space-y-2 z-20"
+          className="absolute right-8 top-1/2 transform -translate-y-1/2 text-center space-y-2 z-20 cursor-pointer group"
           animate={{
             rotate: [0, -5, 5, 0],
           }}
@@ -183,9 +185,14 @@ export function ChapterMap({
             duration: 4,
             repeat: Infinity,
           }}
+          onClick={() => currentMinionIndex >= minionEmojis.length && onBossClick?.()}
         >
           <motion.div
-            className="text-6xl"
+            className={`text-6xl transition-transform ${
+              currentMinionIndex >= minionEmojis.length
+                ? "group-hover:scale-110"
+                : "opacity-50"
+            }`}
             animate={{
               filter: "drop-shadow(0 0 20px rgba(255, 50, 50, 0.6))",
             }}
@@ -193,7 +200,13 @@ export function ChapterMap({
             {bossEmoji}
           </motion.div>
           <p className="text-white font-bold text-sm">{bossName}</p>
-          <div className="text-xs text-red-300">🔥 FINAL BOSS</div>
+          <div className={`text-xs ${
+            currentMinionIndex >= minionEmojis.length
+              ? "text-red-300"
+              : "text-gray-500"
+          }`}>
+            {currentMinionIndex >= minionEmojis.length ? "🔥 FINAL BOSS" : "🔒 Locked"}
+          </div>
         </motion.div>
 
         {/* Progress Indicator */}
