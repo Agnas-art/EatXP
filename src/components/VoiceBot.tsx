@@ -1,8 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff, Volume2, X, MessageCircle, Loader2 } from 'lucide-react';
+import { Mic, MicOff, Volume2, X, MessageCircle, Loader2, Send, Type, Keyboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
 
 // Web Speech API types
 interface SpeechRecognitionEvent extends Event {
@@ -115,12 +116,46 @@ interface ConversationContext {
   lastActiveTime: number;
 }
 
+// Enhanced spell checker for food-related terms - moved outside component to avoid re-creation
+const FOOD_SPELL_CORRECTIONS: { [key: string]: string } = {
+  'receipe': 'recipe',
+  'recepie': 'recipe', 
+  'recipie': 'recipe',
+  'recepy': 'recipe',
+  'bannana': 'banana',
+  'banna': 'banana',
+  'avacado': 'avocado',
+  'avocodo': 'avocado',
+  'quinao': 'quinoa',
+  'qinoa': 'quinoa',
+  'tommato': 'tomato',
+  'tomatoe': 'tomato',
+  'potatoe': 'potato',
+  'carrotts': 'carrots',
+  'spinich': 'spinach',
+  'brocolli': 'broccoli',
+  'brocoli': 'broccoli',
+  'protien': 'protein',
+  'protean': 'protein',
+  'vitimins': 'vitamins',
+  'vitamine': 'vitamin',
+  'nutricious': 'nutritious',
+  'nutrious': 'nutritious',
+  'healty': 'healthy',
+  'helthy': 'healthy',
+  'recipies': 'recipes',
+  'vegitable': 'vegetable',
+  'vegtable': 'vegetable'
+};
+
 const VoiceBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [textInput, setTextInput] = useState('');
+  const [inputMode, setInputMode] = useState<'voice' | 'text'>('voice');
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentResponse, setCurrentResponse] = useState('');
   const [conversationSummary, setConversationSummary] = useState<string>('');
@@ -130,7 +165,34 @@ const VoiceBot = () => {
   
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const { toast } = useToast();
+  const { toast } = useToast(); // Move this to the top before any useCallback that uses it
+
+  // Enhanced text input handler with auto-correction
+  const handleTextInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    setTextInput(rawValue);
+    
+    // Auto-correct on space or punctuation
+    if (rawValue.endsWith(' ') || /[.,!?]$/.test(rawValue)) {
+      // Use FOOD_SPELL_CORRECTIONS directly instead of autoCorrectText to avoid dependencies
+      let correctedText = rawValue;
+      Object.entries(FOOD_SPELL_CORRECTIONS).forEach(([wrong, correct]) => {
+        const regex = new RegExp(`\\b${wrong}\\b`, 'gi');
+        correctedText = correctedText.replace(regex, correct);
+      });
+      
+      if (correctedText !== rawValue) {
+        setTextInput(correctedText);
+        // Optional: Show a brief toast for corrections
+        if (correctedText.trim() !== rawValue.trim()) {
+          toast({
+            description: `Auto-corrected text`,
+            duration: 1000
+          });
+        }
+      }
+    }
+  }, [toast]);
 
   // Check microphone permission status
   const checkMicrophonePermission = useCallback(async () => {
@@ -258,7 +320,7 @@ const VoiceBot = () => {
     };
     
     initPermissions();
-  }, [checkMicrophonePermission, toast]);
+  }, [toast]); // Remove checkMicrophonePermission to avoid circular dependency
 
   // Save conversation to localStorage
   useEffect(() => {
@@ -280,6 +342,619 @@ const VoiceBot = () => {
       }
     }
   }, [messages, conversationSummary]);
+
+  // AI-powered food menu generator
+  const generateFoodMenu = useCallback((requestType: string, originalQuestion: string): string => {
+    const request = originalQuestion.toLowerCase();
+    
+    // Determine menu type based on user request
+    const isBreakfast = request.includes('breakfast') || request.includes('morning');
+    const isLunch = request.includes('lunch') || request.includes('afternoon');
+    const isDinner = request.includes('dinner') || request.includes('evening');
+    const isSnack = request.includes('snack') || request.includes('light');
+    const isHealthy = request.includes('healthy') || request.includes('diet') || request.includes('nutrition');
+    const isVegetarian = request.includes('vegetarian') || request.includes('veg') || request.includes('plant');
+    const isProtein = request.includes('protein') || request.includes('muscle') || request.includes('workout');
+    const isQuick = request.includes('quick') || request.includes('easy') || request.includes('fast');
+    const isTraditional = request.includes('traditional') || request.includes('indian') || request.includes('desi');
+    const isWeight = request.includes('weight') || request.includes('loss') || request.includes('diet');
+    const isDiabetic = request.includes('diabetic') || request.includes('sugar') || request.includes('low carb');
+
+    let menu = `🍽️ **Personalized Food Menu**\n\n`;
+
+    if (isBreakfast) {
+      menu += `**🌅 Healthy Breakfast Options:**\n`;
+      if (isHealthy || isWeight) {
+        menu += `• **Millet Porridge** (Ragi/Bajra) with nuts and berries\n• **Vegetable Omelet** with spinach and tomatoes\n• **Greek Yogurt Bowl** with chia seeds and seasonal fruits\n• **Oat Upma** with vegetables and curry leaves\n• **Quinoa Khichdi** with moong dal and ghee\n`;
+      } else if (isVegetarian) {
+        menu += `• **Poha** with peanuts and curry leaves\n• **Idli-Sambhar** with coconut chutney\n• **Stuffed Paratha** (aloo/gobi) with yogurt\n• **Besan Cheela** with green vegetables\n• **Upma** with vegetables and cashews\n`;
+      } else {
+        menu += `• **Scrambled Eggs** with whole wheat toast\n• **Paneer Sandwich** with vegetables\n• **Smoothie Bowl** with banana and nuts\n• **Masala Dosa** with sambhar\n• **Overnight Oats** with fruits and honey\n`;
+      }
+    }
+    
+    if (isLunch) {
+      menu += `**☀️ Nutritious Lunch Options:**\n`;
+      if (isHealthy || isWeight) {
+        menu += `• **Quinoa Salad** with mixed vegetables and chickpeas\n• **Brown Rice Bowl** with dal and seasonal vegetables\n• **Grilled Chicken/Paneer** with steamed broccoli\n• **Millet Khichdi** with ghee and pickle\n• **Vegetable Soup** with whole grain bread\n`;
+      } else if (isTraditional) {
+        menu += `• **Complete Thali** - Rice, Dal, Sabzi, Roti, Raita\n• **Rajma-Chawal** with onion and pickle\n• **Chole-Bhature** with mint chutney\n• **Sambhar Rice** with papad and pickle\n• **Kadhi-Chawal** with jeera aloo\n`;
+      } else {
+        menu += `• **Grilled Fish/Chicken** with quinoa\n• **Vegetable Biryani** with raita\n• **Dal-Rice** with sabzi and pickle\n• **Wrap/Roll** with hummus and vegetables\n• **Pasta** with vegetables and olive oil\n`;
+      }
+    }
+    
+    if (isDinner) {
+      menu += `**🌙 Light Dinner Options:**\n`;
+      if (isHealthy || isWeight) {
+        menu += `• **Vegetable Soup** with multigrain bread\n• **Grilled Vegetables** with quinoa\n• **Moong Dal Cheela** with mint chutney\n• **Steamed Fish** with lemon and herbs\n• **Millet Kheer** (dessert option)\n`;
+      } else if (isDiabetic) {
+        menu += `• **Cauliflower Rice** with dal\n• **Grilled Chicken** with salad\n• **Methi Paratha** (small portion) with yogurt\n• **Vegetable Curry** with minimal oil\n• **Nuts and Seeds** mix (small portion)\n`;
+      } else {
+        menu += `• **Roti-Sabzi** with dal\n• **Khichdi** with ghee and pickle\n• **Grilled Paneer** with vegetables\n• **Soup and Salad** combination\n• **Idli-Sambhar** (light portion)\n`;
+      }
+    }
+    
+    if (isSnack || (!isBreakfast && !isLunch && !isDinner)) {
+      menu += `**🍿 Healthy Snack Options:**\n`;
+      if (isProtein) {
+        menu += `• **Mixed Nuts** (almonds, walnuts, cashews)\n• **Boiled Eggs** with black pepper\n• **Greek Yogurt** with berries\n• **Paneer Cubes** with mint chutney\n• **Protein Smoothie** with banana\n`;
+      } else if (isHealthy) {
+        menu += `• **Fruit Salad** with chat masala\n• **Vegetable Sticks** with hummus\n• **Roasted Chickpeas** (chana)\n• **Coconut Water** with lime\n• **Dates and Nuts** combination\n`;
+      } else {
+        menu += `• **Masala Peanuts** or mixed namkeen\n• **Fresh Fruits** seasonal variety\n• **Yogurt Lassi** (sweet/salty)\n• **Homemade Trail Mix**\n• **Green Tea** with biscuits\n`;
+      }
+    }
+
+    // Add nutritional benefits section
+    menu += `\n**🌟 Nutritional Benefits:**\n`;
+    
+    if (isWeight || isHealthy) {
+      menu += `• **Millets** (Ragi, Bajra, Jowar): High fiber, low glycemic index, rich in minerals\n• **Quinoa**: Complete protein, gluten-free, high in fiber\n• **Legumes**: Plant protein, folate, iron, heart-healthy\n• **Nuts & Seeds**: Healthy fats, vitamin E, magnesium\n• **Vegetables**: Vitamins, minerals, antioxidants, low calories\n`;
+    }
+    
+    if (isProtein) {
+      menu += `• **Eggs**: Complete protein, choline for brain health\n• **Greek Yogurt**: High protein, probiotics for gut health\n• **Paneer**: Quality protein, calcium for bones\n• **Nuts**: Plant protein, healthy fats, vitamin E\n• **Legumes**: Protein + fiber combination\n`;
+    }
+
+    // Add cooking tips
+    menu += `\n**👨‍🍳 Cooking Tips:**\n`;
+    menu += `• Use **minimal oil** - prefer olive, sesame, or mustard oil\n• **Steam/Grill/Bake** instead of deep frying\n• Add **herbs and spices** for flavor and health benefits\n• Include **seasonal vegetables** for variety\n• **Hydrate well** with water, coconut water, or herbal teas\n`;
+
+    // Special dietary considerations
+    if (isDiabetic) {
+      menu += `\n**🩺 Diabetic-Friendly Notes:**\n• Choose **low glycemic** foods like millets over white rice\n• **Portion control** is key - eat smaller, frequent meals\n• **Combine** proteins with carbs to slow sugar absorption\n• **Avoid** processed and sugary foods\n• **Monitor** blood sugar levels regularly\n`;
+    }
+
+    return menu;
+  }, []);
+
+  // AI-powered recipe suggestion generator
+  const generateRecipeSuggestion = useCallback((requestedDish: string, originalQuestion: string): string => {
+    const request = originalQuestion.toLowerCase();
+    const dish = requestedDish.toLowerCase();
+    
+    // Determine recipe type and dietary preferences
+    const isVegetarian = request.includes('vegetarian') || request.includes('veg') || request.includes('plant based');
+    const isVegan = request.includes('vegan') || request.includes('plant only');
+    const isHealthy = request.includes('healthy') || request.includes('nutritious') || request.includes('diet');
+    const isQuick = request.includes('quick') || request.includes('easy') || request.includes('fast') || request.includes('simple');
+    const isTraditional = request.includes('traditional') || request.includes('authentic') || request.includes('indian') || request.includes('desi');
+    const isGlutenFree = request.includes('gluten free') || request.includes('gluten-free');
+    const isKeto = request.includes('keto') || request.includes('low carb');
+    const isProteinRich = request.includes('protein') || request.includes('muscle') || request.includes('fitness');
+    
+    // Recipe database with comprehensive coverage
+    const recipes = {
+      // Fruits recipes
+      'apple': {
+        title: isHealthy ? 'Baked Cinnamon Apples' : 'Apple Crisp',
+        emoji: '🍎',
+        time: isQuick ? '15 min' : '35 min',
+        difficulty: 'Easy',
+        ingredients: isHealthy ? 
+          ['2 apples', 'Cinnamon', 'Oats', 'Walnuts', 'Honey', 'Coconut oil'] : 
+          ['Apples', 'Brown sugar', 'Flour', 'Butter', 'Oats', 'Cinnamon'],
+        steps: isHealthy ? [
+          'Core apples and slice',
+          'Mix oats, chopped walnuts, cinnamon',
+          'Fill apple centers with oat mixture',
+          'Drizzle with honey and melted coconut oil',
+          'Bake at 375°F for 25 minutes until tender'
+        ] : [
+          'Slice apples and arrange in baking dish',
+          'Mix brown sugar, flour, oats, cinnamon',
+          'Cut in butter until mixture resembles crumbs',
+          'Sprinkle over apples',
+          'Bake at 350°F for 40 minutes until golden'
+        ]
+      },
+      'banana': {
+        title: isHealthy ? 'Banana Oat Smoothie' : isVegan ? 'Vegan Banana Bread' : 'Banana Pancakes',
+        emoji: '🍌',
+        time: isQuick ? '5 min' : '45 min',
+        difficulty: 'Easy',
+        ingredients: isHealthy ? 
+          ['1 banana', 'Oats', 'Almond milk', 'Chia seeds', 'Vanilla', 'Cinnamon'] :
+          isVegan ?
+          ['Ripe bananas', 'Whole wheat flour', 'Oat milk', 'Coconut oil', 'Maple syrup', 'Baking powder'] :
+          ['Bananas', 'Eggs', 'Flour', 'Milk', 'Baking powder', 'Vanilla'],
+        steps: isHealthy ? [
+          'Add all ingredients to blender',
+          'Blend until smooth and creamy',
+          'Add ice if desired consistency',
+          'Pour into glass and enjoy immediately'
+        ] : isVegan ? [
+          'Mash bananas until smooth',
+          'Mix flour, baking powder in separate bowl',
+          'Combine wet and dry ingredients',
+          'Pour into greased loaf pan',
+          'Bake at 350°F for 45 minutes'
+        ] : [
+          'Mash bananas in bowl',
+          'Beat in eggs, milk, vanilla',
+          'Add flour and baking powder',
+          'Cook small portions on griddle',
+          'Flip when bubbles form'
+        ]
+      },
+      // Vegetables recipes
+      'spinach': {
+        title: isTraditional ? 'Palak Paneer' : isHealthy ? 'Spinach Quinoa Salad' : 'Creamed Spinach',
+        emoji: '🥬',
+        time: isQuick ? '15 min' : '30 min',
+        difficulty: isTraditional ? 'Medium' : 'Easy',
+        ingredients: isTraditional ?
+          ['Fresh spinach', 'Paneer', 'Onions', 'Tomatoes', 'Ginger-garlic', 'Garam masala', 'Cream'] :
+          isHealthy ?
+          ['Baby spinach', 'Cooked quinoa', 'Cherry tomatoes', 'Feta cheese', 'Olive oil', 'Lemon juice'] :
+          ['Spinach', 'Heavy cream', 'Butter', 'Garlic', 'Nutmeg', 'Parmesan'],
+        steps: isTraditional ? [
+          'Blanch spinach and puree',
+          'Sauté onions, ginger-garlic',
+          'Add tomatoes and spices',
+          'Mix in spinach puree and paneer',
+          'Simmer and add cream before serving'
+        ] : isHealthy ? [
+          'Wash and dry baby spinach',
+          'Mix with cooked quinoa',
+          'Add halved cherry tomatoes',
+          'Whisk olive oil with lemon juice',
+          'Toss salad and top with feta'
+        ] : [
+          'Sauté garlic in butter',
+          'Add spinach and cook until wilted',
+          'Pour in cream and simmer',
+          'Season with nutmeg and cheese',
+          'Serve hot as side dish'
+        ]
+      },
+      // Grains and millets
+      'quinoa': {
+        title: isHealthy ? 'Rainbow Quinoa Bowl' : 'Mediterranean Quinoa Salad',
+        emoji: '🌾',
+        time: '25 min',
+        difficulty: 'Easy',
+        ingredients: isHealthy ?
+          ['Tricolor quinoa', 'Mixed vegetables', 'Chickpeas', 'Avocado', 'Tahini', 'Lemon'] :
+          ['Quinoa', 'Cucumber', 'Cherry tomatoes', 'Olives', 'Feta cheese', 'Olive oil'],
+        steps: isHealthy ? [
+          'Cook quinoa according to package instructions',
+          'Roast mixed vegetables with olive oil',
+          'Prepare tahini dressing with lemon',
+          'Combine quinoa, vegetables, chickpeas',
+          'Top with avocado and tahini dressing'
+        ] : [
+          'Cook quinoa and let cool',
+          'Dice cucumber and halve tomatoes',
+          'Mix quinoa with vegetables and olives',
+          'Add crumbled feta cheese',
+          'Dress with olive oil and herbs'
+        ]
+      },
+      'ragi': {
+        title: isTraditional ? 'Ragi Mudde' : isHealthy ? 'Ragi Smoothie Bowl' : 'Ragi Cookies',
+        emoji: '🌾',
+        time: isTraditional ? '45 min' : '15 min',
+        difficulty: isTraditional ? 'Medium' : 'Easy',
+        ingredients: isTraditional ?
+          ['Ragi flour', 'Water', 'Salt', 'Sambar', 'Ghee'] :
+          isHealthy ?
+          ['Ragi flour', 'Banana', 'Almond milk', 'Dates', 'Nuts', 'Seeds'] :
+          ['Ragi flour', 'Jaggery', 'Ghee', 'Cardamom', 'Coconut'],
+        steps: isTraditional ? [
+          'Boil water with salt',
+          'Slowly add ragi flour while stirring',
+          'Cook until thick, smooth consistency',
+          'Shape into balls with wet hands',
+          'Serve hot with sambar and ghee'
+        ] : isHealthy ? [
+          'Blend ragi flour with almond milk',
+          'Add banana and dates for sweetness',
+          'Pour into bowl',
+          'Top with nuts and seeds',
+          'Enjoy as nutritious breakfast'
+        ] : [
+          'Mix ragi flour with melted jaggery',
+          'Add ghee and cardamom',
+          'Form small cookies',
+          'Bake until golden brown',
+          'Cool and store in airtight container'
+        ]
+      },
+      // Nuts and seeds recipes
+      'almonds': {
+        title: isHealthy ? 'Almond Energy Balls' : 'Almond Butter',
+        emoji: '🌰',
+        time: isQuick ? '10 min' : '20 min',
+        difficulty: 'Easy',
+        ingredients: isHealthy ?
+          ['Raw almonds', 'Dates', 'Cocoa powder', 'Chia seeds', 'Vanilla', 'Coconut flakes'] :
+          ['Raw almonds', 'Pinch of salt', 'Optional: honey'],
+        steps: isHealthy ? [
+          'Soak dates until soft',
+          'Blend almonds until coarse meal',
+          'Add dates, cocoa, chia seeds',
+          'Roll mixture into small balls',
+          'Refrigerate for 30 minutes'
+        ] : [
+          'Roast almonds lightly',
+          'Process in food processor until smooth',
+          'Add salt and honey if desired',
+          'Store in airtight container',
+          'Use within 2 weeks'
+        ]
+      },
+      // Oils recipes (cooking tips)
+      'coconut oil': {
+        title: 'Golden Turmeric Oil Pulling',
+        emoji: '🥥',
+        time: '5 min prep',
+        difficulty: 'Easy',
+        ingredients: ['Virgin coconut oil', 'Turmeric powder', 'Black pepper'],
+        steps: [
+          'Melt 1 tbsp coconut oil gently',
+          'Mix in pinch of turmeric',
+          'Add tiny pinch of black pepper',
+          'Swish in mouth for 10-20 minutes',
+          'Spit out and rinse with warm water'
+        ]
+      },
+      // Generic healthy recipes
+      'healthy': {
+        title: 'Buddha Bowl',
+        emoji: '🥗',
+        time: '30 min',
+        difficulty: 'Easy',
+        ingredients: ['Quinoa', 'Roasted vegetables', 'Chickpeas', 'Avocado', 'Tahini', 'Lemon', 'Spinach'],
+        steps: [
+          'Cook quinoa according to package',
+          'Roast mixed vegetables with olive oil',
+          'Prepare tahini dressing',
+          'Layer spinach in bowl',
+          'Add quinoa, vegetables, chickpeas, avocado',
+          'Drizzle with tahini dressing'
+        ]
+      }
+    };
+    
+    // Find the best recipe match
+    let selectedRecipe = null;
+    let recipeKey = '';
+    
+    // Direct matches
+    for (const [key, recipe] of Object.entries(recipes)) {
+      if (dish.includes(key) || key.includes(dish)) {
+        selectedRecipe = recipe;
+        recipeKey = key;
+        break;
+      }
+    }
+    
+    // If no direct match, suggest based on request type
+    if (!selectedRecipe) {
+      if (isHealthy || isVegetarian) {
+        selectedRecipe = recipes['healthy'];
+        recipeKey = 'healthy meal';
+      } else {
+        selectedRecipe = recipes['quinoa'];
+        recipeKey = 'nutritious grain';
+      }
+    }
+    
+    // Generate the recipe response
+    let response = `🍽️ **${selectedRecipe.title}** ${selectedRecipe.emoji}\n\n`;
+    response += `⏱️ **Time:** ${selectedRecipe.time}\n`;
+    response += `📊 **Difficulty:** ${selectedRecipe.difficulty}\n\n`;
+    
+    response += `**🛒 Ingredients:**\n`;
+    selectedRecipe.ingredients.forEach(ingredient => {
+      response += `• ${ingredient}\n`;
+    });
+    
+    response += `\n**👨‍🍳 Instructions:**\n`;
+    selectedRecipe.steps.forEach((step, index) => {
+      response += `${index + 1}. ${step}\n`;
+    });
+    
+    // Add nutritional benefits
+    response += `\n**🌟 Why This Recipe is Great:**\n`;
+    if (isHealthy) {
+      response += `• **Nutrient-dense** ingredients for optimal health\n• **Balanced** macronutrients for sustained energy\n• **Antioxidants** to fight inflammation\n`;
+    }
+    if (isVegetarian || isVegan) {
+      response += `• **Plant-based** protein and nutrients\n• **Environmentally friendly** food choices\n• **Fiber-rich** for digestive health\n`;
+    }
+    if (isProteinRich) {
+      response += `• **High-quality protein** for muscle building\n• **Complete amino acids** for body repair\n• **Post-workout** nutrition support\n`;
+    }
+    if (isTraditional) {
+      response += `• **Traditional wisdom** in every bite\n• **Cultural heritage** and authentic flavors\n• **Time-tested** nutritional benefits\n`;
+    }
+    
+    // Add cooking tips
+    response += `\n**💡 Pro Tips:**\n`;
+    if (isQuick) {
+      response += `• **Meal prep** - make extra portions for later\n• **Batch cooking** saves time during busy days\n`;
+    }
+    response += `• **Fresh ingredients** make the biggest difference\n• **Taste as you go** and adjust seasonings\n• **Have fun** and make it your own!\n`;
+    
+    // Add storage and serving suggestions
+    response += `\n**🥄 Serving & Storage:**\n`;
+    response += `• **Best served:** Fresh and warm (or chilled for salads)\n`;
+    response += `• **Storage:** Refrigerate leftovers for up to 3 days\n`;
+    response += `• **Variations:** Feel free to substitute ingredients based on preference!\n`;
+    
+    return response;
+  }, []);
+  
+  const generateFoodComparison = useCallback((food1: string, food2: string, originalQuestion: string): string => {
+    // Analyze the question type to provide relevant comparison
+    const questionType = originalQuestion.toLowerCase();
+    const isCalorieQuestion = questionType.includes('calorie') || questionType.includes('weight') || questionType.includes('diet');
+    const isProteinQuestion = questionType.includes('protein') || questionType.includes('muscle') || questionType.includes('fitness');
+    const isFatQuestion = questionType.includes('fat') || questionType.includes('heart') || questionType.includes('healthy');
+    const isVitaminQuestion = questionType.includes('vitamin') || questionType.includes('nutrient') || questionType.includes('mineral');
+    const isFiberQuestion = questionType.includes('fiber') || questionType.includes('digestion');
+    const isHealthyQuestion = questionType.includes('healthy') || questionType.includes('better') || questionType.includes('good');
+
+    // Comprehensive nutritional analysis for any food item
+    const analyzeFood = (food: string) => {
+      const f = food.toLowerCase();
+      
+      // Fruits (comprehensive list)
+      if (['apple', 'banana', 'orange', 'grape', 'strawberry', 'cherry', 'peach', 'pear', 'mango', 'pineapple', 'kiwi', 'papaya', 'guava', 'pomegranate', 'blueberry', 'raspberry', 'blackberry', 'watermelon', 'cantaloupe', 'honeydew', 'avocado', 'lemon', 'lime', 'grapefruit', 'plum', 'apricot', 'fig', 'date', 'raisin', 'cranberry', 'coconut', 'passion fruit', 'dragon fruit', 'lychee', 'star fruit', 'durian', 'jackfruit', 'persimmon', 'pomelo', 'tangerine', 'clementine'].some(fruit => f.includes(fruit))) {
+        const isAvocado = f.includes('avocado');
+        const isCitrus = ['orange', 'lemon', 'lime', 'grapefruit', 'tangerine', 'clementine', 'pomelo'].some(citrus => f.includes(citrus));
+        const isBerry = ['strawberry', 'blueberry', 'raspberry', 'blackberry', 'cranberry'].some(berry => f.includes(berry));
+        const isTropical = ['mango', 'pineapple', 'papaya', 'passion fruit', 'dragon fruit', 'lychee', 'star fruit', 'durian', 'jackfruit'].some(tropical => f.includes(tropical));
+        
+        return { 
+          category: 'fruit', 
+          mainBenefits: isAvocado ? 'healthy fats, fiber, potassium, vitamin K' : isCitrus ? 'vitamin C, folate, flavonoids, immune support' : isBerry ? 'antioxidants, vitamin C, anti-inflammatory compounds' : isTropical ? 'vitamin C, digestive enzymes, exotic nutrients' : 'vitamin C, fiber, antioxidants, natural sugars', 
+          calories: isAvocado ? '320 per avocado' : '50-100 per serving',
+          protein: isAvocado ? '4g' : '0.5-2g',
+          carbs: isAvocado ? '17g' : '15-25g natural sugars',
+          fats: isAvocado ? '29g healthy fats' : 'minimal (0.1-0.5g)',
+          fiber: isAvocado ? '14g' : '2-4g',
+          specialNotes: isAvocado ? 'heart-healthy monounsaturated fats, supports nutrient absorption' : isCitrus ? 'boosts immunity, aids iron absorption, heart-protective' : isBerry ? 'powerful antioxidants, may improve memory and heart health' : isTropical ? 'aids digestion, exotic flavors and nutrients' : 'boosts immunity, supports digestion, provides quick energy',
+          keyNutrients: isAvocado ? 'potassium, vitamin K, folate, healthy fats' : isCitrus ? 'vitamin C, folate, flavonoids, pectin' : isBerry ? 'anthocyanins, vitamin C, manganese' : isTropical ? 'vitamin C, bromelain, vitamin A' : 'vitamin C, potassium, folate, antioxidants'
+        };
+      }
+      
+      // Vegetables (comprehensive list)
+      if (['broccoli', 'spinach', 'carrot', 'tomato', 'cucumber', 'lettuce', 'potato', 'sweet potato', 'bell pepper', 'onion', 'garlic', 'cauliflower', 'cabbage', 'kale', 'beetroot', 'radish', 'celery', 'zucchini', 'eggplant', 'okra', 'asparagus', 'brussels sprouts', 'artichoke', 'turnip', 'parsnip', 'leek', 'fennel', 'bok choy', 'collard greens', 'swiss chard', 'arugula', 'watercress', 'mustard greens', 'green beans', 'peas', 'corn', 'mushroom', 'ginger', 'turmeric', 'beet greens', 'kohlrabi', 'rutabaga', 'jicama', 'daikon', 'napa cabbage', 'endive', 'radicchio', 'chives', 'scallions', 'shallots'].some(veg => f.includes(veg))) {
+        const isLeafy = ['spinach', 'kale', 'lettuce', 'arugula', 'watercress', 'collard greens', 'swiss chard', 'mustard greens', 'bok choy', 'endive', 'radicchio'].some(leafy => f.includes(leafy));
+        const isCruciferous = ['broccoli', 'cauliflower', 'cabbage', 'brussels sprouts', 'kale', 'bok choy', 'collard greens', 'turnip', 'radish', 'watercress', 'arugula', 'kohlrabi', 'rutabaga'].some(crucifer => f.includes(crucifer));
+        const isRoot = ['carrot', 'potato', 'sweet potato', 'beetroot', 'radish', 'turnip', 'parsnip', 'ginger', 'turmeric', 'jicama', 'daikon', 'rutabaga'].some(root => f.includes(root));
+        const isAllium = ['onion', 'garlic', 'leek', 'shallots', 'chives', 'scallions'].some(allium => f.includes(allium));
+        
+        return { 
+          category: 'vegetable', 
+          mainBenefits: isLeafy ? 'iron, folate, vitamin K, nitrates for circulation' : isCruciferous ? 'vitamin C, vitamin K, sulforaphane, cancer-protective compounds' : isRoot ? 'beta-carotene, potassium, complex carbs, sustained energy' : isAllium ? 'sulfur compounds, antioxidants, immune support' : 'vitamins, minerals, fiber, low calories, phytonutrients', 
+          calories: isRoot ? '50-150 per serving' : '20-80 per serving',
+          protein: '1-4g',
+          carbs: isRoot ? '15-35g complex carbs' : '5-20g complex carbs',
+          fats: 'minimal (0.1-0.3g)',
+          fiber: isCruciferous ? '3-8g' : isLeafy ? '2-4g' : '2-6g',
+          specialNotes: isLeafy ? 'excellent for blood health and energy' : isCruciferous ? 'powerful detox properties, may reduce cancer risk' : isRoot ? 'sustained energy, eye health support' : isAllium ? 'natural antibiotic properties, heart health' : 'essential micronutrients, anti-inflammatory properties',
+          keyNutrients: isLeafy ? 'iron, folate, vitamin K, nitrates' : isCruciferous ? 'vitamin C, vitamin K, sulforaphane' : isRoot ? 'beta-carotene, potassium, vitamin A' : isAllium ? 'allicin, quercetin, selenium' : 'vitamin A, vitamin K, folate, iron, magnesium'
+        };
+      }
+      
+      // Proteins (meat/fish/poultry - expanded)
+      if (['chicken', 'salmon', 'beef', 'turkey', 'tuna', 'fish', 'meat', 'pork', 'lamb', 'shrimp', 'crab', 'lobster', 'cod', 'sardines', 'mackerel', 'duck', 'goose'].some(protein => f.includes(protein))) {
+        const isSeafood = ['salmon', 'tuna', 'fish', 'shrimp', 'crab', 'lobster', 'cod', 'sardines', 'mackerel'].some(sea => f.includes(sea));
+        return { 
+          category: 'animal protein', 
+          mainBenefits: 'complete protein, essential amino acids, B vitamins', 
+          calories: '150-250 per 100g',
+          protein: '20-35g high quality',
+          carbs: '0g',
+          fats: isSeafood ? '5-15g (omega-3 rich)' : '5-20g',
+          fiber: '0g',
+          specialNotes: isSeafood ? 'omega-3 fatty acids, heart-healthy' : 'builds muscle, rich in iron',
+          keyNutrients: isSeafood ? 'omega-3, vitamin D, selenium' : 'iron, zinc, B12'
+        };
+      }
+      
+      // Dairy products (expanded)
+      if (['milk', 'cheese', 'yogurt', 'paneer', 'cottage cheese', 'greek yogurt', 'butter', 'ghee', 'cream'].some(dairy => f.includes(dairy))) {
+        return { 
+          category: 'dairy', 
+          mainBenefits: 'protein, calcium, probiotics, vitamin D', 
+          calories: '60-300 per serving',
+          protein: '3-20g high quality',
+          carbs: '4-12g (lactose)',
+          fats: '0-25g (varies by type)',
+          fiber: '0g',
+          specialNotes: 'supports bone health, gut health with probiotics',
+          keyNutrients: 'calcium, vitamin D, B12, riboflavin'
+        };
+      }
+      
+      // Grains and cereals (comprehensive list including millets)
+      if (['rice', 'bread', 'pasta', 'quinoa', 'oats', 'wheat', 'barley', 'millet', 'ragi', 'jowar', 'bajra', 'amaranth', 'buckwheat', 'corn', 'finger millet', 'pearl millet', 'sorghum', 'foxtail millet', 'little millet', 'kodo millet', 'barnyard millet', 'proso millet', 'rye', 'spelt', 'kamut', 'bulgur', 'couscous', 'freekeh', 'teff', 'farro', 'wheat berries', 'brown rice', 'wild rice', 'black rice', 'red rice', 'basmati', 'jasmine rice'].some(grain => f.includes(grain))) {
+        const isMillet = ['millet', 'ragi', 'finger millet', 'jowar', 'sorghum', 'bajra', 'pearl millet', 'foxtail millet', 'little millet', 'kodo millet', 'barnyard millet', 'proso millet'].some(m => f.includes(m));
+        const isAncientGrain = ['quinoa', 'amaranth', 'buckwheat', 'teff', 'spelt', 'kamut', 'freekeh', 'farro'].some(ancient => f.includes(ancient));
+        const isWholeGrain = ['brown rice', 'wild rice', 'black rice', 'red rice', 'oats', 'barley', 'wheat berries'].some(whole => f.includes(whole));
+        const isGlutenFree = ['rice', 'quinoa', 'amaranth', 'buckwheat', 'corn', 'millet', 'ragi', 'jowar', 'bajra', 'teff'].some(gf => f.includes(gf)) || isMillet;
+        
+        return { 
+          category: isMillet ? 'ancient grain (millet)' : isAncientGrain ? 'ancient grain' : isWholeGrain ? 'whole grain' : 'grain/cereal', 
+          mainBenefits: isMillet ? 'gluten-free, rich in minerals, low glycemic, drought-resistant superfood' : isAncientGrain ? 'complete proteins, ancient nutrition, gluten-free options' : isWholeGrain ? 'fiber, B vitamins, sustained energy, heart health' : 'energy, B vitamins, fiber', 
+          calories: isMillet ? '350-380 per 100g' : isAncientGrain ? '300-400 per 100g' : '300-400 per 100g',
+          protein: isMillet ? '10-12g' : isAncientGrain ? '12-18g' : isWholeGrain ? '8-15g' : '8-15g',
+          carbs: '65-75g complex carbs',
+          fats: isMillet ? '3-5g' : isAncientGrain ? '4-8g' : '2-6g',
+          fiber: isMillet ? '8-12g' : isAncientGrain ? '10-15g' : isWholeGrain ? '6-12g' : '3-10g',
+          specialNotes: isMillet ? 'excellent for diabetics, climate-resilient, traditional Indian superfood' : isAncientGrain ? 'nutrient-dense, often complete proteins' : isWholeGrain ? 'retains bran and germ, maximum nutrition' : isGlutenFree ? 'gluten-free option, safe for celiac' : 'primary energy source',
+          keyNutrients: isMillet ? 'iron, calcium, magnesium, phosphorus, B vitamins, zinc' : isAncientGrain ? 'complete amino acids, iron, magnesium, B vitamins' : isWholeGrain ? 'B vitamins, iron, selenium, fiber' : 'B vitamins, iron, selenium'
+        };
+      }
+      
+      // Nuts and seeds (comprehensive list)
+      if (['almonds', 'walnuts', 'cashews', 'pistachios', 'peanuts', 'hazelnuts', 'pecans', 'brazil nuts', 'macadamia', 'pine nuts', 'chia seeds', 'flax seeds', 'sunflower seeds', 'pumpkin seeds', 'sesame seeds', 'hemp seeds', 'poppy seeds', 'nigella seeds', 'watermelon seeds', 'cucumber seeds', 'til', 'coconut', 'chestnuts', 'acorns'].some(nut => f.includes(nut))) {
+        const isOmega3Rich = ['walnuts', 'chia seeds', 'flax seeds', 'hemp seeds'].some(omega => f.includes(omega));
+        const isHighMagnesium = ['almonds', 'cashews', 'pumpkin seeds', 'brazil nuts', 'sunflower seeds'].some(mag => f.includes(mag));
+        const isHighSelenium = f.includes('brazil nuts');
+        const isHighProtein = ['almonds', 'peanuts', 'hemp seeds', 'pumpkin seeds'].some(protein => f.includes(protein));
+        
+        return { 
+          category: 'nuts/seeds', 
+          mainBenefits: isOmega3Rich ? 'omega-3 fatty acids, brain health, anti-inflammatory' : isHighSelenium ? 'selenium, antioxidant powerhouse, thyroid support' : isHighMagnesium ? 'magnesium, bone health, muscle function' : isHighProtein ? 'plant protein, healthy fats, sustained energy' : 'healthy fats, protein, vitamin E, minerals', 
+          calories: '550-700 per 100g',
+          protein: isHighProtein ? '20-30g' : '15-25g',
+          carbs: '5-20g',
+          fats: isOmega3Rich ? '45-75g (high omega-3)' : '45-75g (mostly unsaturated)',
+          fiber: '5-15g',
+          specialNotes: isOmega3Rich ? 'excellent for brain health and reducing inflammation' : isHighSelenium ? 'just 2-3 nuts provide daily selenium needs' : isHighMagnesium ? 'supports bone health and prevents muscle cramps' : isHighProtein ? 'complete protein source for vegetarians' : 'heart-healthy, brain food, anti-inflammatory',
+          keyNutrients: isOmega3Rich ? 'omega-3 ALA, vitamin E, magnesium' : isHighSelenium ? 'selenium, vitamin E, healthy fats' : isHighMagnesium ? 'magnesium, vitamin E, healthy fats' : isHighProtein ? 'protein, healthy fats, minerals' : 'vitamin E, magnesium, selenium, omega-3 (walnuts/flax)'
+        };
+      }
+      
+      // Oils and fats (comprehensive list)
+      if (['olive oil', 'coconut oil', 'sunflower oil', 'sesame oil', 'mustard oil', 'groundnut oil', 'avocado oil', 'ghee', 'butter', 'walnut oil', 'flaxseed oil', 'hemp oil', 'pumpkin seed oil', 'safflower oil', 'grapeseed oil', 'rice bran oil', 'canola oil', 'almond oil', 'argan oil', 'macadamia oil', 'til oil', 'desi ghee', 'clarified butter'].some(oil => f.includes(oil))) {
+        const isExtraHealthy = ['olive oil', 'avocado oil', 'walnut oil', 'flaxseed oil', 'hemp oil'].some(h => f.includes(h));
+        const isTraditional = ['ghee', 'desi ghee', 'mustard oil', 'sesame oil', 'til oil', 'coconut oil'].some(trad => f.includes(trad));
+        const isOmega3Rich = ['flaxseed oil', 'walnut oil', 'hemp oil'].some(omega => f.includes(omega));
+        const isHighSmokePoint = ['ghee', 'avocado oil', 'rice bran oil', 'safflower oil', 'grapeseed oil'].some(high => f.includes(high));
+        
+        return { 
+          category: 'cooking oil/fat', 
+          mainBenefits: isOmega3Rich ? 'omega-3 fatty acids, anti-inflammatory, brain health' : isExtraHealthy ? 'monounsaturated fats, antioxidants, heart protection' : isTraditional ? 'traditional benefits, flavor enhancement, cultural nutrition' : isHighSmokePoint ? 'high-temperature cooking, stable fats' : 'energy, fat-soluble vitamins', 
+          calories: '884 per 100g',
+          protein: '0g',
+          carbs: '0g',
+          fats: '100g',
+          fiber: '0g',
+          specialNotes: isOmega3Rich ? 'use cold, don\'t heat - preserves omega-3s' : isExtraHealthy ? 'excellent for heart health and reducing inflammation' : isTraditional ? 'time-tested in traditional cooking, unique flavor profiles' : isHighSmokePoint ? 'ideal for high-heat cooking methods' : 'use in moderation',
+          keyNutrients: isOmega3Rich ? 'omega-3 ALA, vitamin E' : isExtraHealthy ? 'vitamin E, polyphenols, oleic acid' : isTraditional ? 'butyric acid (ghee), MUFA, traditional compounds' : isHighSmokePoint ? 'vitamin E, stable fatty acids' : 'vitamin A, E (if fortified)'
+        };
+      }
+      
+      // Legumes and pulses
+      if (['lentils', 'chickpeas', 'black beans', 'kidney beans', 'pinto beans', 'navy beans', 'soybeans', 'tofu', 'tempeh', 'dal', 'moong', 'chana', 'rajma', 'masoor'].some(legume => f.includes(legume))) {
+        return { 
+          category: 'legume/pulse', 
+          mainBenefits: 'plant protein, fiber, iron, folate', 
+          calories: '300-400 per 100g cooked',
+          protein: '15-25g plant-based',
+          carbs: '45-60g complex carbs',
+          fats: '1-5g',
+          fiber: '10-15g',
+          specialNotes: 'excellent protein source for vegetarians, heart-healthy',
+          keyNutrients: 'iron, folate, potassium, magnesium'
+        };
+      }
+      
+      // Avocado (special healthy fat category)
+      if (f.includes('avocado')) {
+        return { 
+          category: 'healthy fat fruit', 
+          mainBenefits: 'monounsaturated fats, fiber, potassium', 
+          calories: '320 per 100g',
+          protein: '4g',
+          carbs: '17g (low net carbs)',
+          fats: '29g (mostly monounsaturated)',
+          fiber: '10g',
+          specialNotes: 'supports heart and brain health, nutrient absorption',
+          keyNutrients: 'potassium, folate, vitamin K, oleic acid'
+        };
+      }
+      
+      // Eggs (complete protein)
+      if (f.includes('egg')) {
+        return { 
+          category: 'complete protein', 
+          mainBenefits: 'complete protein, choline, vitamins', 
+          calories: '155 per 100g',
+          protein: '13g high quality complete',
+          carbs: '1g',
+          fats: '11g (balanced)',
+          fiber: '0g',
+          specialNotes: 'brain health, muscle building, eye health',
+          keyNutrients: 'choline, vitamin D, B12, lutein, zeaxanthin'
+        };
+      }
+      
+      // Generic fallback with nutritional estimation
+      return { 
+        category: 'food item', 
+        mainBenefits: 'various nutrients depending on type', 
+        calories: 'varies (50-500 per serving)',
+        protein: 'varies (0-30g)',
+        carbs: 'varies (0-80g)',
+        fats: 'varies (0-50g)',
+        fiber: 'varies (0-15g)',
+        specialNotes: 'part of a balanced diet, provides energy and nutrients',
+        keyNutrients: 'varies by food type'
+      };
+    };
+
+    const food1Analysis = analyzeFood(food1);
+    const food2Analysis = analyzeFood(food2);
+
+    // Generate intelligent comparison based on question type and food analysis
+    let comparison = `🍽️ **${food1.charAt(0).toUpperCase() + food1.slice(1)} vs ${food2.charAt(0).toUpperCase() + food2.slice(1)} Comparison**\n\n`;
+    
+    if (isCalorieQuestion) {
+      comparison += `**🔥 Calorie Content:**\n• ${food1}: ${food1Analysis.calories}\n• ${food2}: ${food2Analysis.calories}\n\n`;
+    }
+    
+    if (isProteinQuestion) {
+      comparison += `**💪 Protein Content:**\n• ${food1}: ${food1Analysis.protein}\n• ${food2}: ${food2Analysis.protein}\n\n`;
+    }
+    
+    if (isFatQuestion) {
+      comparison += `**🥑 Fat Content:**\n• ${food1}: ${food1Analysis.fats}\n• ${food2}: ${food2Analysis.fats}\n\n`;
+    }
+    
+    if (isFiberQuestion) {
+      comparison += `**🌾 Fiber Content:**\n• ${food1}: ${food1Analysis.fiber}\n• ${food2}: ${food2Analysis.fiber}\n\n`;
+    }
+    
+    if (isVitaminQuestion) {
+      comparison += `**🌟 Key Nutrients:**\n• ${food1}: ${food1Analysis.keyNutrients}\n• ${food2}: ${food2Analysis.keyNutrients}\n\n`;
+    }
+
+    // Always add comprehensive nutritional overview
+    comparison += `**📊 Complete Nutritional Profile:**\n\n`;
+    comparison += `**${food1.charAt(0).toUpperCase() + food1.slice(1)} (${food1Analysis.category}):**\n`;
+    comparison += `• Calories: ${food1Analysis.calories}\n• Protein: ${food1Analysis.protein}\n• Carbs: ${food1Analysis.carbs}\n• Fats: ${food1Analysis.fats}\n• Fiber: ${food1Analysis.fiber}\n• Benefits: ${food1Analysis.specialNotes}\n\n`;
+    
+    comparison += `**${food2.charAt(0).toUpperCase() + food2.slice(1)} (${food2Analysis.category}):**\n`;
+    comparison += `• Calories: ${food2Analysis.calories}\n• Protein: ${food2Analysis.protein}\n• Carbs: ${food2Analysis.carbs}\n• Fats: ${food2Analysis.fats}\n• Fiber: ${food2Analysis.fiber}\n• Benefits: ${food2Analysis.specialNotes}\n\n`;
+    
+    // Smart recommendation based on categories
+    if (food1Analysis.category === food2Analysis.category) {
+      comparison += `**🎯 Recommendation:** Both are ${food1Analysis.category}s with similar nutritional roles. Choose based on your specific goals and taste preferences!`;
+    } else {
+      comparison += `**🎯 Recommendation:** These serve different nutritional purposes - ${food1} as a ${food1Analysis.category} and ${food2} as a ${food2Analysis.category}. Both can complement each other in a balanced diet!`;
+    }
+
+    return comparison;
+  }, []);
 
   // Enhanced local response generator with comprehensive context awareness
   const generateLocalResponse = useCallback(async (userInput: string, messageHistory: Message[], context: ConversationContext): Promise<string> => {
@@ -313,21 +988,90 @@ const VoiceBot = () => {
     const lastMessages = messageHistory.slice(-3);
     const lastInteraction = Date.now();
     
+    // Topic change detection - check if current input is about a different topic
+    const detectTopicChange = (currentInput: string, recentMessages: Message[]): boolean => {
+      if (recentMessages.length === 0) return false;
+      
+      const currentTopics = extractTopicsFromText(currentInput);
+      const recentTopics = recentMessages.slice(-2).map(m => extractTopicsFromText(m.content)).flat();
+      
+      // If current input has topics and none overlap with recent topics, it's a topic change
+      if (currentTopics.length > 0 && recentTopics.length > 0) {
+        const hasOverlap = currentTopics.some(topic => recentTopics.includes(topic));
+        return !hasOverlap;
+      }
+      
+      return false;
+    };
+    
+    // Extract topics from text for comparison
+    const extractTopicsFromText = (text: string): string[] => {
+      const lowerText = text.toLowerCase();
+      const topics = [];
+      
+      // Food topics (comprehensive coverage)
+      if (lowerText.match(/\b(food|cook|recipe|eat|nutrition|vitamin|protein|calorie|diet|meal|snack|fruit|vegetable|meat|grain|dairy|nuts|seeds|oil|fat|millet|ragi|jowar|bajra|quinoa|oats|rice|wheat|apple|banana|orange|mango|spinach|carrot|broccoli|almonds|walnuts|olive|coconut|ghee|cereal|fiber|mineral|antioxidant|superfood|healthy|organic)\b/)) {
+        topics.push('food');
+      }
+      
+      // Anime/Entertainment topics  
+      if (lowerText.match(/\b(anime|manga|naruto|tanjiro|deku|character|episode|series|watch|animation)\b/)) {
+        topics.push('anime');
+      }
+      
+      // Gaming topics
+      if (lowerText.match(/\b(game|gaming|play|level|boss|character|quest|rpg|strategy|puzzle)\b/)) {
+        topics.push('gaming');
+      }
+      
+      // Health/Fitness topics
+      if (lowerText.match(/\b(health|fitness|exercise|workout|gym|muscle|weight|cardio|strength)\b/)) {
+        topics.push('health');
+      }
+      
+      // Technology topics
+      if (lowerText.match(/\b(tech|technology|computer|software|app|website|coding|programming|ai|robot)\b/)) {
+        topics.push('technology');
+      }
+      
+      // Education topics
+      if (lowerText.match(/\b(learn|study|school|education|book|read|knowledge|skill|course|tutorial)\b/)) {
+        topics.push('education');
+      }
+      
+      return topics;
+    };
+    
+    const isTopicChange = detectTopicChange(input, lastMessages);
+    
+    console.log('🔄 TOPIC CHANGE DEBUG:', {
+      input,
+      isTopicChange,
+      currentTopics: extractTopicsFromText(input),
+      recentTopics: lastMessages.map(m => extractTopicsFromText(m.content)).flat(),
+      shouldIgnorePreviousContext: isTopicChange
+    });
+    
     // ULTRA-FAST contextual reference detection - minimal processing
     const hasContextualReference = 
       input.includes('these') || input.includes('which one') || input.includes('both') ||
       input.includes('them') || input.includes('it');
     
+    // Ignore contextual references if topic has changed
+    const shouldUseContext = hasContextualReference && !isTopicChange;
+    
     console.log('📋 MESSAGE HISTORY DEBUG:', {
       hasContextualReference,
+      isTopicChange,
+      shouldUseContext,
       messageHistoryLength: messageHistory.length,
       fullMessageHistory: messageHistory.map(m => ({ role: m.role, content: m.content.substring(0, 50) + '...' })),
-      willCheckContext: hasContextualReference && messageHistory.length > 1
+      willCheckContext: shouldUseContext && messageHistory.length > 1
     });
     
     let referencedItems = [];
     
-    if (hasContextualReference && messageHistory.length > 1) {
+    if (shouldUseContext && messageHistory.length > 1) {
       // INSTANT processing: Only check the very last message
       const lastMessage = messageHistory[messageHistory.length - 2]?.content?.toLowerCase() || '';
       
@@ -338,9 +1082,10 @@ const VoiceBot = () => {
         lastMessageExists: !!lastMessage
       });
       
-      // Super simple food detection - no RegEx, just includes check
-      const foods = ['avocado', 'pasta', 'rice', 'chicken', 'salmon', 'egg', 'apple', 'banana'];
-      referencedItems = foods.filter(food => lastMessage.includes(food));
+      // Dynamic food detection using comprehensive food patterns (including new categories)
+      const foodPatterns = /\b(?:apple|banana|orange|grape|strawberry|mango|pineapple|avocado|spinach|kale|broccoli|carrot|potato|tomato|pasta|rice|quinoa|ragi|jowar|bajra|millet|oats|wheat|chicken|salmon|egg|milk|bread|cheese|yogurt|beef|turkey|tuna|nuts|almonds|walnuts|chia|flax|olive oil|coconut oil|ghee|sweet potato|fish|meat|vegetable|fruit|grain|protein|dairy|seeds|oil|cereal)\w*\b/g;
+      const detectedFoods = lastMessage.match(foodPatterns) || [];
+      referencedItems = [...new Set(detectedFoods)]; // Remove duplicates
       
       console.log('🥑 REFERENCED ITEMS:', referencedItems);
     }
@@ -356,12 +1101,147 @@ const VoiceBot = () => {
     });
     
     // Handle repeated or follow-up questions with context
-    if (isRepeatedQuestion && previousAssistantMessages.length > 0) {
+    if (isRepeatedQuestion && previousAssistantMessages.length > 0 && !isTopicChange) {
       return `${userName ? `${userName}, ` : ''}I think we talked about something similar before. To build on our previous discussion, what specific aspect would you like to explore further?`;
     }
     
-    // OPTIMIZED: Fast contextual response handling
-    if (hasContextualReference && referencedItems.length >= 2) {
+    // Handle topic changes gracefully
+    if (isTopicChange && messageHistory.length > 1) {
+      const currentTopics = extractTopicsFromText(input);
+      const topicName = currentTopics[0] || 'new topic';
+      return `${userName ? `Great, ${userName}! ` : ''}I see we're switching to ${topicName === 'new topic' ? 'a new topic' : topicName}! ${getTopicResponse(topicName, input, userName)}`;
+    }
+    
+    // Helper function to provide topic-specific responses
+    const getTopicResponse = (topic: string, userInput: string, userName: string): string => {
+      const name = userName ? `${userName}, ` : '';
+      
+      switch (topic) {
+        case 'food':
+          return `${name}I love discussing food and nutrition! What would you like to know about?`;
+        case 'anime':
+          return `${name}Anime is amazing! Which series are you interested in?`;
+        case 'gaming':
+          return `${name}Gaming is so much fun! What type of games do you enjoy?`;
+        case 'health':
+          return `${name}Health and fitness are so important! How can I help you on your wellness journey?`;
+        case 'technology':
+          return `${name}Technology is fascinating! What tech topic interests you?`;
+        case 'education':
+          return `${name}Learning is wonderful! What subject are you curious about?`;
+        default:
+          return `${name}That's interesting! Tell me more about what you'd like to discuss.`;
+      }
+    };
+    
+    // Recipe request detection - prioritize over contextual references and general food discussion
+    const recipePatterns = [
+      /(?:get me|want|give me).*?recip[ei].*?with.*?(\w+)/i,
+      /(?:recip[ei]|cook|make|prepare|how to (?:make|cook|prepare)).*?(\w+)/i,
+      /(\w+).*?(?:recip[ei]|cooking|preparation)/i,
+      /show me.*?(\w+).*?(?:recip[ei]|how to make)/i,
+      /(?:give me|suggest|recommend).*?(?:recip[ei]|dish)/i,
+      /how (?:do|can) i (?:make|cook|prepare).*?(\w+)/i,
+      /(?:recip[ei] for|cooking) (\w+)/i,
+      /(?:make|cook) (\w+)/i
+    ];
+    
+    // Check for recipe keywords including misspellings
+    const hasRecipeKeyword = /recip[ei]|cook|make|prepare/i.test(input);
+    
+    console.log('🔍 RECIPE KEYWORD CHECK:', {
+      input,
+      hasRecipeKeyword,
+      keywordTest: /recip[ei]|cook|make|prepare/i.test(input),
+      recipeMatches: input.match(/recip[ei]/i),
+      cookMatches: input.match(/cook|make|prepare/i)
+    });
+    
+    let detectedRecipeRequest = null;
+    for (const pattern of recipePatterns) {
+      const match = input.match(pattern);
+      console.log(`🧪 TESTING PATTERN: ${pattern.source}`, {
+        match: match ? match[0] : null,
+        capturedGroup: match ? match[1] : null,
+        hasKeyword: hasRecipeKeyword
+      });
+      
+      if (match && hasRecipeKeyword) {
+        // Extract the food item from the match
+        const potentialFood = match[1] ? match[1].toLowerCase() : '';
+        
+        // Common food items that are likely to have recipes
+        const commonFoods = ['apple', 'banana', 'spinach', 'quinoa', 'ragi', 'jowar', 'bajra', 'millet', 'almonds', 'chicken', 'pasta', 'rice', 'bread', 'smoothie', 'salad', 'soup', 'curry', 'dal', 'khichdi'];
+        
+        if (potentialFood && (commonFoods.some(food => potentialFood.includes(food)) || potentialFood.length > 2)) {
+          detectedRecipeRequest = {
+            food: potentialFood,
+            pattern: pattern.source
+          };
+          break;
+        }
+        
+        // If no specific food detected but clear recipe request
+        if (/recip[ei]/i.test(input) && !potentialFood) {
+          detectedRecipeRequest = {
+            food: 'healthy', // Default to healthy recipe
+            pattern: pattern.source
+          };
+          break;
+        }
+      }
+    }
+    
+    // Also check for direct recipe requests without patterns (including misspellings)
+    if (!detectedRecipeRequest && (/recip[ei]/i.test(input) || (input.includes('cook') && (input.includes('how') || input.includes('make'))))) {
+      const words = input.split(' ');
+      for (const word of words) {
+        const cleanWord = word.toLowerCase().replace(/[^a-z]/g, '');
+        if (['apple', 'banana', 'spinach', 'quinoa', 'ragi', 'jowar', 'bajra', 'millet', 'almonds', 'chicken', 'pasta', 'rice', 'bread'].includes(cleanWord)) {
+          detectedRecipeRequest = {
+            food: cleanWord,
+            pattern: 'direct_mention'
+          };
+          break;
+        }
+      }
+      
+      // If still no specific food found but clear recipe request, extract from common patterns
+      if (!detectedRecipeRequest && /recip[ei]/i.test(input)) {
+        const withMatch = input.match(/with\s+(\w+)/i);
+        const forMatch = input.match(/(?:for|using|of)\s+(\w+)/i);
+        const ingredient = withMatch?.[1] || forMatch?.[1];
+        
+        if (ingredient) {
+          detectedRecipeRequest = {
+            food: ingredient.toLowerCase(),
+            pattern: 'with_pattern'
+          };
+        } else {
+          // Default recipe request without specific ingredient
+          detectedRecipeRequest = {
+            food: 'healthy',
+            pattern: 'general_recipe'
+          };
+        }
+      }
+    }
+    
+    console.log('👨‍🍳 RECIPE REQUEST DEBUG:', {
+      input,
+      detectedRecipeRequest,
+      hasRecipeRequest: !!detectedRecipeRequest
+    });
+    
+    if (detectedRecipeRequest) {
+      const { food } = detectedRecipeRequest;
+      
+      // Generate recipe suggestion
+      return generateRecipeSuggestion(food, input);
+    }
+
+    // OPTIMIZED: Fast contextual response handling (only if not a topic change and not a recipe request)
+    if (hasContextualReference && referencedItems.length >= 2 && !isTopicChange) {
       const item1 = referencedItems[0];
       const item2 = referencedItems[1];
       
@@ -372,13 +1252,88 @@ const VoiceBot = () => {
         if (item1 === 'avocado' || item2 === 'avocado') {
           return `Between ${item1} and ${item2}, avocado has much more healthy fats! 🥑 Avocados contain about 15g of heart-healthy monounsaturated fats, while ${item1 === 'avocado' ? item2 : item1} has minimal fat content.`;
         }
-        return `For healthy fats, comparing ${item1} vs ${item2}...`;
+        
+        // Provide specific fat content comparisons for other foods
+        const getFatContent = (food: string): string => {
+          const fatData: { [key: string]: string } = {
+            'apple': 'virtually no fat (0.2g)',
+            'orange': 'virtually no fat (0.1g)',
+            'banana': 'minimal fat (0.3g)',
+            'nuts': 'high in healthy fats (14-20g)',
+            'almonds': 'rich in healthy fats (14g)',
+            'walnuts': 'very high in healthy fats (18g with omega-3)',
+            'olive oil': 'pure healthy fat (14g per tablespoon)',
+            'coconut oil': 'saturated fat (14g per tablespoon)',
+            'salmon': 'rich in omega-3 fats (4-8g)',
+            'chicken': 'moderate fat content (3-7g depending on cut)',
+            'egg': 'healthy fats (5g with omega-3)',
+            'cheese': 'moderate to high fat (6-9g)',
+            'yogurt': 'low to moderate fat (0-8g depending on type)'
+          };
+          return fatData[food.toLowerCase()] || 'variable fat content';
+        };
+        
+        const item1Fat = getFatContent(item1);
+        const item2Fat = getFatContent(item2);
+        
+        return `For healthy fats, comparing ${item1} vs ${item2}: ${item1} has ${item1Fat}, while ${item2} has ${item2Fat}. ${
+          (item1.includes('nut') || item1.includes('oil') || item1 === 'salmon') || 
+          (item2.includes('nut') || item2.includes('oil') || item2 === 'salmon') ?
+          'The one with nuts, oils, or fatty fish would be better for healthy fats!' :
+          'Both are quite low in fat - consider adding nuts, seeds, or avocado for healthy fats!'
+        }`;
       }
       if (input.includes('protein')) {
-        return `Protein comparison: ${item1} vs ${item2}...`;
+        const getProteinContent = (food: string): string => {
+          const proteinData: { [key: string]: string } = {
+            'apple': 'very low protein (0.5g)',
+            'orange': 'low protein (1.2g)',
+            'banana': 'low protein (1.3g)',
+            'chicken': 'very high protein (25-30g)',
+            'salmon': 'high protein (22-25g)',
+            'egg': 'good protein (6g)',
+            'quinoa': 'complete protein (8g)',
+            'almonds': 'moderate protein (6g)',
+            'yogurt': 'good protein (10-15g)',
+            'milk': 'good protein (8g)',
+            'cheese': 'high protein (20-25g)',
+            'beans': 'high protein (15g)',
+            'lentils': 'high protein (18g)'
+          };
+          return proteinData[food.toLowerCase()] || 'variable protein content';
+        };
+        
+        const item1Protein = getProteinContent(item1);
+        const item2Protein = getProteinContent(item2);
+        
+        return `Protein comparison: ${item1} has ${item1Protein}, while ${item2} has ${item2Protein}. ${
+          item1.includes('chicken') || item1.includes('salmon') || item1.includes('egg') ||
+          item2.includes('chicken') || item2.includes('salmon') || item2.includes('egg') ?
+          'Animal proteins provide complete amino acid profiles!' :
+          'For higher protein, consider adding lean meats, fish, eggs, or legumes!'
+        }`;
       }
       if (input.includes('calorie')) {
-        return `Calorie content: ${item1} vs ${item2}...`;
+        const getCalorieContent = (food: string): string => {
+          const calorieData: { [key: string]: string } = {
+            'apple': 'low calories (80-95 per medium apple)',
+            'orange': 'low calories (60-80 per medium orange)',
+            'banana': 'moderate calories (105-120 per medium banana)',
+            'avocado': 'high calories (320 per avocado)',
+            'nuts': 'high calories (160-200 per ounce)',
+            'almonds': 'high calories (160 per ounce)',
+            'rice': 'moderate calories (200 per cup cooked)',
+            'quinoa': 'moderate calories (220 per cup cooked)',
+            'chicken': 'moderate calories (165 per 3.5oz)',
+            'salmon': 'moderate-high calories (200 per 3.5oz)'
+          };
+          return calorieData[food.toLowerCase()] || 'variable calorie content';
+        };
+        
+        const item1Calories = getCalorieContent(item1);
+        const item2Calories = getCalorieContent(item2);
+        
+        return `Calorie comparison: ${item1} has ${item1Calories}, while ${item2} has ${item2Calories}. Choose based on your energy needs and goals!`;
       }
       if (input.includes('vitamin') || input.includes('nutrient')) {
         return `Nutritional comparison of ${item1} and ${item2}...`;
@@ -391,41 +1346,128 @@ const VoiceBot = () => {
     }
     // Removed problematic previousContext reference that was undefined
     
-    // Direct food comparison detection (for questions like "is avocado better than pasta")
-    const foods = ['avocado', 'pasta', 'rice', 'chicken', 'salmon', 'egg', 'apple', 'banana', 'bread', 'cheese', 'milk'];
-    const mentionedFoods = foods.filter(food => input.includes(food));
+    // Dynamic AI-powered food comparison detection  
+    const foodComparisonPatterns = [
+      /is (\w+) better than (\w+)/i,
+      /(\w+) vs (\w+)/i,
+      /(\w+) or (\w+)/i,
+      /compare (\w+) (?:and|with) (\w+)/i,
+      /(\w+) versus (\w+)/i,
+      /difference between (\w+) and (\w+)/i
+    ];
+    
+    let detectedComparison = null;
+    for (const pattern of foodComparisonPatterns) {
+      const match = input.match(pattern);
+      if (match) {
+        detectedComparison = {
+          food1: match[1].toLowerCase(),
+          food2: match[2].toLowerCase(),
+          pattern: pattern.source
+        };
+        break;
+      }
+    }
     
     console.log('🔍 FOOD COMPARISON DEBUG:', {
       input,
-      mentionedFoods,
-      hasEnoughFoods: mentionedFoods.length >= 2,
-      hasBetter: input.includes('better'),
-      shouldTrigger: mentionedFoods.length >= 2 && (input.includes('better') || input.includes('vs') || input.includes('versus') || input.includes('compare'))
+      detectedComparison,
+      hasComparison: !!detectedComparison
     });
     
-    if (mentionedFoods.length >= 2 && (input.includes('better') || input.includes('vs') || input.includes('versus') || input.includes('compare'))) {
-      const food1 = mentionedFoods[0];
-      const food2 = mentionedFoods[1];
+    if (detectedComparison) {
+      const { food1, food2 } = detectedComparison;
       
-      // Specific comparisons
-      if ((food1 === 'avocado' || food2 === 'avocado') && (food1 === 'pasta' || food2 === 'pasta')) {
-        return `Great question! Avocado and pasta serve different nutritional purposes. 🥑 Avocado is rich in healthy fats, fiber, and vitamins, while pasta provides energy through carbohydrates. For overall nutrition density, avocado wins with its heart-healthy monounsaturated fats and potassium. But pasta is perfect for quick energy! What specific aspect interests you - calories, nutrients, or cooking uses?`;
-      }
-      
-      return `Interesting comparison between ${food1} and ${food2}! Both have unique nutritional benefits. What specific aspect would you like me to focus on - nutrition, taste, or cooking applications?`;
+      // AI-powered nutritional comparison generator
+      return generateFoodComparison(food1, food2, input);
     }
     
     // Context-aware responses based on conversation flow
-    if (input.includes('food') || input.includes('cook') || input.includes('recipe') || input.includes('eat')) {
+    if (input.includes('food') || input.includes('cook') || input.includes('recipe') || input.includes('eat') || 
+        input.includes('fruit') || input.includes('vegetable') || input.includes('nuts') || input.includes('oil') || 
+        input.includes('millet') || input.includes('grain') || input.includes('cereal') || input.includes('nutrition')) {
+      
+      // Check for specific food category mentions
+      const isFruitMention = input.includes('fruit') || ['apple', 'banana', 'orange', 'mango', 'berry'].some(fruit => input.includes(fruit));
+      const isVegetableMention = input.includes('vegetable') || input.includes('veggie') || ['spinach', 'carrot', 'broccoli', 'kale'].some(veg => input.includes(veg));
+      const isNutMention = input.includes('nuts') || input.includes('seed') || ['almonds', 'walnuts', 'chia', 'flax'].some(nut => input.includes(nut));
+      const isOilMention = input.includes('oil') || input.includes('fat') || ['olive', 'coconut', 'ghee'].some(oil => input.includes(oil));
+      const isMilletMention = input.includes('millet') || ['ragi', 'jowar', 'bajra', 'quinoa'].some(millet => input.includes(millet));
+      const isCerealMention = input.includes('cereal') || input.includes('grain') || ['rice', 'wheat', 'oats'].some(grain => input.includes(grain));
+      
       if (userPreferences.anime && userPreferences.food) {
-        return `${userName ? `${userName}, ` : ''}Since we've been talking about both food and anime, have you noticed how beautifully food is portrayed in anime? What's your favorite food scene from an anime?`;
+        return `${userName ? `${userName}, ` : ''}Since we've been talking about both anime and food, have you noticed how beautifully food is portrayed in anime? What's your favorite food scene from an anime?`;
       }
+      
+      // Category-specific responses
+      if (isFruitMention) {
+        const responses = [
+          `${userName ? `Great question about fruits, ${userName}! ` : ''}Fruits are nature's candy! Which fruits are you curious about - tropical, citrus, or berries?`,
+          "Fruits are packed with vitamins, antioxidants, and natural sweetness! Are you looking for ways to include more fruits in your diet?",
+          "I love discussing fruits! They're so colorful and nutritious. Would you like to compare different fruits or get recipe suggestions?",
+          "Fruits offer amazing variety - from vitamin C powerhouses like oranges to healthy-fat rich avocados! What interests you most?"
+        ];
+        return responses[Math.floor(Math.random() * responses.length)];
+      }
+      
+      if (isVegetableMention) {
+        const responses = [
+          `${userName ? `${userName}, ` : ''}vegetables are nutritional superstars! Are you interested in leafy greens, root vegetables, or cruciferous veggies?`,
+          "Vegetables provide essential vitamins, minerals, and fiber! Would you like cooking tips or nutritional comparisons?",
+          "From vibrant bell peppers to nutrient-dense kale - vegetables offer incredible variety! What's your favorite way to prepare them?",
+          "Vegetables are the foundation of healthy eating! Are you looking for ways to make them more delicious?"
+        ];
+        return responses[Math.floor(Math.random() * responses.length)];
+      }
+      
+      if (isNutMention) {
+        const responses = [
+          `${userName ? `${userName}, ` : ''}nuts and seeds are nutritional powerhouses! Rich in healthy fats, protein, and minerals. Which ones interest you?`,
+          "Nuts and seeds are perfect for brain health and sustained energy! Are you curious about almonds, walnuts, or perhaps chia seeds?",
+          "From omega-3 rich walnuts to protein-packed almonds - nuts offer amazing benefits! Want to learn about their unique properties?",
+          "Nuts and seeds make great snacks and ingredients! Are you looking for ways to include more in your meals?"
+        ];
+        return responses[Math.floor(Math.random() * responses.length)];
+      }
+      
+      if (isOilMention) {
+        const responses = [
+          `${userName ? `${userName}, ` : ''}cooking oils and fats are important for nutrition and flavor! Are you interested in heart-healthy options like olive oil?`,
+          "Different oils have unique benefits - from omega-3 rich flaxseed oil to traditional ghee! What would you like to know?",
+          "Choosing the right oil makes a big difference in cooking and health! Are you looking for high-heat cooking or finishing oils?",
+          "Oils provide essential fatty acids and fat-soluble vitamins! Would you like to compare different types or learn about their uses?"
+        ];
+        return responses[Math.floor(Math.random() * responses.length)];
+      }
+      
+      if (isMilletMention) {
+        const responses = [
+          `${userName ? `Amazing choice, ${userName}! ` : ''}Millets are ancient superfoods - gluten-free, mineral-rich, and perfect for diabetics! Which millet interests you?`,
+          "Millets like ragi, jowar, and bajra are nutritional powerhouses! They're drought-resistant and incredibly healthy. Want recipes?",
+          "I love how you're interested in millets! They're the future of sustainable nutrition. Are you looking for traditional or modern preparations?",
+          "Millets are incredible - low glycemic index, high in minerals, and so versatile! Would you like cooking tips or nutritional benefits?"
+        ];
+        return responses[Math.floor(Math.random() * responses.length)];
+      }
+      
+      if (isCerealMention) {
+        const responses = [
+          `${userName ? `${userName}, ` : ''}grains and cereals provide energy and B vitamins! Are you interested in whole grains, ancient grains, or traditional options?`,
+          "From quinoa to brown rice to traditional wheat - grains offer sustained energy! What would you like to explore?",
+          "Cereals and grains are staple foods worldwide! Are you looking for gluten-free options or ways to make them more nutritious?",
+          "Grains provide complex carbohydrates for steady energy! Would you like comparisons or cooking suggestions?"
+        ];
+        return responses[Math.floor(Math.random() * responses.length)];
+      }
+      
+      // General food responses
       const responses = [
         `${userName ? `Great question, ${userName}! ` : ''}That sounds delicious! Based on our chat, what's your favorite cuisine?`,
-        "Cooking is such a wonderful skill! Are you looking for recipe suggestions?",
-        "Food brings people together! What are you in the mood to cook today?",
-        `${userName ? `${userName}, ` : ''}I'd love to help you with cooking tips! What dish are you thinking about?`,
-        "There's nothing better than a good meal! Tell me more about what you're craving."
+        "Cooking is such a wonderful skill! Are you looking for recipe suggestions for any particular ingredient?",
+        "Food brings people together! What are you in the mood to cook today? I can help with fruits, vegetables, grains, or any ingredient!",
+        `${userName ? `${userName}, ` : ''}I'd love to help you with cooking tips! What dish or ingredient are you thinking about?`,
+        "There's nothing better than a good meal! Tell me more about what you're craving - I can suggest recipes for any ingredient!",
+        "Nutrition is so fascinating! Are you interested in comparing foods, learning about specific ingredients, or getting recipe ideas?"
       ];
       return responses[Math.floor(Math.random() * responses.length)];
     }
@@ -884,7 +1926,7 @@ Conversation to summarize:\n`;
     } finally {
       setIsProcessing(false);
     }
-  }, [messages, conversationSummary, generateSummary, speakText, toast]);
+  }, [messages, conversationSummary, toast]); // Remove generateSummary and speakText to avoid circular dependencies
 
   // Initialize speech recognition with platform-specific optimizations
   useEffect(() => {
@@ -1187,6 +2229,25 @@ Conversation to summarize:\n`;
     setIsSpeaking(false);
   }, []);
 
+  // Handle text input submission
+  const handleTextSubmit = useCallback(async () => {
+    if (!textInput.trim() || isProcessing) return;
+
+    const message = textInput.trim();
+    setTextInput('');
+    
+    // Process the text message using the same logic as voice input
+    await handleSendMessage(message);
+  }, [textInput, isProcessing]); // Remove handleSendMessage dependency to avoid circular reference
+
+  // Handle Enter key press in text input
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleTextSubmit();
+    }
+  }, []); // Remove handleTextSubmit dependency to avoid circular reference
+
   return (
     <>
       {/* Floating button */}
@@ -1211,24 +2272,70 @@ Conversation to summarize:\n`;
             className="fixed bottom-24 right-6 z-50 w-80 bg-card border border-border rounded-2xl shadow-2xl overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-primary to-accent p-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                  <Volume2 className="w-5 h-5 text-primary-foreground" />
+            <div className="bg-gradient-to-r from-primary to-accent p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                    {inputMode === 'voice' ? (
+                      <Volume2 className="w-5 h-5 text-primary-foreground" />
+                    ) : (
+                      <Type className="w-5 h-5 text-primary-foreground" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-primary-foreground text-sm">AI Assistant</h3>
+                    <p className="text-xs text-primary-foreground/80">
+                      {inputMode === 'voice' ? 'Tap the mic to speak' : 'Type your message'}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-primary-foreground text-sm">AI Voice Assistant</h3>
-                  <p className="text-xs text-primary-foreground/80">Tap the mic to speak</p>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsOpen(false)}
+                  className="text-primary-foreground hover:bg-white/20"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsOpen(false)}
-                className="text-primary-foreground hover:bg-white/20"
-              >
-                <X className="w-5 h-5" />
-              </Button>
+              
+              {/* Input mode toggle */}
+              <div className="flex items-center gap-1 bg-white/10 rounded-lg p-1">
+                <Button
+                  variant={inputMode === 'voice' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  onClick={() => {
+                    setInputMode('voice');
+                    setTextInput(''); // Clear text input when switching to voice
+                  }}
+                  className={`flex-1 text-xs h-8 ${
+                    inputMode === 'voice' 
+                      ? 'bg-white text-primary shadow-sm' 
+                      : 'text-primary-foreground hover:bg-white/10'
+                  }`}
+                >
+                  <Mic className="w-3 h-3 mr-1" />
+                  Voice
+                </Button>
+                <Button
+                  variant={inputMode === 'text' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  onClick={() => {
+                    setInputMode('text');
+                    if (isListening) {
+                      stopListening(); // Stop listening when switching to text
+                    }
+                  }}
+                  className={`flex-1 text-xs h-8 ${
+                    inputMode === 'text' 
+                      ? 'bg-white text-primary shadow-sm' 
+                      : 'text-primary-foreground hover:bg-white/10'
+                  }`}
+                >
+                  <Keyboard className="w-3 h-3 mr-1" />
+                  Text
+                </Button>
+              </div>
             </div>
 
             {/* Messages area */}
@@ -1236,7 +2343,15 @@ Conversation to summarize:\n`;
               {messages.length === 0 && (
                 <div className="text-center text-muted-foreground text-sm py-8">
                   <p>👋 Hi! I'm your AI assistant.</p>
-                  <p className="mt-2">Tap the microphone and ask me anything!</p>
+                  <p className="mt-2">
+                    {inputMode === 'voice' 
+                      ? 'Tap the microphone and ask me anything!' 
+                      : 'Type your message below and I\'ll help you!'
+                    }
+                  </p>
+                  <p className="mt-2 text-xs opacity-70">
+                    Switch between voice and text input using the buttons above
+                  </p>
                   {conversationSummary && (
                     <p className="mt-2 text-xs opacity-70">Continuing our previous conversation...</p>
                   )}
@@ -1316,48 +2431,90 @@ Conversation to summarize:\n`;
             )}
 
             {/* Controls */}
-            <div className="p-4 border-t border-border bg-card flex items-center justify-center gap-4">
-              {isSpeaking && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={stopSpeaking}
-                  className="text-xs"
-                >
-                  Stop Speaking
-                </Button>
+            <div className="p-4 border-t border-border bg-card">
+              {inputMode === 'text' ? (
+                /* Text Input Mode */
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={textInput}
+                    onChange={handleTextInputChange}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Type your message..."
+                    disabled={isProcessing}
+                    className="flex-1"
+                    spellCheck={true}
+                    autoCorrect="on"
+                    autoComplete="on"
+                    autoCapitalize="sentences"
+                  />
+                  <Button
+                    onClick={handleTextSubmit}
+                    disabled={!textInput.trim() || isProcessing}
+                    size="icon"
+                    className="shrink-0"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
+              ) : (
+                /* Voice Input Mode */
+                <div className="flex items-center justify-center gap-4">
+                  {isSpeaking && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={stopSpeaking}
+                      className="text-xs"
+                    >
+                      Stop Speaking
+                    </Button>
+                  )}
+                  
+                  <motion.button
+                    onClick={isListening ? stopListening : startListening}
+                    disabled={isProcessing || isSpeaking || !speechSupport.hasAPI}
+                    className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
+                      !speechSupport.hasAPI
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : isListening
+                        ? 'bg-destructive text-destructive-foreground animate-pulse'
+                        : isProcessing || isSpeaking
+                        ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                        : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                    }`}
+                    whileHover={!isProcessing && !isSpeaking && speechSupport.hasAPI ? { scale: 1.05 } : {}}
+                    whileTap={!isProcessing && !isSpeaking && speechSupport.hasAPI ? { scale: 0.95 } : {}}
+                    title={
+                      !speechSupport.hasAPI 
+                        ? `Voice not supported in ${speechSupport.browser} on ${speechSupport.platform}` 
+                        : isListening 
+                        ? "Stop listening" 
+                        : "Start voice input"
+                    }
+                  >
+                    {!speechSupport.hasAPI ? (
+                      <MicOff className="w-6 h-6" />
+                    ) : isListening ? (
+                      <MicOff className="w-6 h-6" />
+                    ) : (
+                      <Mic className="w-6 h-6" />
+                    )}
+                  </motion.button>
+                </div>
               )}
               
-              <motion.button
-                onClick={isListening ? stopListening : startListening}
-                disabled={isProcessing || isSpeaking || !speechSupport.hasAPI}
-                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
-                  !speechSupport.hasAPI
-                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                    : isListening
-                    ? 'bg-destructive text-destructive-foreground animate-pulse'
-                    : isProcessing || isSpeaking
-                    ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                    : 'bg-primary text-primary-foreground hover:bg-primary/90'
-                }`}
-                whileHover={!isProcessing && !isSpeaking && speechSupport.hasAPI ? { scale: 1.05 } : {}}
-                whileTap={!isProcessing && !isSpeaking && speechSupport.hasAPI ? { scale: 0.95 } : {}}
-                title={
-                  !speechSupport.hasAPI 
-                    ? `Voice not supported in ${speechSupport.browser} on ${speechSupport.platform}` 
-                    : isListening 
-                    ? "Stop listening" 
-                    : "Start voice input"
-                }
-              >
-                {!speechSupport.hasAPI ? (
-                  <MicOff className="w-6 h-6" />
-                ) : isListening ? (
-                  <MicOff className="w-6 h-6" />
-                ) : (
-                  <Mic className="w-6 h-6" />
-                )}
-              </motion.button>
+              {/* Input mode indicator when in text mode */}
+              {inputMode === 'text' && (
+                <div className="mt-2 text-center">
+                  <p className="text-xs text-muted-foreground">
+                    Press Enter to send • Switch to voice mode above
+                  </p>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
