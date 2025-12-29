@@ -1057,16 +1057,20 @@ const VoiceBot = () => {
       input.includes('these') || input.includes('which one') || input.includes('both') ||
       input.includes('them') || input.includes('it');
     
-    // Ignore contextual references if topic has changed
-    const shouldUseContext = hasContextualReference && !isTopicChange;
+    // Detect if this is a new nutrition question (not contextual)
+    const isNewNutritionQuestion = 
+      input.includes('nutrition') || input.includes('nutritional') ||
+      (input.includes('what') && (input.includes('value') || input.includes('content'))) ||
+      input.includes('how much') || input.includes('tell me about');
     
-    console.log('📋 MESSAGE HISTORY DEBUG:', {
+    // Ignore contextual references if topic has changed OR if it's a new nutrition question
+    const shouldUseContext = hasContextualReference && !isTopicChange && !isNewNutritionQuestion;
+    
+    console.log('📋 CONTEXT CHECK:', {
       hasContextualReference,
       isTopicChange,
-      shouldUseContext,
-      messageHistoryLength: messageHistory.length,
-      fullMessageHistory: messageHistory.map(m => ({ role: m.role, content: m.content.substring(0, 50) + '...' })),
-      willCheckContext: shouldUseContext && messageHistory.length > 1
+      isNewNutritionQuestion,
+      shouldUseContext
     });
     
     let referencedItems = [];
@@ -1151,43 +1155,38 @@ const VoiceBot = () => {
     
     console.log('🔍 RECIPE KEYWORD CHECK:', {
       input,
-      hasRecipeKeyword,
-      keywordTest: /recip[ei]|cook|make|prepare/i.test(input),
-      recipeMatches: input.match(/recip[ei]/i),
-      cookMatches: input.match(/cook|make|prepare/i)
+      hasRecipeKeyword
     });
     
     let detectedRecipeRequest = null;
-    for (const pattern of recipePatterns) {
-      const match = input.match(pattern);
-      console.log(`🧪 TESTING PATTERN: ${pattern.source}`, {
-        match: match ? match[0] : null,
-        capturedGroup: match ? match[1] : null,
-        hasKeyword: hasRecipeKeyword
-      });
-      
-      if (match && hasRecipeKeyword) {
-        // Extract the food item from the match
-        const potentialFood = match[1] ? match[1].toLowerCase() : '';
+    // Only run pattern matching if we have recipe keywords to improve performance
+    if (hasRecipeKeyword) {
+      for (const pattern of recipePatterns) {
+        const match = input.match(pattern);
         
-        // Common food items that are likely to have recipes
-        const commonFoods = ['apple', 'banana', 'spinach', 'quinoa', 'ragi', 'jowar', 'bajra', 'millet', 'almonds', 'chicken', 'pasta', 'rice', 'bread', 'smoothie', 'salad', 'soup', 'curry', 'dal', 'khichdi'];
-        
-        if (potentialFood && (commonFoods.some(food => potentialFood.includes(food)) || potentialFood.length > 2)) {
-          detectedRecipeRequest = {
-            food: potentialFood,
-            pattern: pattern.source
-          };
-          break;
-        }
-        
-        // If no specific food detected but clear recipe request
-        if (/recip[ei]/i.test(input) && !potentialFood) {
-          detectedRecipeRequest = {
-            food: 'healthy', // Default to healthy recipe
-            pattern: pattern.source
-          };
-          break;
+        if (match) {
+          // Extract the food item from the match
+          const potentialFood = match[1] ? match[1].toLowerCase() : '';
+          
+          // Common food items that are likely to have recipes
+          const commonFoods = ['apple', 'banana', 'spinach', 'quinoa', 'ragi', 'jowar', 'bajra', 'millet', 'almonds', 'chicken', 'pasta', 'rice', 'bread', 'smoothie', 'salad', 'soup', 'curry', 'dal', 'khichdi'];
+          
+          if (potentialFood && (commonFoods.some(food => potentialFood.includes(food)) || potentialFood.length > 2)) {
+            detectedRecipeRequest = {
+              food: potentialFood,
+              pattern: pattern.source
+            };
+            break;
+          }
+          
+          // If no specific food detected but clear recipe request
+          if (/recip[ei]/i.test(input) && !potentialFood) {
+            detectedRecipeRequest = {
+              food: 'healthy', // Default to healthy recipe
+              pattern: pattern.source
+            };
+            break;
+          }
         }
       }
     }
@@ -1240,8 +1239,8 @@ const VoiceBot = () => {
       return generateRecipeSuggestion(food, input);
     }
 
-    // OPTIMIZED: Fast contextual response handling (only if not a topic change and not a recipe request)
-    if (hasContextualReference && referencedItems.length >= 2 && !isTopicChange) {
+    // OPTIMIZED: Fast contextual response handling (only if genuine contextual reference)
+    if (shouldUseContext && referencedItems.length >= 2) {
       const item1 = referencedItems[0];
       const item2 = referencedItems[1];
       
