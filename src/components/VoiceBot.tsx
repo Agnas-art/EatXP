@@ -2189,6 +2189,8 @@ Conversation to summarize:\n`;
       if (isListening && recognitionRef.current) {
         try {
           recognitionRef.current.abort();
+          // Give it a moment to transition state
+          await new Promise(resolve => setTimeout(resolve, 50));
         } catch (e) {
           console.log('Recognition abort failed (expected):', e);
         }
@@ -2285,19 +2287,16 @@ Conversation to summarize:\n`;
     
     if (recognitionRef.current && isListening) {
       try {
-        recognitionRef.current.stop();
+        // Use abort() for immediate stop instead of stop() which is asynchronous
+        recognitionRef.current.abort();
       } catch (error) {
         console.error('Error stopping recognition:', error);
-        try {
-          recognitionRef.current.abort();
-        } catch (abortError) {
-          console.error('Error aborting recognition:', abortError);
-        }
       }
     }
     
     setIsListening(false);
     setTranscript('');
+    setRetryCount(0);
   }, [isListening]);
 
 
