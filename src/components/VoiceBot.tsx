@@ -2144,10 +2144,48 @@ Conversation to summarize:\n`;
     }
 
     try {
-      // Check permission first, request if needed
+      // Clear previous transcript immediately
+      setTranscript('');
+      
+      // Ensure recognition is not already running
+      if (isListening && recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch (e) {
+          console.log('Recognition abort failed (expected):', e);
+        }
+      }
+      
+      // Start recognition immediately, check permissions in parallel
+      if (recognitionRef.current) {
+        try {
+          console.log('Attempting to start speech recognition...');
+          recognitionRef.current.start();
+          setIsListening(true);
+        } catch (error) {
+          console.error('Failed to start recognition:', error);
+          setIsListening(false);
+          
+          if (retryCount < 2) {
+            console.log('Retrying speech recognition...', retryCount + 1);
+            setRetryCount(prev => prev + 1);
+            setTimeout(() => startListening(), 1000);
+          } else {
+            toast({
+              title: "Speech Recognition Error",
+              description: "Failed to start voice recognition. Please try again.",
+              variant: "destructive",
+            });
+          }
+        }
+      }
+      
+      // Check permission asynchronously (non-blocking)
       const permissionStatus = await checkMicrophonePermission();
       
       if (permissionStatus === 'denied') {
+        recognitionRef.current?.abort();
+        setIsListening(false);
         toast({
           title: "Microphone Access Denied",
           description: "Please enable microphone access in browser settings to use voice features.",
@@ -2160,49 +2198,11 @@ Conversation to summarize:\n`;
       if (!micPermissionGranted || permissionStatus === 'prompt') {
         const granted = await requestMicrophonePermission();
         if (!granted) {
+          recognitionRef.current?.abort();
+          setIsListening(false);
           return; // Permission request failed, error already shown
         }
       }
-      
-      console.log('Microphone permission confirmed, starting recognition...');
-      
-      // Clear previous transcript
-      setTranscript('');
-      
-      // Ensure recognition is not already running
-      if (isListening && recognitionRef.current) {
-        try {
-          recognitionRef.current.abort();
-        } catch (e) {
-          console.log('Recognition abort failed (expected):', e);
-        }
-      }
-      
-      // Add delay for mobile browsers
-      setTimeout(() => {
-        if (recognitionRef.current) {
-          try {
-            console.log('Attempting to start speech recognition...');
-            recognitionRef.current.start();
-            setIsListening(true);
-          } catch (error) {
-            console.error('Failed to start recognition:', error);
-            setIsListening(false);
-            
-            if (retryCount < 2) {
-              console.log('Retrying speech recognition...', retryCount + 1);
-              setRetryCount(prev => prev + 1);
-              setTimeout(() => startListening(), 1000);
-            } else {
-              toast({
-                title: "Speech Recognition Error",
-                description: "Failed to start voice recognition. Please try again.",
-                variant: "destructive",
-              });
-            }
-          }
-        }
-      }, isAndroid() ? 300 : 100);
       
     } catch (error) {
       console.error('Microphone access error:', error);
