@@ -1104,7 +1104,7 @@ const VoiceBot = () => {
         // Fallback: Extract food items but limit to first 2 unique ones that are clearly food items
         const foodPatterns = /\b(?:apple|banana|orange|grape|strawberry|mango|pineapple|avocado|spinach|kale|broccoli|carrot|potato|tomato|pasta|rice|quinoa|ragi|jowar|bajra|millet|oats|wheat|chicken|salmon|egg|milk|bread|cheese|yogurt|beef|turkey|tuna|nuts|almonds|walnuts|chia|flax|olive|coconut|ghee|sweet potato|fish|meat|beans|lentils|tofu|squash|cucumber|lettuce|celery|pepper)\w*\b/gi;
         
-        const detectedFoods = lastMessage.match(foodPatterns) || [];
+        const detectedFoods = lastAssistantMessage.match(foodPatterns) || [];
         const uniqueFoods = [...new Set(detectedFoods.map(f => f.toLowerCase()))];
         
         // Only take the first 2 unique food items (likely the comparison pair)
