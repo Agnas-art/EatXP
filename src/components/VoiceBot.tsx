@@ -707,19 +707,9 @@ const VoiceBot = () => {
     
     return response;
   }, []);
-  
-  const generateFoodComparison = useCallback((food1: string, food2: string, originalQuestion: string): string => {
-    // Analyze the question type to provide relevant comparison
-    const questionType = originalQuestion.toLowerCase();
-    const isCalorieQuestion = questionType.includes('calorie') || questionType.includes('weight') || questionType.includes('diet');
-    const isProteinQuestion = questionType.includes('protein') || questionType.includes('muscle') || questionType.includes('fitness');
-    const isFatQuestion = questionType.includes('fat') || questionType.includes('heart') || questionType.includes('healthy');
-    const isVitaminQuestion = questionType.includes('vitamin') || questionType.includes('nutrient') || questionType.includes('mineral');
-    const isFiberQuestion = questionType.includes('fiber') || questionType.includes('digestion');
-    const isHealthyQuestion = questionType.includes('healthy') || questionType.includes('better') || questionType.includes('good');
 
-    // Comprehensive nutritional analysis for any food item
-    const analyzeFood = (food: string) => {
+  // Comprehensive nutritional analysis for any food item - STANDALONE FUNCTION
+  const analyzeFood = useCallback((food: string) => {
       const f = food.toLowerCase();
       
       // Fruits (comprehensive list)
@@ -910,7 +900,17 @@ const VoiceBot = () => {
         specialNotes: 'part of a balanced diet, provides energy and nutrients',
         keyNutrients: 'varies by food type'
       };
-    };
+  }, []);
+
+  const generateFoodComparison = useCallback((food1: string, food2: string, originalQuestion: string): string => {
+    // Analyze the question type to provide relevant comparison
+    const questionType = originalQuestion.toLowerCase();
+    const isCalorieQuestion = questionType.includes('calorie') || questionType.includes('weight') || questionType.includes('diet');
+    const isProteinQuestion = questionType.includes('protein') || questionType.includes('muscle') || questionType.includes('fitness');
+    const isFatQuestion = questionType.includes('fat') || questionType.includes('heart') || questionType.includes('healthy');
+    const isVitaminQuestion = questionType.includes('vitamin') || questionType.includes('nutrient') || questionType.includes('mineral');
+    const isFiberQuestion = questionType.includes('fiber') || questionType.includes('digestion');
+    const isHealthyQuestion = questionType.includes('healthy') || questionType.includes('better') || questionType.includes('good');
 
     const food1Analysis = analyzeFood(food1);
     const food2Analysis = analyzeFood(food2);
@@ -1681,7 +1681,7 @@ Conversation to summarize:\n`;
     }
     
     return '';
-  }, []);
+  }, [analyzeFood]);
 
   const speakText = useCallback((text: string) => {
     window.speechSynthesis.cancel();
