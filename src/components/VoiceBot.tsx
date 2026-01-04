@@ -1140,13 +1140,14 @@ const VoiceBot = () => {
     
     // Recipe request detection - prioritize over contextual references and general food discussion
     const recipePatterns = [
-      /(?:get me|want|give me).*?recip[ei].*?with.*?(\w+)/i,
-      /(?:recip[ei]|cook|make|prepare|how to (?:make|cook|prepare)).*?(\w+)/i,
+      /(?:get me|want|give me).*?recip[ei].*?(?:with|on|for|using)\s+(\w+)/i,
+      /(?:recip[ei]|cook|make|prepare|how to (?:make|cook|prepare)).*?(?:with|for|using)?\s*(\w+)/i,
       /(\w+).*?(?:recip[ei]|cooking|preparation)/i,
       /show me.*?(\w+).*?(?:recip[ei]|how to make)/i,
       /(?:give me|suggest|recommend).*?(?:recip[ei]|dish)/i,
       /how (?:do|can) i (?:make|cook|prepare).*?(\w+)/i,
       /(?:recip[ei] for|cooking) (\w+)/i,
+      /(?:recip[ei] on)\s+(\w+)/i,
       /(?:make|cook) (\w+)/i
     ];
     
@@ -1169,7 +1170,7 @@ const VoiceBot = () => {
           const potentialFood = match[1] ? match[1].toLowerCase() : '';
           
           // Common food items that are likely to have recipes
-          const commonFoods = ['apple', 'banana', 'spinach', 'quinoa', 'ragi', 'jowar', 'bajra', 'millet', 'almonds', 'chicken', 'pasta', 'rice', 'bread', 'smoothie', 'salad', 'soup', 'curry', 'dal', 'khichdi'];
+          const commonFoods = ['apple', 'banana', 'spinach', 'quinoa', 'ragi', 'jowar', 'bajra', 'millet', 'almonds', 'chicken', 'pasta', 'rice', 'bread', 'smoothie', 'salad', 'soup', 'curry', 'dal', 'khichdi', 'orange', 'mango', 'strawberry', 'blueberry', 'broccoli', 'carrot', 'tomato', 'onion', 'garlic', 'egg', 'fish', 'tofu', 'lentil', 'chickpea'];
           
           if (potentialFood && (commonFoods.some(food => potentialFood.includes(food)) || potentialFood.length > 2)) {
             detectedRecipeRequest = {
@@ -1194,9 +1195,11 @@ const VoiceBot = () => {
     // Also check for direct recipe requests without patterns (including misspellings)
     if (!detectedRecipeRequest && (/recip[ei]/i.test(input) || (input.includes('cook') && (input.includes('how') || input.includes('make'))))) {
       const words = input.split(' ');
+      const commonFoods = ['apple', 'banana', 'spinach', 'quinoa', 'ragi', 'jowar', 'bajra', 'millet', 'almonds', 'chicken', 'pasta', 'rice', 'bread', 'orange', 'mango', 'strawberry', 'blueberry', 'broccoli', 'carrot', 'tomato', 'onion', 'garlic', 'egg', 'fish', 'tofu', 'lentil', 'chickpea'];
+      
       for (const word of words) {
         const cleanWord = word.toLowerCase().replace(/[^a-z]/g, '');
-        if (['apple', 'banana', 'spinach', 'quinoa', 'ragi', 'jowar', 'bajra', 'millet', 'almonds', 'chicken', 'pasta', 'rice', 'bread'].includes(cleanWord)) {
+        if (commonFoods.includes(cleanWord)) {
           detectedRecipeRequest = {
             food: cleanWord,
             pattern: 'direct_mention'
@@ -1207,7 +1210,7 @@ const VoiceBot = () => {
       
       // If still no specific food found but clear recipe request, extract from common patterns
       if (!detectedRecipeRequest && /recip[ei]/i.test(input)) {
-        const withMatch = input.match(/with\s+(\w+)/i);
+        const withMatch = input.match(/(?:with|on|for|using)\s+(\w+)/i);
         const forMatch = input.match(/(?:for|using|of)\s+(\w+)/i);
         const ingredient = withMatch?.[1] || forMatch?.[1];
         
