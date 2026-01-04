@@ -1076,19 +1076,26 @@ const VoiceBot = () => {
     let referencedItems = [];
     
     if (shouldUseContext && messageHistory.length > 1) {
-      // INSTANT processing: Only check the very last message (assistant's previous response)
-      const lastMessage = messageHistory[messageHistory.length - 2]?.content?.toLowerCase() || '';
+      // INSTANT processing: Find the last ASSISTANT message (which contains the previous response)
+      // We search backwards from the end to find the most recent assistant message
+      let lastAssistantMessage = '';
+      for (let i = messageHistory.length - 1; i >= 0; i--) {
+        if (messageHistory[i].role === 'assistant') {
+          lastAssistantMessage = messageHistory[i].content?.toLowerCase() || '';
+          break;
+        }
+      }
       
       console.log('🔍 CONTEXTUAL REFERENCE DEBUG:', {
         hasContextualReference,
         messageHistoryLength: messageHistory.length,
-        lastMessage,
-        lastMessageExists: !!lastMessage
+        lastMessage: lastAssistantMessage.substring(0, 100),
+        lastMessageExists: !!lastAssistantMessage
       });
       
-      // Smart comparison pair extraction: Look for "X vs Y" or "X and Y" patterns in the previous message
+      // Smart comparison pair extraction: Look for "X vs Y" or "X and Y" patterns in the previous assistant message
       // This captures the actual items being compared, not all mentioned items
-      let comparisonMatch = lastMessage.match(/(?:comparing\s+)?(\w+)\s+(?:vs|vs\.|versus|and)\s+(\w+)/i);
+      let comparisonMatch = lastAssistantMessage.match(/(?:comparing\s+)?(\w+)\s+(?:vs|vs\.|versus|and)\s+(\w+)/i);
       
       if (comparisonMatch) {
         // Found explicit comparison pattern
