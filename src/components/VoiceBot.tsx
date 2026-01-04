@@ -2231,29 +2231,30 @@ Conversation to summarize:\n`;
         }
       }
       
-      // Check permission asynchronously (non-blocking)
-      const permissionStatus = await checkMicrophonePermission();
-      
-      if (permissionStatus === 'denied') {
-        recognitionRef.current?.abort();
-        setIsListening(false);
-        toast({
-          title: "Microphone Access Denied",
-          description: "Please enable microphone access in browser settings to use voice features.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      // If permission not granted yet, request it (this will show browser popup)
-      if (!micPermissionGranted || permissionStatus === 'prompt') {
-        const granted = await requestMicrophonePermission();
-        if (!granted) {
+      // Check permission asynchronously in background (non-blocking)
+      // This allows recognition to start immediately while we verify permissions
+      checkMicrophonePermission().then(permissionStatus => {
+        if (permissionStatus === 'denied') {
           recognitionRef.current?.abort();
           setIsListening(false);
-          return; // Permission request failed, error already shown
+          toast({
+            title: "Microphone Access Denied",
+            description: "Please enable microphone access in browser settings to use voice features.",
+            variant: "destructive",
+          });
+          return;
         }
-      }
+        
+        // If permission not granted yet and user hasn't stopped, request it
+        if ((!micPermissionGranted || permissionStatus === 'prompt') && isListening) {
+          requestMicrophonePermission().then(granted => {
+            if (!granted && isListening) {
+              recognitionRef.current?.abort();
+              setIsListening(false);
+            }
+          });
+        }
+      });
       
     } catch (error) {
       console.error('Microphone access error:', error);
