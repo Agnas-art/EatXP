@@ -2027,8 +2027,10 @@ Conversation to summarize:\n`;
                 if (transcriptText) {
                   setTranscript(transcriptText);
                   
-                  // On Android, process immediately due to different behavior
-                  if (isAndroid() || event.results[current].isFinal) {
+                  // Only process when result is final (speech recognition complete)
+                  // Don't process on Android immediately - wait for isFinal
+                  if (event.results[current].isFinal) {
+                    console.log('Final transcript received, processing:', transcriptText);
                     handleSendMessage(transcriptText);
                   }
                 }
