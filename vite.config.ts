@@ -10,6 +10,19 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimize: {
+    deps: {
+      include: [
+        'react',
+        'react-dom',
+        '@radix-ui/react-dialog',
+        '@radix-ui/react-dropdown-menu',
+        '@radix-ui/react-select',
+        'framer-motion',
+        'class-variance-authority',
+      ]
+    }
+  },
   build: {
     outDir: "dist",
     sourcemap: false,
@@ -17,16 +30,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // React core - MUST come first
-          if (id.includes('react/') || id.includes('react-dom/') || (id.includes('node_modules') && /react(@|\\)/.test(id))) {
-            return 'vendor-react';
-          }
           // Three.js - heavy, separate chunk, doesn't depend on React
           if (id.includes('three')) {
             return 'vendor-three';
           }
-          // ALL remaining dependencies - they all depend on React
-          // Keep them in a single chunk that loads after React
+          // Keep React and all React-dependent code together in one vendor chunk
+          // This ensures React is available when dependent modules load
           if (id.includes('node_modules')) {
             return 'vendor-libs';
           }
