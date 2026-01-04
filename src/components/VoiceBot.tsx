@@ -1076,7 +1076,7 @@ const VoiceBot = () => {
     let referencedItems = [];
     
     if (shouldUseContext && messageHistory.length > 1) {
-      // INSTANT processing: Only check the very last message
+      // INSTANT processing: Only check the very last message (assistant's previous response)
       const lastMessage = messageHistory[messageHistory.length - 2]?.content?.toLowerCase() || '';
       
       console.log('🔍 CONTEXTUAL REFERENCE DEBUG:', {
@@ -1086,10 +1086,23 @@ const VoiceBot = () => {
         lastMessageExists: !!lastMessage
       });
       
-      // Dynamic food detection using comprehensive food patterns (including new categories)
-      const foodPatterns = /\b(?:apple|banana|orange|grape|strawberry|mango|pineapple|avocado|spinach|kale|broccoli|carrot|potato|tomato|pasta|rice|quinoa|ragi|jowar|bajra|millet|oats|wheat|chicken|salmon|egg|milk|bread|cheese|yogurt|beef|turkey|tuna|nuts|almonds|walnuts|chia|flax|olive oil|coconut oil|ghee|sweet potato|fish|meat|vegetable|fruit|grain|protein|dairy|seeds|oil|cereal)\w*\b/g;
-      const detectedFoods = lastMessage.match(foodPatterns) || [];
-      referencedItems = [...new Set(detectedFoods)]; // Remove duplicates
+      // Smart comparison pair extraction: Look for "X vs Y" or "X and Y" patterns in the previous message
+      // This captures the actual items being compared, not all mentioned items
+      let comparisonMatch = lastMessage.match(/(?:comparing\s+)?(\w+)\s+(?:vs|vs\.|versus|and)\s+(\w+)/i);
+      
+      if (comparisonMatch) {
+        // Found explicit comparison pattern
+        referencedItems = [comparisonMatch[1], comparisonMatch[2]];
+      } else {
+        // Fallback: Extract food items but limit to first 2 unique ones that are clearly food items
+        const foodPatterns = /\b(?:apple|banana|orange|grape|strawberry|mango|pineapple|avocado|spinach|kale|broccoli|carrot|potato|tomato|pasta|rice|quinoa|ragi|jowar|bajra|millet|oats|wheat|chicken|salmon|egg|milk|bread|cheese|yogurt|beef|turkey|tuna|nuts|almonds|walnuts|chia|flax|olive|coconut|ghee|sweet potato|fish|meat|beans|lentils|tofu|squash|cucumber|lettuce|celery|pepper)\w*\b/gi;
+        
+        const detectedFoods = lastMessage.match(foodPatterns) || [];
+        const uniqueFoods = [...new Set(detectedFoods.map(f => f.toLowerCase()))];
+        
+        // Only take the first 2 unique food items (likely the comparison pair)
+        referencedItems = uniqueFoods.slice(0, 2);
+      }
       
       console.log('🥑 REFERENCED ITEMS:', referencedItems);
     }
