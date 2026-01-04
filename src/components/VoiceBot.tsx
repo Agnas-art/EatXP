@@ -2082,17 +2082,21 @@ Conversation to summarize:\n`;
                 });
                 break;
               case 'no-speech':
-                // Auto-retry on no-speech error
-                if (retryCount < 3) {
+                // Only auto-retry if user hasn't manually stopped listening
+                // Check if the button was clicked to stop (isListening will be false in state)
+                if (retryCount < 3 && isListening) {
                   console.log('No speech detected, retrying...', retryCount + 1);
                   setRetryCount(prev => prev + 1);
                   setTimeout(() => startListening(), 500);
                 } else {
-                  toast({
-                    title: "No Speech Detected",
-                    description: "Please try speaking again. Make sure you're close to the microphone.",
-                    variant: "default",
-                  });
+                  // Either max retries reached or user stopped manually
+                  if (isListening) {
+                    toast({
+                      title: "No Speech Detected",
+                      description: "Please try speaking again. Make sure you're close to the microphone.",
+                      variant: "default",
+                    });
+                  }
                   setRetryCount(0);
                 }
                 break;
