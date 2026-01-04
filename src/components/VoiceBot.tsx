@@ -2063,6 +2063,13 @@ Conversation to summarize:\n`;
             console.error('Speech recognition error:', event.error, event);
             setIsListening(false);
             
+            // Always abort on error to reset state
+            try {
+              recognitionRef.current?.abort();
+            } catch (e) {
+              // Ignore abort errors
+            }
+            
             switch (event.error) {
               case 'not-allowed':
                 setMicPermissionGranted(false);
@@ -2075,11 +2082,19 @@ Conversation to summarize:\n`;
                 });
                 break;
               case 'no-speech':
-                toast({
-                  title: "No Speech Detected",
-                  description: "Please try speaking again. Make sure you're close to the microphone.",
-                  variant: "default",
-                });
+                // Auto-retry on no-speech error
+                if (retryCount < 3) {
+                  console.log('No speech detected, retrying...', retryCount + 1);
+                  setRetryCount(prev => prev + 1);
+                  setTimeout(() => startListening(), 500);
+                } else {
+                  toast({
+                    title: "No Speech Detected",
+                    description: "Please try speaking again. Make sure you're close to the microphone.",
+                    variant: "default",
+                  });
+                  setRetryCount(0);
+                }
                 break;
               case 'audio-capture':
                 toast({
@@ -2097,6 +2112,7 @@ Conversation to summarize:\n`;
                 break;
               case 'aborted':
                 // Silent - user stopped manually
+                setRetryCount(0);
                 break;
               default:
                 toast({
@@ -2104,6 +2120,7 @@ Conversation to summarize:\n`;
                   description: `Error: ${event.error}. Please try again.`,
                   variant: "destructive",
                 });
+                setRetryCount(0);
             }
           };
 
@@ -2186,6 +2203,13 @@ Conversation to summarize:\n`;
         } catch (error) {
           console.error('Failed to start recognition:', error);
           setIsListening(false);
+          
+          // If already started, abort it before retrying
+          try {
+            recognitionRef.current.abort();
+          } catch (e) {
+            // Ignore abort errors
+          }
           
           if (retryCount < 2) {
             console.log('Retrying speech recognition...', retryCount + 1);
