@@ -1408,10 +1408,10 @@ const VoiceBot = () => {
         
         return `Here's the nutritional information for ${foodItem}:\n\n` +
                `🌟 **Key Nutrients**: ${analysis.keyNutrients}\n` +
-               `💪 **Health Benefits**: ${analysis.healthBenefits}\n` +
-               `📊 **Nutritional Value**: ${analysis.nutritionalValue}\n` +
-               `🍽️ **Best Uses**: ${analysis.bestUses}\n\n` +
-               `${analysis.additionalTips ? `💡 **Pro Tip**: ${analysis.additionalTips}` : ''}`;
+               `💪 **Health Benefits**: ${analysis.mainBenefits}\n` +
+               `📊 **Nutritional Value**: Protein: ${analysis.protein}, Carbs: ${analysis.carbs}, Fats: ${analysis.fats}, Calories: ${analysis.calories}\n` +
+               `🍽️ **Best Uses**: ${analysis.specialNotes}\n\n` +
+               `✨ **Category**: ${analysis.category}`;
       }
     }
 
