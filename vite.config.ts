@@ -13,24 +13,23 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: false,
-    chunkSizeWarningLimit: 1000, // Suppress false warnings for expected large chunks
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          // Split vendor libraries into separate chunks
-          if (id.includes('node_modules')) {
-            if (id.includes('three')) return 'vendor-three';
-            if (id.includes('framer-motion')) return 'vendor-framer';
-            if (id.includes('react') || id.includes('@react')) return 'vendor-react';
-            if (id.includes('@radix-ui')) return 'vendor-ui';
-            if (id.includes('clsx') || id.includes('date-fns') || id.includes('tailwind-merge')) return 'vendor-utils';
-            return 'vendor-others';
+        manualChunks: (id) => {
+          // React core - MUST come first
+          if (id.includes('react/') || id.includes('react-dom/') || (id.includes('node_modules') && /react(@|\\)/.test(id))) {
+            return 'vendor-react';
           }
-          
-          // Split main components
-          if (id.includes('VoiceBot.tsx')) return 'voicebot';
-          if (id.includes('AnimeCharacter')) return 'anime-character';
-          if (id.includes('games/')) return 'games';
+          // Three.js - heavy, separate chunk, doesn't depend on React
+          if (id.includes('three')) {
+            return 'vendor-three';
+          }
+          // ALL remaining dependencies - they all depend on React
+          // Keep them in a single chunk that loads after React
+          if (id.includes('node_modules')) {
+            return 'vendor-libs';
+          }
         }
       }
     }
