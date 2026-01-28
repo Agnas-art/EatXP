@@ -312,6 +312,22 @@ export const recipes = {
         "Ask the adult to slice an orange carrot into thin strips - arrange several strips below the nose to create a wavy smile",
         "Add any other fun toppings you like: raisins for freckles, more veggie pieces for hair, or berries for cheeks",
       ],
+      funFacts: [
+        "😊 Making art with food is called 'food plating' and fancy restaurants do it too!",
+        "🥒 Cucumber is 96% water, making it super hydrating and refreshing",
+        "🧅 Olives have been grown for over 5,000 years in the Mediterranean!"
+      ],
+      healthHighlights: [
+        "🎨 Making your own meals helps you eat more veggies",
+        "🧠 Eating colorful veggies gives your brain and body different nutrients",
+        "💪 Cream cheese adds calcium for strong bones"
+      ],
+      servingSuggestions: "Perfect for lunch boxes, creative snack time, or encouraging picky eaters! Make it at birthday parties too!",
+      chefsTips: [
+        "Use cookie cutters to make veggie shapes instead of slices",
+        "Create different facial expressions - happy, silly, surprised, sleeping!",
+        "Try different breads like whole grain, rye, or pita for variety"
+      ],
     },
     {
       title: "Apple Donuts",
@@ -329,6 +345,22 @@ export const recipes = {
         "Pour granola, chocolate chips, and sprinkles into separate small bowls - this is your toppings bar",
         "Press your favorite topping combination onto the peanut butter-coated side of each apple ring, mixing and matching to make each donut unique",
         "Arrange your finished apple donuts on a serving plate in a circle pattern like a real donut shop display",
+      ],
+      funFacts: [
+        "🍎 Apple trees can live for 100+ years and produce fruit almost every year!",
+        "🥜 Americans eat enough peanuts annually to coat the floor of the Grand Canyon!",
+        "🍫 It takes about 400 cocoa beans to make a single pound of chocolate"
+      ],
+      healthHighlights: [
+        "🍎 Apples have fiber that keeps your digestive system happy",
+        "⚡ Granola gives you quick energy from whole grains and nuts",
+        "😋 This tastes like dessert but it's actually a healthy snack!"
+      ],
+      servingSuggestions: "Serve immediately for the crunchiest texture. Great for after-school snacks or breakfast treats!",
+      chefsTips: [
+        "Use a sharp knife for clean apple slices",
+        "Try different nut butters like almond or cashew butter",
+        "Keep apples cold for extra crunch and crispness"
       ],
     },
     {
@@ -457,6 +489,22 @@ export const recipes = {
         "Scatter sunflower seeds around the salad for extra crunch",
         "Drizzle your favorite light dressing all over and toss everything together before eating",
       ],
+      funFacts: [
+        "☀️ Sunflowers actually follow the sun across the sky during the day - they're solar panels!",
+        "🌽 Corn is grown in every state in America and is one of the most important crops",
+        "🥬 Lettuce gets its name from its milky juice that flows when the stem is cut"
+      ],
+      healthHighlights: [
+        "🥬 Leafy greens are packed with vitamins and minerals your body needs",
+        "🌻 Sunflower seeds have vitamin E which protects your skin",
+        "🌽 Corn has lutein which helps your eyes see better"
+      ],
+      servingSuggestions: "Eat it as a complete meal or add grilled chicken for extra protein. Perfect for summer picnics!",
+      chefsTips: [
+        "Arrange ingredients in fun patterns - rainbow stripes, checkerboards, or spirals",
+        "Keep vegetables cold until serving for maximum crunchiness",
+        "Try different dressings - ranch, vinaigrette, or Italian"
+      ],
     },
     {
       title: "Cheese and Crackers Tower",
@@ -476,6 +524,22 @@ export const recipes = {
         "Use additional crackers as walls or supports between layers if needed to keep your tower from falling",
         "Step back and admire your edible architecture before carefully eating it piece by piece",
       ],
+      funFacts: [
+        "🏰 Building with food is like creating art - architects use geometry just like you do here!",
+        "🧀 Cheese is one of the oldest man-made foods - people have been making it for thousands of years",
+        "🍇 Grapes grow in bunches of 15-300 on a single vine!"
+      ],
+      healthHighlights: [
+        "🧀 Cheese has lots of calcium for building strong teeth and bones",
+        "🥜 Almonds have healthy fats that help your brain grow",
+        "🥖 Whole grain crackers give you energy and keep you full longer"
+      ],
+      servingSuggestions: "Great party appetizer or after-school snack. Build it on a cutting board to impress your friends!",
+      chefsTips: [
+        "Build on a sturdy base and work from bottom to top",
+        "Use toothpicks to add height without crashing",
+        "Try different cheese types - cheddar, brie, or mozzarella"
+      ],
     },
     {
       title: "Frozen Fruit Popsicles",
@@ -494,6 +558,22 @@ export const recipes = {
         "When fully frozen, run warm water over the outside of the mold for 5-10 seconds to loosen the popsicle slightly",
         "Gently pull on the popsicle stick to remove the frozen treat from the mold",
         "Enjoy your homemade popsicles immediately or wrap them in plastic wrap and store in the freezer for later",
+      ],
+      funFacts: [
+        "🍦 The first ice pops were invented by accident when someone left juice outside in winter!",
+        "🧊 Freezing changes the texture of fruit but keeps the vitamins inside",
+        "🍓 Berries are the easiest fruits to freeze and stay colorful even when frozen"
+      ],
+      healthHighlights: [
+        "🍓 Homemade pops have way less sugar than store-bought ones",
+        "💪 Fruit juice gives you vitamin C which fights off germs",
+        "❄️ This is a refreshing way to eat fruit on hot summer days"
+      ],
+      servingSuggestions: "Perfect for hot summer days, birthday parties, or post-sports treats. Make ahead and freeze!",
+      chefsTips: [
+        "Use fresh fruit juice for the best flavor - avoid added sugars",
+        "The slushy-freeze step helps keep fruit suspended evenly",
+        "Dip the mold bottom in warm water to release easily"
       ],
     },
     {
@@ -516,6 +596,22 @@ export const recipes = {
         "Finally, add the chocolate chips and very gently fold them in, mixing only until combined to avoid breaking the popcorn",
         "Spread the finished mix on a large sheet pan to set for 10 minutes before serving in bowls or storing in airtight containers",
       ],
+      funFacts: [
+        "🍿 Popcorn has been around for thousands of years - Native Americans ate it!",
+        "🌈 Every ingredient has a different color giving you the rainbow nutrition!",
+        "🥥 Coconut grows on tropical islands and is actually a nut and a fruit at once!"
+      ],
+      healthHighlights: [
+        "🍿 Air-popped popcorn is a whole grain with lots of fiber",
+        "🍫 Dark chocolate has antioxidants that protect your body",
+        "🍇 Dried fruit concentrates the nutrients in a smaller package"
+      ],
+      servingSuggestions: "Perfect for movie nights, school lunches, or after-school snacks. Store in airtight containers!",
+      chefsTips: [
+        "Let popcorn cool completely before mixing to prevent chocolate from melting",
+        "Fold gently to keep popcorn from getting crushed",
+        "Try adding pretzels, nuts, or seeds for more crunch"
+      ],
     },
     {
       title: "Watermelon Slushie",
@@ -535,6 +631,22 @@ export const recipes = {
         "Ask an adult to secure the lid and blend on medium-high speed for 45-60 seconds until the mixture is completely smooth and slushy",
         "Pour the slushie into tall glasses, dividing it equally between servings",
         "Serve immediately with a thick straw or spoon - the slushy texture is best enjoyed right away while it's cold",
+      ],
+      funFacts: [
+        "🍉 Watermelons are 92% water - they're basically nature's water bottles!",
+        "🍋 Lemons have more vitamin C than oranges do",
+        "❄️ Slushy drinks cool you down from the inside out on hot days!"
+      ],
+      healthHighlights: [
+        "💧 Super hydrating on hot days with no added sugar",
+        "🛡️ Watermelon has lycopene which is like a shield for your cells",
+        "🧃 You get fluids AND nutrients in every sip"
+      ],
+      servingSuggestions: "Perfect for hot summer days, after sports, or pool parties. Serve immediately for the best texture!",
+      chefsTips: [
+        "Pick a watermelon that feels heavy - that means it's full of juice",
+        "Add lemon juice for extra tang and flavor depth",
+        "Blend just before serving for the perfect slushy texture"
       ],
     },
   ],
