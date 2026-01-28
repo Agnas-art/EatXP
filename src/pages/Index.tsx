@@ -17,7 +17,7 @@ import GamesHub from "@/components/GamesHub";
 import ComicStories from "@/components/ComicStories";
 import StoryMode from "@/components/StoryMode";
 import { WorldPantry } from "@/components/WorldPantry";
-import { OrganicFoodJournal } from "@/components/OrganicFoodJournal";
+import { FoodJournal as OrganicFoodJournal } from "@/components/OrganicFoodJournal";
 import AnimeCutscenes from "@/components/AnimeCutscenes";
 import SeasonalProduce from "@/components/SeasonalProduce";
 import FoodNutritionTracker from "@/components/FoodNutritionTracker";

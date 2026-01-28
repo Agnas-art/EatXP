@@ -1,54 +1,54 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Trash2, Calendar } from "lucide-react";
+import { ArrowLeft, Trash2, Calendar, TrendingUp } from "lucide-react";
 import {
-  organicFoods,
+  foodSources,
   FoodJournalEntry,
-  getOrganicCount,
+  getTotalFoodsLogged,
+  getFoodsLoggedByMethod,
+  getFoodSourceById,
   getUnlockedAchievements,
-  getFoodById,
   getNextAchievement,
-} from "@/data/organicFoodsData";
+} from "@/data/foodSourcesData";
 import { FoodLogger } from "./FoodLogger";
 import { AnimeMascotFeedback } from "./AnimeMascotFeedback";
 import { AchievementSticker } from "./AchievementSticker";
 
-interface OrganicFoodJournalProps {
+interface FoodJournalProps {
   onBack: () => void;
 }
 
-export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
+export const FoodJournal = ({ onBack }: FoodJournalProps) => {
   const [entries, setEntries] = useState<FoodJournalEntry[]>(() => {
-    const saved = localStorage.getItem("organic_food_journal");
+    const saved = localStorage.getItem("food_journal");
     return saved ? JSON.parse(saved) : [];
   });
 
   const [showFoodLogger, setShowFoodLogger] = useState(false);
   const [feedbackFood, setFeedbackFood] = useState<{
     foodId: string;
-    isOrganic: boolean;
+    foodName: string;
   } | null>(null);
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
 
-  // Save entries to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem("organic_food_journal", JSON.stringify(entries));
+    localStorage.setItem("food_journal", JSON.stringify(entries));
   }, [entries]);
 
-  const organicCount = getOrganicCount(entries);
-  const unlockedAchievements = getUnlockedAchievements(organicCount);
-  const nextAchievement = getNextAchievement(organicCount);
+  const totalLogged = getTotalFoodsLogged(entries);
+  const unlockedAchievements = getUnlockedAchievements(totalLogged);
+  const nextAchievement = getNextAchievement(totalLogged);
 
   const todayEntries = entries.filter((entry) => entry.date === selectedDate);
-  const organicToday = todayEntries.filter((entry) => {
-    const food = getFoodById(entry.foodId);
-    return food?.isOrganic;
+  const chemicalFreeFoods = todayEntries.filter((entry) => {
+    const food = getFoodSourceById(entry.foodId);
+    return food?.productionMethod === "Chemical-Free Farming";
   });
 
   const handleAddFood = (foodId: string, mealType: string) => {
-    const food = getFoodById(foodId);
+    const food = getFoodSourceById(foodId);
     if (!food) return;
 
     const newEntry: FoodJournalEntry = {
@@ -56,18 +56,17 @@ export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
       foodId,
       date: selectedDate,
       mealType: mealType as "breakfast" | "lunch" | "dinner" | "snack",
-      quantity: "1 serving",
+      servingSize: "1 serving",
       timestamp: Date.now(),
     };
 
     setEntries([...entries, newEntry]);
     setFeedbackFood({
       foodId,
-      isOrganic: food.isOrganic,
+      foodName: food.name,
     });
     setShowFoodLogger(false);
 
-    // Hide feedback after 3 seconds
     setTimeout(() => setFeedbackFood(null), 3000);
   };
 
@@ -82,12 +81,33 @@ export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
     snack: "🍿",
   };
 
+  const methodEmojis: Record<string, string> = {
+    "Chemical-Free Farming": "🌱",
+    "Standard Agriculture": "🌾",
+    "Sustainable Practices": "🌍",
+    "Local Production": "🏡",
+    "Industrial Scale": "🏭",
+  };
+
   const getProgressPercentage = () => {
     if (!nextAchievement) return 100;
-    const prevRequired = unlockedAchievements[unlockedAchievements.length - 1]?.requirement || 0;
+    const prevRequired =
+      unlockedAchievements[unlockedAchievements.length - 1]?.requirement || 0;
     const nextRequired = nextAchievement.requirement;
-    const progress = ((organicCount - prevRequired) / (nextRequired - prevRequired)) * 100;
+    const progress = ((totalLogged - prevRequired) / (nextRequired - prevRequired)) * 100;
     return Math.min(Math.max(progress, 0), 100);
+  };
+
+  const uniqueFoodsLogged = Array.from(
+    new Set(entries.map((e) => getFoodSourceById(e.foodId)?.name)).values()
+  );
+
+  const methodBreakdown = {
+    "Chemical-Free Farming": getFoodsLoggedByMethod(entries, "Chemical-Free Farming"),
+    "Standard Agriculture": getFoodsLoggedByMethod(entries, "Standard Agriculture"),
+    "Industrial Scale": getFoodsLoggedByMethod(entries, "Industrial Scale"),
+    "Sustainable Practices": getFoodsLoggedByMethod(entries, "Sustainable Practices"),
+    "Local Production": getFoodsLoggedByMethod(entries, "Local Production"),
   };
 
   return (
@@ -108,7 +128,7 @@ export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
             <span>Back</span>
           </button>
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            📓 Organic Food Journal
+            🍽️ Food Production Journal
           </h1>
           <div className="w-12" />
         </div>
@@ -117,9 +137,9 @@ export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
         <AnimatePresence>
           {feedbackFood && (
             <AnimeMascotFeedback
-              isOrganic={feedbackFood.isOrganic}
-              foodName={getFoodById(feedbackFood.foodId)?.name || "Food"}
-              foodEmoji={getFoodById(feedbackFood.foodId)?.emoji || "🍎"}
+              isOrganic={true}
+              foodName={feedbackFood.foodName}
+              foodEmoji={getFoodSourceById(feedbackFood.foodId)?.emoji || "🍎"}
             />
           )}
         </AnimatePresence>
@@ -128,27 +148,27 @@ export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-6 mb-6"
+          className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-6 mb-6"
         >
           <div className="grid grid-cols-3 gap-4">
-            {/* Organic Count */}
+            {/* Total Foods */}
             <div className="text-center">
-              <div className="text-4xl font-bold text-green-600 mb-1">
-                {organicCount}
+              <div className="text-4xl font-bold text-blue-600 mb-1">
+                {totalLogged}
               </div>
               <p className="text-sm font-semibold text-foreground">
-                Organic Items
+                Foods Logged
               </p>
-              <p className="text-xs text-muted-foreground">Total logged</p>
+              <p className="text-xs text-muted-foreground">{uniqueFoodsLogged.length} unique</p>
             </div>
 
-            {/* Today's Organic */}
+            {/* Today's Foods */}
             <div className="text-center">
-              <div className="text-4xl font-bold text-emerald-600 mb-1">
-                {organicToday.length}
+              <div className="text-4xl font-bold text-purple-600 mb-1">
+                {todayEntries.length}
               </div>
               <p className="text-sm font-semibold text-foreground">
-                Today's Organic
+                Today's Foods
               </p>
               <p className="text-xs text-muted-foreground">
                 {new Date(selectedDate).toLocaleDateString()}
@@ -175,7 +195,7 @@ export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
                   Progress to {nextAchievement.name}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {organicCount}/{nextAchievement.requirement}
+                  {totalLogged}/{nextAchievement.requirement}
                 </p>
               </div>
               <div className="w-full bg-gray-300/30 rounded-full h-3 overflow-hidden">
@@ -183,11 +203,49 @@ export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
                   initial={{ width: 0 }}
                   animate={{ width: `${getProgressPercentage()}%` }}
                   transition={{ duration: 0.5 }}
-                  className="h-full bg-gradient-to-r from-green-400 to-emerald-500"
+                  className="h-full bg-gradient-to-r from-blue-400 to-purple-500"
                 />
               </div>
             </div>
           )}
+        </motion.div>
+
+        {/* Production Method Breakdown */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-gradient-to-r from-teal-500/10 to-cyan-500/10 border border-teal-500/30 rounded-xl p-6 mb-6"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="w-5 h-5 text-teal-600" />
+            <h2 className="text-lg font-bold text-foreground">Production Method Insights</h2>
+          </div>
+          <div className="space-y-3">
+            {Object.entries(methodBreakdown).map(([method, count]) => (
+              count > 0 && (
+                <div key={method}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-semibold text-foreground">
+                      {methodEmojis[method]} {method}
+                    </span>
+                    <span className="text-xs font-bold text-muted-foreground">{count}</span>
+                  </div>
+                  <div className="w-full bg-gray-300/30 rounded-full h-2 overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(count / totalLogged) * 100}%` }}
+                      transition={{ duration: 0.5 }}
+                      className="h-full bg-gradient-to-r from-teal-400 to-cyan-500"
+                    />
+                  </div>
+                </div>
+              )
+            ))}
+            {totalLogged === 0 && (
+              <p className="text-sm text-muted-foreground italic">Log foods to see production method breakdown</p>
+            )}
+          </div>
         </motion.div>
 
         {/* Date Selector */}
@@ -209,7 +267,7 @@ export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => setShowFoodLogger(true)}
-          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-4 rounded-lg mb-6 hover:shadow-lg transition-shadow text-lg flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-4 rounded-lg mb-6 hover:shadow-lg transition-shadow text-lg flex items-center justify-center gap-2"
         >
           <span className="text-2xl">➕</span>
           Log a Food
@@ -237,10 +295,11 @@ export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
           ) : (
             <div className="space-y-3">
               {todayEntries.map((entry, idx) => {
-                const food = getFoodById(entry.foodId);
+                const food = getFoodSourceById(entry.foodId);
                 if (!food) return null;
 
                 const mealEmoji = mealEmojis[entry.mealType];
+                const methodEmoji = methodEmojis[food.productionMethod];
 
                 return (
                   <motion.div
@@ -248,12 +307,7 @@ export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.1 }}
-                    className={`p-4 rounded-lg border-2 flex items-center justify-between group
-                      ${
-                        food.isOrganic
-                          ? "bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/50 hover:border-green-400"
-                          : "bg-gray-500/5 border-gray-400/50 hover:border-gray-300"
-                      }`}
+                    className={`p-4 rounded-lg border-2 flex items-center justify-between group bg-gradient-to-r ${food.methodColor} bg-opacity-5 border-opacity-30`}
                   >
                     <div className="flex items-center gap-3 flex-1">
                       <span className="text-3xl">{food.emoji}</span>
@@ -262,16 +316,10 @@ export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span>{mealEmoji} {entry.mealType}</span>
                           <span>•</span>
-                          <span>{entry.quantity}</span>
+                          <span>{methodEmoji} {food.productionMethod}</span>
                         </div>
                       </div>
                     </div>
-
-                    {food.isOrganic && (
-                      <span className="text-green-600 font-bold text-sm mr-3">
-                        ✨ Organic
-                      </span>
-                    )}
 
                     <motion.button
                       whileHover={{ scale: 1.1 }}
@@ -297,7 +345,7 @@ export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
           >
             <AchievementSticker
               unlockedAchievements={unlockedAchievements}
-              organicCount={organicCount}
+              organicCount={totalLogged}
             />
           </motion.div>
         )}
@@ -308,12 +356,11 @@ export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="mt-8 bg-blue-500/10 border border-blue-500/30 rounded-lg p-4"
+            className="mt-8 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-lg p-4"
           >
-            <p className="text-sm font-semibold text-foreground mb-2">💡 Organic Tip:</p>
+            <p className="text-sm font-semibold text-foreground mb-2">💡 Food Sourcing Insight:</p>
             <p className="text-sm text-muted-foreground">
-              Organic foods are grown without synthetic pesticides, herbicides, or fertilizers. They're
-              better for your body and the environment!
+              Different production methods have different environmental impacts. By understanding how your food is grown, you can make informed choices that align with your values!
             </p>
           </motion.div>
         )}
@@ -332,4 +379,4 @@ export const OrganicFoodJournal = ({ onBack }: OrganicFoodJournalProps) => {
   );
 };
 
-export default OrganicFoodJournal;
+export default FoodJournal;
