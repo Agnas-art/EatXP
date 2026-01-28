@@ -16,7 +16,7 @@ import WeatherFoodSuggestion from "@/components/WeatherFoodSuggestion";
 import GamesHub from "@/components/GamesHub";
 import ComicStories from "@/components/ComicStories";
 import StoryMode from "@/components/StoryMode";
-import FoodKingdomMap from "@/components/FoodKingdomMap";
+import { WorldPantry } from "@/components/WorldPantry";
 import AnimeCutscenes from "@/components/AnimeCutscenes";
 import SeasonalProduce from "@/components/SeasonalProduce";
 import FoodNutritionTracker from "@/components/FoodNutritionTracker";
@@ -54,7 +54,7 @@ const Index = () => {
   const [showComics, setShowComics] = useState(false);
   const [showCharacterSelector, setShowCharacterSelector] = useState(false);
   const [showStoryMode, setShowStoryMode] = useState(false);
-  const [showFoodKingdomMap, setShowFoodKingdomMap] = useState(false);
+  const [showWorldPantry, setShowWorldPantry] = useState(false);
   const [showAnimeCutscenes, setShowAnimeCutscenes] = useState(false);
   const [showSeasonalProduce, setShowSeasonalProduce] = useState(false);
   const [showFoodNutritionTracker, setShowFoodNutritionTracker] = useState(false);
@@ -90,8 +90,8 @@ const Index = () => {
       setShowCharacterSelector(true);
     } else if (lower.includes("story") || lower.includes("chapter") || lower.includes("learn")) {
       setShowStoryMode(true);
-    } else if (lower.includes("map") || lower.includes("kingdom") || lower.includes("explore")) {
-      setShowFoodKingdomMap(true);
+    } else if (lower.includes("world") || lower.includes("pantry") || lower.includes("countries") || lower.includes("explore")) {
+      setShowWorldPantry(true);
     } else if (lower.includes("cutscene") || lower.includes("animation") || lower.includes("anime")) {
       setShowAnimeCutscenes(true);
     } else if (lower.includes("seasonal") || lower.includes("produce") || lower.includes("vegetables") || lower.includes("fruits")) {
@@ -330,11 +330,10 @@ const Index = () => {
     );
   }
 
-  if (showFoodKingdomMap) {
+  if (showWorldPantry) {
     return (
-      <FoodKingdomMap
-        completedChapters={user?.completedStoryChapters || []}
-        onBack={() => setShowFoodKingdomMap(false)}
+      <WorldPantry
+        onBack={() => setShowWorldPantry(false)}
       />
     );
   }
@@ -518,12 +517,12 @@ const Index = () => {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowFoodKingdomMap(true)}
+                  onClick={() => setShowWorldPantry(true)}
                   className="bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl p-3 text-left relative overflow-hidden"
                 >
-                  <span className="text-2xl mb-1 inline-block">🗺️</span>
-                  <p className="font-display font-bold text-xs text-primary-foreground">{t("home.food_map")}</p>
-                  <p className="text-xs text-primary-foreground/80">{t("home.food_map_desc")}</p>
+                  <span className="text-2xl mb-1 inline-block">🌍</span>
+                  <p className="font-display font-bold text-xs text-primary-foreground">World Pantry</p>
+                  <p className="text-xs text-primary-foreground/80">Global staple foods</p>
                 </motion.button>
 
                 <motion.button
