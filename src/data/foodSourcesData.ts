@@ -17,6 +17,36 @@ export interface FoodSource {
   seasonality: string;
   commonRegions: string[];
   methodColor: string; // gradient color based on production method
+  // Complex organic information
+  pesticideResidue?: {
+    conventional: string; // percentage or amount
+    organic: string; // percentage or amount
+  };
+  certifications?: string[]; // USDA Organic, Fair Trade, etc.
+  carbonFootprint?: {
+    local: string; // kg CO2 per unit
+    imported: string; // kg CO2 per unit
+  };
+  soilHealth?: {
+    microbialActivity: "High" | "Medium" | "Low";
+    organicMatter: string; // percentage
+    erosionRisk: "Low" | "Medium" | "High";
+  };
+  pesticideAndFertilizerBreakdown?: {
+    synthetic: string[];
+    natural: string[];
+  };
+  waterUsagePattern?: {
+    amount: string; // gallons per lb or similar
+    recyclingRate?: string; // percentage
+    treatmentMethod?: string;
+  };
+  nutritionalComparison?: {
+    organic: Record<string, string>; // nutrient levels
+    conventional: Record<string, string>;
+  };
+  geneticallyModified?: boolean;
+  hybridVariety?: boolean;
 }
 
 export interface FoodJournalEntry {
@@ -55,6 +85,43 @@ export const foodSources: FoodSource[] = [
     seasonality: "Peak ripeness: August-October in Northern regions",
     commonRegions: ["Washington", "New York", "Michigan", "Vermont"],
     methodColor: "from-emerald-400 to-green-500",
+    pesticideResidue: {
+      conventional: "15-20 pesticide residues (avg. 2.5 ppb)",
+      organic: "<1 pesticide residues (naturally occurring)",
+    },
+    certifications: ["USDA Organic", "Non-GMO Project Verified"],
+    carbonFootprint: {
+      local: "0.12 kg CO2",
+      imported: "0.45 kg CO2",
+    },
+    soilHealth: {
+      microbialActivity: "High",
+      organicMatter: "6-8%",
+      erosionRisk: "Low",
+    },
+    pesticideAndFertilizerBreakdown: {
+      synthetic: [],
+      natural: ["Neem oil", "Sulfur dust", "Compost", "Bone meal"],
+    },
+    waterUsagePattern: {
+      amount: "1,230 gallons per season",
+      recyclingRate: "40%",
+      treatmentMethod: "Natural runoff filtration through vegetation buffers",
+    },
+    nutritionalComparison: {
+      organic: {
+        "Polyphenols": "196 mg/100g",
+        "Fiber": "2.4g/100g",
+        "Vitamin C": "5.7mg/100g",
+      },
+      conventional: {
+        "Polyphenols": "158 mg/100g",
+        "Fiber": "2.4g/100g",
+        "Vitamin C": "5.2mg/100g",
+      },
+    },
+    geneticallyModified: false,
+    hybridVariety: true,
   },
   {
     id: "apple_2",
@@ -115,6 +182,45 @@ export const foodSources: FoodSource[] = [
     seasonality: "Peak season: April-June in Northern Hemisphere",
     commonRegions: ["California", "Spain", "Italy", "Japan"],
     methodColor: "from-emerald-400 to-green-500",
+    pesticideResidue: {
+      conventional: "22 pesticide residues detected (avg. methoxychlor 12 ppb)",
+      organic: "Naturally occurring compounds only, no synthetic residues",
+    },
+    certifications: ["USDA Organic", "Fair Trade Certified", "Rainforest Alliance"],
+    carbonFootprint: {
+      local: "0.08 kg CO2 (seasonal, local)",
+      imported: "0.65 kg CO2 (air freight required for freshness)",
+    },
+    soilHealth: {
+      microbialActivity: "High",
+      organicMatter: "7-9%",
+      erosionRisk: "Low",
+    },
+    pesticideAndFertilizerBreakdown: {
+      synthetic: [],
+      natural: ["Bacillus thuringiensis", "Spinosad", "Kelp extract", "Fish emulsion", "Beneficial parasitic wasps"],
+    },
+    waterUsagePattern: {
+      amount: "3,456 gallons per ton",
+      recyclingRate: "60%",
+      treatmentMethod: "Drip irrigation with on-site water recycling and infiltration ponds",
+    },
+    nutritionalComparison: {
+      organic: {
+        "Vitamin C": "59mg/100g",
+        "Folate": "25 mcg/100g",
+        "Anthocyanins": "28mg/100g",
+        "Phenolic compounds": "145 mg/100g",
+      },
+      conventional: {
+        "Vitamin C": "52mg/100g",
+        "Folate": "18 mcg/100g",
+        "Anthocyanins": "20mg/100g",
+        "Phenolic compounds": "108 mg/100g",
+      },
+    },
+    geneticallyModified: false,
+    hybridVariety: true,
   },
   {
     id: "strawberry_2",
@@ -147,6 +253,45 @@ export const foodSources: FoodSource[] = [
     seasonality: "Peak freshness: August-October; storage keeps them fresh through winter",
     commonRegions: ["Netherlands", "France", "Germany", "California"],
     methodColor: "from-emerald-400 to-green-500",
+    pesticideResidue: {
+      conventional: "6-8 pesticide residues (herbicides, fungicides avg. 1.2 ppb)",
+      organic: "No detected synthetic residues, <0.1 ppb",
+    },
+    certifications: ["USDA Organic", "Non-GMO Project Verified", "EU Organic Certification"],
+    carbonFootprint: {
+      local: "0.14 kg CO2 (cold storage included)",
+      imported: "0.38 kg CO2 (lower than strawberries, hardy crop)",
+    },
+    soilHealth: {
+      microbialActivity: "High",
+      organicMatter: "5-6%",
+      erosionRisk: "Very Low",
+    },
+    pesticideAndFertilizerBreakdown: {
+      synthetic: [],
+      natural: ["Cover crop nitrogen fixation", "Compost", "Rock dust", "Seaweed meal", "Crop rotation with legumes"],
+    },
+    waterUsagePattern: {
+      amount: "490 gallons per pound",
+      recyclingRate: "35%",
+      treatmentMethod: "Mulch-based moisture retention reduces irrigation needs",
+    },
+    nutritionalComparison: {
+      organic: {
+        "Beta-carotene": "1.89mg/100g",
+        "Alpha-carotene": "0.66mg/100g",
+        "Lutein": "1.5mg/100g",
+        "Fiber": "2.8g/100g",
+      },
+      conventional: {
+        "Beta-carotene": "1.65mg/100g",
+        "Alpha-carotene": "0.52mg/100g",
+        "Lutein": "1.1mg/100g",
+        "Fiber": "2.8g/100g",
+      },
+    },
+    geneticallyModified: false,
+    hybridVariety: true,
   },
   {
     id: "carrot_2",

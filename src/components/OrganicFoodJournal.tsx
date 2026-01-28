@@ -397,20 +397,26 @@ export const FoodJournal = ({ onBack }: FoodJournalProps) => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.05 }}
                       whileHover={{ scale: 1.02, translateX: 5 }}
-                      className="group relative rounded-xl p-4 backdrop-blur-xl border border-white/20 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 transition-all"
+                      className="group relative rounded-xl p-4 backdrop-blur-xl border border-white/20 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 transition-all cursor-pointer"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 flex-1">
                           <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }} className="text-4xl">
                             {food.emoji}
                           </motion.span>
-                          <div>
+                          <div className="flex-1">
                             <p className="font-bold text-white text-lg">{food.name}</p>
                             <div className="flex items-center gap-3 text-xs text-white/60 mt-1">
                               <span className="bg-white/10 px-2 py-1 rounded-full">{mealEmoji} {entry.mealType}</span>
                               <span>•</span>
                               <span className="bg-white/10 px-2 py-1 rounded-full">{methodEmoji} {food.productionMethod}</span>
                             </div>
+                            {/* Organic Info Summary */}
+                            {food.pesticideResidue && (
+                              <div className="mt-2 text-xs text-cyan-300/70 bg-white/5 px-2 py-1 rounded-lg max-w-xs truncate">
+                                🛡️ Pesticide: {food.pesticideResidue.organic}
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -423,6 +429,45 @@ export const FoodJournal = ({ onBack }: FoodJournalProps) => {
                           <Trash2 className="w-5 h-5" />
                         </motion.button>
                       </div>
+
+                      {/* Expanded Organic Info on Hover */}
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        whileHover={{ opacity: 1, height: "auto" }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-3 pt-3 border-t border-white/10 text-xs text-white/70 space-y-2 overflow-hidden"
+                      >
+                        {food.pesticideResidue && (
+                          <div className="flex justify-between bg-red-500/10 px-2 py-1 rounded">
+                            <span>🛡️ Pesticide Residue:</span>
+                            <span className="text-red-300">{food.pesticideResidue.organic}</span>
+                          </div>
+                        )}
+                        {food.certifications && food.certifications.length > 0 && (
+                          <div className="flex justify-between bg-green-500/10 px-2 py-1 rounded">
+                            <span>✅ Certifications:</span>
+                            <span className="text-green-300">{food.certifications.join(", ")}</span>
+                          </div>
+                        )}
+                        {food.carbonFootprint && (
+                          <div className="flex justify-between bg-blue-500/10 px-2 py-1 rounded">
+                            <span>🌍 Carbon Footprint:</span>
+                            <span className="text-blue-300">{food.carbonFootprint.local} (local)</span>
+                          </div>
+                        )}
+                        {food.nutritionalComparison && (
+                          <div className="bg-purple-500/10 px-2 py-1 rounded">
+                            <span>📊 Nutritional Edge: </span>
+                            <span className="text-purple-300">Higher polyphenols, vitamins & antioxidants</span>
+                          </div>
+                        )}
+                        {food.soilHealth && (
+                          <div className="flex justify-between bg-emerald-500/10 px-2 py-1 rounded">
+                            <span>🌱 Soil Health:</span>
+                            <span className="text-emerald-300">{food.soilHealth.microbialActivity} microbial activity</span>
+                          </div>
+                        )}
+                      </motion.div>
                     </motion.div>
                   );
                 })}
@@ -438,6 +483,127 @@ export const FoodJournal = ({ onBack }: FoodJournalProps) => {
               transition={{ delay: 0.4 }}
             >
               <AchievementSticker unlockedAchievements={unlockedAchievements} organicCount={totalLogged} />
+            </motion.div>
+          )}
+
+          {/* Organic Food Information Hub */}
+          {todayEntries.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45 }}
+              className="bg-gradient-to-br from-emerald-500/20 via-teal-500/20 to-cyan-500/20 border border-emerald-500/40 rounded-2xl p-6 mb-8 backdrop-blur-xl"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }} className="text-3xl">
+                  🌱
+                </motion.div>
+                <div>
+                  <h2 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-cyan-300">
+                    Organic Food Analysis
+                  </h2>
+                  <p className="text-xs text-white/50 mt-1">Deep dive into production & nutrition metrics</p>
+                </div>
+              </div>
+
+              {/* Food Analysis Cards */}
+              <div className="space-y-4">
+                {todayEntries.map((entry) => {
+                  const food = getFoodSourceById(entry.foodId);
+                  if (!food || !food.pesticideResidue) return null;
+
+                  return (
+                    <motion.div
+                      key={entry.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3"
+                    >
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-2xl">{food.emoji}</span>
+                        <h3 className="text-lg font-bold text-white">{food.name}</h3>
+                      </div>
+
+                      {/* Pesticide Residue Comparison */}
+                      {food.pesticideResidue && (
+                        <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 rounded-lg p-3">
+                          <p className="text-xs font-bold text-red-300 mb-2">🛡️ PESTICIDE RESIDUE ANALYSIS</p>
+                          <div className="space-y-1 text-xs text-white/70">
+                            <p><span className="text-green-400 font-bold">✓ Organic:</span> {food.pesticideResidue.organic}</p>
+                            <p><span className="text-orange-400 font-bold">⚠ Conventional:</span> {food.pesticideResidue.conventional}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Certifications */}
+                      {food.certifications && food.certifications.length > 0 && (
+                        <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-lg p-3">
+                          <p className="text-xs font-bold text-green-300 mb-2">✅ CERTIFICATIONS</p>
+                          <div className="flex flex-wrap gap-2">
+                            {food.certifications.map((cert) => (
+                              <span key={cert} className="text-xs bg-green-500/30 text-green-200 px-2 py-1 rounded-full">
+                                {cert}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Carbon Footprint */}
+                      {food.carbonFootprint && (
+                        <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-lg p-3">
+                          <p className="text-xs font-bold text-blue-300 mb-2">🌍 CARBON FOOTPRINT</p>
+                          <div className="space-y-1 text-xs text-white/70">
+                            <p><span className="text-blue-300">Local:</span> {food.carbonFootprint.local} CO₂</p>
+                            <p><span className="text-orange-300">Imported:</span> {food.carbonFootprint.imported} CO₂</p>
+                            <p className="text-cyan-300 pt-1">💚 Choosing local reduces emissions by {Math.round(((parseFloat(food.carbonFootprint.imported.split(" ")[0]) - parseFloat(food.carbonFootprint.local.split(" ")[0])) / parseFloat(food.carbonFootprint.imported.split(" ")[0])) * 100)}%</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Soil Health */}
+                      {food.soilHealth && (
+                        <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-lg p-3">
+                          <p className="text-xs font-bold text-emerald-300 mb-2">🌱 SOIL HEALTH METRICS</p>
+                          <div className="space-y-1 text-xs text-white/70">
+                            <p><span className="text-emerald-300">Microbial Activity:</span> {food.soilHealth.microbialActivity}</p>
+                            <p><span className="text-teal-300">Organic Matter:</span> {food.soilHealth.organicMatter}</p>
+                            <p><span className="text-cyan-300">Erosion Risk:</span> {food.soilHealth.erosionRisk}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Nutritional Comparison */}
+                      {food.nutritionalComparison && (
+                        <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg p-3">
+                          <p className="text-xs font-bold text-purple-300 mb-2">📊 NUTRITIONAL ADVANTAGE</p>
+                          <div className="text-xs text-white/70 space-y-1">
+                            {Object.entries(food.nutritionalComparison.organic).map(([nutrient, value]) => {
+                              const conventional = food.nutritionalComparison!.conventional[nutrient];
+                              const orgValue = parseFloat(value as string);
+                              const convValue = parseFloat(conventional as string);
+                              const increase = ((orgValue - convValue) / convValue) * 100;
+                              return (
+                                <div key={nutrient} className="flex justify-between items-center">
+                                  <span className="text-purple-300">{nutrient}</span>
+                                  <span className="text-white">Organic: <span className="text-green-300 font-bold">{value}</span> {increase > 0 ? `(+${increase.toFixed(1)}%)` : ""}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Genetic & Farming Info */}
+                      <div className="bg-white/5 rounded-lg p-2 flex items-center gap-2 text-xs text-white/60">
+                        <span>🧬 {food.geneticallyModified === false ? "100% Non-GMO" : "May contain GMO elements"}</span>
+                        <span>•</span>
+                        <span>🌾 {food.hybridVariety ? "Heritage/Hybrid variety" : "Open-pollinated variety"}</span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </motion.div>
           )}
 
