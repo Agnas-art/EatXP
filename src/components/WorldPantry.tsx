@@ -250,7 +250,7 @@ export const WorldPantry = ({ onBack }: WorldPantryProps) => {
 
               {/* Interactive Country Markers */}
               <svg
-                viewBox="0 0 1000 600"
+                viewBox="0 0 1200 800"
                 className="absolute inset-0 w-full h-full z-10 cursor-pointer"
               >
                 <defs>
