@@ -1,15 +1,29 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Search, Globe } from "lucide-react";
 import { worldPantryData, getAllCountries } from "@/data/worldPantryData";
 
 interface WorldPantryProps {
   onBack: () => void;
 }
 
+// Country positions for interactive map (approximate grid positions)
+const countryMapPositions: Record<string, { x: number; y: number }> = {
+  Japan: { x: 85, y: 35 },
+  India: { x: 50, y: 45 },
+  Mexico: { x: 20, y: 50 },
+  Italy: { x: 50, y: 35 },
+  Thailand: { x: 65, y: 50 },
+  Nigeria: { x: 50, y: 65 },
+  Peru: { x: 25, y: 70 },
+  Greece: { x: 55, y: 40 },
+  "South Korea": { x: 80, y: 32 },
+};
+
 export const WorldPantry = ({ onBack }: WorldPantryProps) => {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState<"map" | "list">("map");
 
   const countries = getAllCountries();
   const filteredCountries = countries.filter((country) =>
@@ -191,64 +205,229 @@ export const WorldPantry = ({ onBack }: WorldPantryProps) => {
             Explore Global Cuisine
           </h2>
           <p className="text-muted-foreground">
-            Discover staple foods and traditional meals from around the world
+            Click on countries in the map or list to discover staple foods and traditional meals
           </p>
         </motion.div>
 
-        {/* Search */}
-        <div className="mb-8 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Search countries..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-          />
+        {/* View Mode Toggle */}
+        <div className="flex gap-2 mb-6">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setViewMode("map")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors
+              ${
+                viewMode === "map"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card border border-border text-foreground hover:bg-secondary/10"
+              }`}
+          >
+            <Globe className="w-5 h-5" />
+            Map View
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setViewMode("list")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors
+              ${
+                viewMode === "list"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card border border-border text-foreground hover:bg-secondary/10"
+              }`}
+          >
+            <Search className="w-5 h-5" />
+            List View
+          </motion.button>
         </div>
 
-        {/* Countries Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <AnimatePresence>
-            {filteredCountries.map((country, idx) => {
-              const cuisine = worldPantryData.find((c) => c.country === country);
-              return (
-                <motion.button
-                  key={country}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ delay: idx * 0.05 }}
-                  onClick={() => setSelectedCountry(country)}
-                  className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-card to-card/50 border border-border hover:border-primary/50 p-4 transition-all duration-300 hover:scale-105"
-                >
-                  {/* Background gradient on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                  {/* Content */}
-                  <div className="relative text-center">
-                    <div className="text-4xl mb-2">{cuisine?.flag}</div>
-                    <h3 className="font-bold text-foreground mb-1">{country}</h3>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      {cuisine?.stapleFood}
-                    </p>
-                    <span className="text-2xl">{cuisine?.emoji}</span>
-                  </div>
-                </motion.button>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-
-        {filteredCountries.length === 0 && (
+        {/* MAP VIEW */}
+        {viewMode === "map" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-12"
+            transition={{ delay: 0.2 }}
+            className="mb-8"
           >
-            <p className="text-muted-foreground text-lg">
-              No countries found matching your search
-            </p>
+            {/* Interactive World Map */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="relative w-full bg-gradient-to-b from-blue-200/20 to-blue-100/20 rounded-2xl border-2 border-primary/30 p-8 mb-6 aspect-video"
+            >
+              {/* Map Background */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-100/30 via-cyan-50/20 to-teal-100/20" />
+
+              {/* Country Markers */}
+              <div className="relative w-full h-full">
+                {countries.map((country, idx) => {
+                  const position = countryMapPositions[country];
+                  if (!position) return null;
+
+                  const cuisine = worldPantryData.find((c) => c.country === country);
+
+                  return (
+                    <motion.button
+                      key={country}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: idx * 0.05 }}
+                      whileHover={{ scale: 1.2 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setSelectedCountry(country)}
+                      style={{
+                        left: `${position.x}%`,
+                        top: `${position.y}%`,
+                        transform: "translate(-50%, -50%)",
+                      }}
+                      className="absolute flex flex-col items-center group cursor-pointer"
+                    >
+                      {/* Glow effect on hover */}
+                      <motion.div
+                        whileHover={{ scale: 1.3 }}
+                        className="absolute w-12 h-12 rounded-full bg-primary/20 -z-10 group-hover:bg-primary/40 transition-colors"
+                      />
+
+                      {/* Country Emoji Button */}
+                      <motion.div
+                        whileHover={{ rotate: 10 }}
+                        className="text-4xl p-2 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 border-2 border-primary/50 group-hover:border-primary transition-all"
+                      >
+                        {cuisine?.emoji}
+                      </motion.div>
+
+                      {/* Tooltip */}
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        whileHover={{ opacity: 1, y: 0 }}
+                        className="absolute -top-12 bg-card border border-primary/50 rounded-lg px-3 py-2 text-xs font-bold text-foreground whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                      >
+                        {country}
+                      </motion.div>
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              {/* Map Instructions */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="absolute bottom-4 left-4 text-xs text-muted-foreground bg-background/50 backdrop-blur px-3 py-2 rounded-lg"
+              >
+                👆 Click on country emoji to explore
+              </motion.div>
+            </motion.div>
+
+            {/* Search for Map View */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search countries..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            {/* Quick Country Buttons */}
+            {searchTerm && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2"
+              >
+                <AnimatePresence>
+                  {filteredCountries.map((country, idx) => {
+                    const cuisine = worldPantryData.find((c) => c.country === country);
+                    return (
+                      <motion.button
+                        key={country}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setSelectedCountry(country)}
+                        className="p-2 rounded-lg bg-card border border-border hover:border-primary/50 transition-all text-center"
+                      >
+                        <div className="text-2xl mb-1">{cuisine?.flag}</div>
+                        <p className="text-xs font-semibold text-foreground">{country}</p>
+                      </motion.button>
+                    );
+                  })}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+
+        {/* LIST VIEW */}
+        {viewMode === "list" && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="mb-8"
+          >
+            {/* Search */}
+            <div className="mb-6 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search countries..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            {/* Countries Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <AnimatePresence>
+                {filteredCountries.map((country, idx) => {
+                  const cuisine = worldPantryData.find((c) => c.country === country);
+                  return (
+                    <motion.button
+                      key={country}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ delay: idx * 0.05 }}
+                      onClick={() => setSelectedCountry(country)}
+                      className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-card to-card/50 border border-border hover:border-primary/50 p-4 transition-all duration-300 hover:scale-105"
+                    >
+                      {/* Background gradient on hover */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                      {/* Content */}
+                      <div className="relative text-center">
+                        <div className="text-4xl mb-2">{cuisine?.flag}</div>
+                        <h3 className="font-bold text-foreground mb-1">{country}</h3>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          {cuisine?.stapleFood}
+                        </p>
+                        <span className="text-2xl">{cuisine?.emoji}</span>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+
+            {filteredCountries.length === 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-12"
+              >
+                <p className="text-muted-foreground text-lg">
+                  No countries found matching your search
+                </p>
+              </motion.div>
+            )}
           </motion.div>
         )}
       </motion.div>
