@@ -96,7 +96,21 @@
     "eggs": "Huevos",
     "quinoa": "Quinua",
     "greek_yogurt": "Yogur Griego",
-    "sweet_potato": "Batata"
+    "sweet_potato": "Batata",
+    "papaya": "Papaya",
+    "pumpkin": "Calabaza",
+    "dragon_fruit": "Fruta del Dragón",
+    "tahini": "Tahini",
+    "pomegranate": "Granada",
+    "miso": "Miso",
+    "spirulina": "Espirulina",
+    "goji_berries": "Bayas de Goji",
+    "matcha": "Matcha",
+    "chia_seeds": "Semillas de Chía",
+    "kale": "Kale",
+    "tempeh": "Tempeh",
+    "acai_berries": "Bayas de Açaí",
+    "nutritional_yeast": "Levadura Nutricional"
   },
   "recipes": {
     "rainbow_fruit_kabobs": "Brochetas de Frutas de Arcoíris",

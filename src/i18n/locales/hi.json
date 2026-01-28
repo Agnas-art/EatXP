@@ -94,7 +94,21 @@
     "eggs": "अंडे",
     "quinoa": "क्विनोआ",
     "greek_yogurt": "ग्रीक दही",
-    "sweet_potato": "मीठा आलू"
+    "sweet_potato": "मीठा आलू",
+    "papaya": "पपीता",
+    "pumpkin": "कद्दू",
+    "dragon_fruit": "ड्रैगन फ्रूट",
+    "tahini": "ताहिनी",
+    "pomegranate": "अनार",
+    "miso": "मिसो",
+    "spirulina": "स्पिरुलिना",
+    "goji_berries": "गोजी बेरीज",
+    "matcha": "मैच्छा",
+    "chia_seeds": "चिया सीड्स",
+    "kale": "केल",
+    "tempeh": "टेम्पे",
+    "acai_berries": "अकाई बेरीज",
+    "nutritional_yeast": "पौष्टिक खमीर"
   },
   "recipes": {
     "rainbow_fruit_kabobs": "रंगधनु फल कबाब",

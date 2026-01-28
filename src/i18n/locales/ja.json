@@ -92,7 +92,21 @@
     "eggs": "卵",
     "quinoa": "キノア",
     "greek_yogurt": "ギリシャヨーグルト",
-    "sweet_potato": "サツマイモ"
+    "sweet_potato": "サツマイモ",
+    "papaya": "パパイヤ",
+    "pumpkin": "カボチャ",
+    "dragon_fruit": "ドラゴンフルーツ",
+    "tahini": "タヒニ",
+    "pomegranate": "ザクロ",
+    "miso": "味噌",
+    "spirulina": "スピルリナ",
+    "goji_berries": "ゴジベリー",
+    "matcha": "抹茶",
+    "chia_seeds": "チアシード",
+    "kale": "ケール",
+    "tempeh": "テンペ",
+    "acai_berries": "アサイベリー",
+    "nutritional_yeast": "栄養酵母"
   },
   "recipes": {
     "rainbow_fruit_kabobs": "虹のフルーツ串焼き",

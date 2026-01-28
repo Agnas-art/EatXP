@@ -93,7 +93,21 @@
     "eggs": "Oeufs",
     "quinoa": "Quinoa",
     "greek_yogurt": "Yaourt Grec",
-    "sweet_potato": "Patate Douce"
+    "sweet_potato": "Patate Douce",
+    "papaya": "Papaye",
+    "pumpkin": "Citrouille",
+    "dragon_fruit": "Fruit du Dragon",
+    "tahini": "Tahini",
+    "pomegranate": "Grenade",
+    "miso": "Miso",
+    "spirulina": "Spiruline",
+    "goji_berries": "Baies de Goji",
+    "matcha": "Matcha",
+    "chia_seeds": "Graines de Chia",
+    "kale": "Chou Frisé",
+    "tempeh": "Tempé",
+    "acai_berries": "Baies d'Açaï",
+    "nutritional_yeast": "Levure Nutritionnelle"
   },
   "recipes": {
     "rainbow_fruit_kabobs": "Brochettes de Fruits Arc-en-Ciel",

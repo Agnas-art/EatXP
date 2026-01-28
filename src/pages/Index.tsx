@@ -135,6 +135,20 @@ const Index = () => {
       "Greek Yogurt": "foods.greek_yogurt",
       "Sweet Potato": "foods.sweet_potato",
       "Chicken": "foods.chicken",
+      "Papaya": "foods.papaya",
+      "Pumpkin": "foods.pumpkin",
+      "Dragon Fruit": "foods.dragon_fruit",
+      "Tahini": "foods.tahini",
+      "Pomegranate": "foods.pomegranate",
+      "Miso": "foods.miso",
+      "Spirulina": "foods.spirulina",
+      "Goji Berries": "foods.goji_berries",
+      "Matcha": "foods.matcha",
+      "Chia Seeds": "foods.chia_seeds",
+      "Kale": "foods.kale",
+      "Tempeh": "foods.tempeh",
+      "Acai Berries": "foods.acai_berries",
+      "Nutritional Yeast": "foods.nutritional_yeast",
     };
 
     // Map benefit names to translation keys
