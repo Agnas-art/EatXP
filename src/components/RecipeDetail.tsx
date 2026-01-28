@@ -15,6 +15,10 @@ interface RecipeDetailProps {
     steps: string[];
     culturalOrigin?: string;
     nutritionFacts?: string;
+    funFacts?: string[];
+    healthHighlights?: string[];
+    servingSuggestions?: string;
+    chefsTips?: string[];
   };
   ageGroup: string;
   characterGuide?: keyof typeof ANIME_CHARACTERS;
@@ -196,6 +200,104 @@ const RecipeDetail = ({ recipe, ageGroup, characterGuide, onBack }: RecipeDetail
             </div>
           </div>
         </motion.div>
+
+        {/* Fun Facts */}
+        {recipe.funFacts && recipe.funFacts.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-br from-kawaii-yellow/30 to-orange/20 rounded-3xl p-5 shadow-card border border-kawaii-yellow/30"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-2xl">✨</span>
+              <h3 className="font-display text-lg font-bold text-foreground">Fun Facts!</h3>
+            </div>
+            <div className="space-y-3">
+              {recipe.funFacts.map((fact, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-white/50 dark:bg-black/20 rounded-2xl p-3 border-l-4 border-kawaii-yellow"
+                >
+                  <p className="text-sm text-foreground">{fact}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Health Highlights */}
+        {recipe.healthHighlights && recipe.healthHighlights.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-3xl p-5 shadow-card border border-green-500/30"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-2xl">💪</span>
+              <h3 className="font-display text-lg font-bold text-foreground">Health Superpowers</h3>
+            </div>
+            <div className="grid grid-cols-1 gap-2">
+              {recipe.healthHighlights.map((highlight, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-white/50 dark:bg-black/20 rounded-2xl p-3 border-l-4 border-green-500"
+                >
+                  <p className="text-sm text-foreground font-medium">{highlight}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Chef's Tips */}
+        {recipe.chefsTips && recipe.chefsTips.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-3xl p-5 shadow-card border border-blue-500/30"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-2xl">👨‍🍳</span>
+              <h3 className="font-display text-lg font-bold text-foreground">Chef's Tips</h3>
+            </div>
+            <div className="space-y-3">
+              {recipe.chefsTips.map((tip, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-white/50 dark:bg-black/20 rounded-2xl p-3 border-l-4 border-blue-500"
+                >
+                  <p className="text-sm text-foreground">{tip}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Serving Suggestions */}
+        {recipe.servingSuggestions && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-3xl p-5 shadow-card border border-pink-500/30"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-2xl">🍴</span>
+              <h3 className="font-display text-lg font-bold text-foreground">Serving Ideas</h3>
+            </div>
+            <p className="text-sm text-foreground bg-white/50 dark:bg-black/20 rounded-2xl p-3 border-l-4 border-pink-500">
+              {recipe.servingSuggestions}
+            </p>
+          </motion.div>
+        )}
 
         {/* Nutrition Info */}
         {recipe.nutritionFacts && (

@@ -277,6 +277,22 @@ export const recipes = {
         "Thread the fruits onto the skewers in rainbow color order: red strawberries first, then orange, yellow pineapple, green kiwi, blue blueberries, and purple grapes - spacing each fruit about half an inch apart",
         "Stand the kabobs upright on a plate and admire your colorful creation before serving to your friends",
       ],
+      funFacts: [
+        "🌈 Each color of fruit has different superpowers - red for hearts, orange for eyes, yellow for energy!",
+        "🍓 Strawberries contain natural vitamin C which helps your body fight germs",
+        "🥝 Kiwis are so sour that they have an enzyme that breaks down proteins!"
+      ],
+      healthHighlights: [
+        "🌟 Packed with 5 different vitamins and minerals in every bite",
+        "💪 Natural sugars give you instant energy for playing",
+        "🧠 Antioxidants in berries help your brain work better"
+      ],
+      servingSuggestions: "Serve at birthday parties, picnics, or as a fun afterschool snack. Perfect with yogurt dip!",
+      chefsTips: [
+        "Pro tip: Soak skewers in water to prevent burning",
+        "Try making patterns like stripes or checkerboards instead of rainbow",
+        "Use cookie cutters to make fruit shapes instead of chunks"
+      ],
     },
     {
       title: "Funny Face Sandwich",
@@ -333,6 +349,22 @@ export const recipes = {
         "Once the mixture looks completely smooth and creamy with no visible chunks, stop blending and carefully remove the lid",
         "Pour the smoothie into two tall glasses using a small pitcher and serve immediately with a straw",
       ],
+      funFacts: [
+        "🧠 Blueberries are called 'brain berries' because they help you think better and remember more",
+        "🍌 Bananas have more potassium than many sports drinks - it gives athletes their power!",
+        "🍓 Did you know strawberries have seeds on the OUTSIDE? Most fruits have seeds inside!"
+      ],
+      healthHighlights: [
+        "⚡ Quick energy boost from natural fruit sugars",
+        "🦴 Calcium from milk builds strong bones",
+        "🛡️ Antioxidants from berries protect your body like a shield"
+      ],
+      servingSuggestions: "Perfect breakfast drink or post-workout snack. Add a protein powder for extra muscle fuel!",
+      chefsTips: [
+        "Freeze berries ahead of time for extra thickness without watering it down",
+        "Blend on high speed to crush ice completely and make it super smooth",
+        "Try adding spinach - you won't taste it but it adds even more nutrition!"
+      ],
     },
     {
       title: "Veggie Dip Party",
@@ -351,6 +383,22 @@ export const recipes = {
         "Take a large serving platter and arrange the vegetables in rows by color: orange carrots in one section, white celery in another, and bright red cherry tomatoes in a third",
         "Pour the hummus into a small bowl and the ranch dip into another small bowl, then place both bowls in the center of the platter",
         "Invite your friends to come dip their favorite vegetables into each dip and taste the different flavors",
+      ],
+      funFacts: [
+        "🥕 Carrots weren't always orange! Hundreds of years ago, they were purple, white, or red",
+        "🌶️ That white stringy part in celery is called 'strings' and they help the plant drink water",
+        "🍅 Cherry tomatoes are mini versions of regular tomatoes but they're actually much sweeter!"
+      ],
+      healthHighlights: [
+        "👀 Carrots have beta-carotene that helps your eyes see better",
+        "🦴 Celery and hummus have minerals for strong bones",
+        "🌟 Tomatoes have lycopene - a powerful antioxidant that protects your health"
+      ],
+      servingSuggestions: "Perfect for parties, picnics, and game nights! Serve cold and watch your friends disappear one by one.",
+      chefsTips: [
+        "Arrange veggies in a colorful rainbow pattern for maximum wow factor!",
+        "Keep the ice water bath until serving time to stay super crunchy",
+        "Try mixing hummus with different spices for flavor variations"
       ],
     },
     {
@@ -371,6 +419,22 @@ export const recipes = {
         "Return the chocolate-covered bites to the parchment paper",
         "While the chocolate is still wet, sprinkle coconut flakes on top of each bite, pressing gently so they stick",
         "Place the baking sheet in the freezer or refrigerator for 15-20 minutes until the chocolate is firm and ready to eat",
+      ],
+      funFacts: [
+        "🥜 Peanuts aren't actually nuts - they're legumes that grow underground like peas!",
+        "🍌 Bananas are radioactive because they contain potassium, which has tiny amounts of radiation",
+        "🍫 Dark chocolate comes from cacao beans that grow in pods on tropical trees"
+      ],
+      healthHighlights: [
+        "⚡ Peanut butter has protein to build strong muscles",
+        "💪 Bananas have potassium that gives athletes energy",
+        "🛡️ Dark chocolate has antioxidants that help protect your body"
+      ],
+      servingSuggestions: "Perfect frozen snack or energy booster before sports! Store in the fridge for up to a week.",
+      chefsTips: [
+        "Use a frozen banana for easier slicing and better texture",
+        "Freeze overnight for a more chocolate-like candy texture",
+        "Drizzle with white chocolate for a fancy two-tone look"
       ],
     },
     {
@@ -499,6 +563,22 @@ export const recipes = {
         "Using a spatula, carefully transfer the quesadilla to a cutting board",
         "Let it cool for one minute, then slice into triangles and serve with salsa, sour cream, and guacamole",
       ],
+      funFacts: [
+        "🌮 Quesadillas get their name from 'queso' which means cheese in Spanish",
+        "🫘 Black beans are loaded with protein and are a favorite in Mexico and Central America",
+        "🌽 Corn is actually a grain that was first grown by ancient Native Americans over 10,000 years ago!"
+      ],
+      healthHighlights: [
+        "💪 Black beans provide plant-based protein without any meat",
+        "🔥 This meal has all three food groups in one handheld package",
+        "🌟 The colorful veggies mean you're getting lots of different vitamins and minerals"
+      ],
+      servingSuggestions: "Serve with salsa, guacamole, and sour cream on the side. Great for lunch, dinner, or even breakfast!",
+      chefsTips: [
+        "Keep the heat to medium so the cheese melts completely before the tortilla burns",
+        "Try adding black olives, jalapeños, or spinach for extra flavor",
+        "Use the spatula to gently press down while cooking for better melting"
+      ],
     },
     {
       title: "Pasta Primavera",
@@ -525,6 +605,23 @@ export const recipes = {
         "Season with salt and pepper to taste",
         "Transfer to a serving bowl and top generously with freshly grated Parmesan cheese",
         "Serve immediately while hot",
+      ],
+      funFacts: [
+        "🍝 The word 'primavera' means 'spring' in Italian - this dish celebrates spring vegetables!",
+        "🍅 Cherry tomatoes are actually a modern variety developed in the 1970s by crossing tomato varieties",
+        "🧄 Garlic has been used for medicine and food for over 5,000 years in many cultures"
+      ],
+      healthHighlights: [
+        "🥒 Zucchini is 95% water, making it super hydrating while being low in calories",
+        "🔥 Olive oil is a heart-healthy fat that's been used for thousands of years",
+        "🌟 This dish is loaded with vegetables while still being satisfying and delicious"
+      ],
+      servingSuggestions: "Perfect light summer dinner. Great hot or at room temperature. Pairs beautifully with garlic bread and a simple salad.",
+      chefsTips: [
+        "Don't overcook the pasta - al dente (firm to the bite) is the Italian way!",
+        "Reserve pasta water to loosen the sauce if needed - it has starch that helps it stick",
+        "Use fresh garlic if possible - it makes a huge difference in flavor",
+        "Add fresh basil at the end for extra flavor and aroma"
       ],
     },
     {
@@ -764,6 +861,23 @@ export const recipes = {
         "Add the cooked rice noodles and toss everything together for another minute until the noodles are heated through and coated with sauce",
         "Taste and adjust seasonings - add more soy sauce for saltiness, rice vinegar for tang, or sesame oil for nutty flavor",
         "Transfer to serving bowls and optionally top with sliced green onions, toasted sesame seeds, or chili oil",
+      ],
+      funFacts: [
+        "🇨🇳 Stir-frying was developed in China over 2,000 years ago and is one of the most efficient cooking methods",
+        "🧅 Ginger has been used in Asian cooking for centuries and is also used as natural medicine",
+        "🌶️ The high heat in wok cooking (called 'breath of the wok') creates amazing flavors in seconds"
+      ],
+      healthHighlights: [
+        "💪 Protein from chicken or tofu builds and repairs muscles",
+        "🥦 Broccoli has sulforaphane - a compound that helps fight disease",
+        "🧠 Sesame oil is rich in antioxidants and supports brain health"
+      ],
+      servingSuggestions: "Serve immediately in bowls. Add crushed peanuts, lime wedges, and sriracha for extra flavor. Great as leftovers too!",
+      chefsTips: [
+        "Keep your heat HIGH for perfect stir-fry - this seals in flavors and creates that restaurant wok flavor",
+        "Prep all ingredients before you start cooking - stir-frying happens fast!",
+        "Toast sesame seeds in a dry pan for 2 minutes before using as a topping for better flavor",
+        "Use a wok if you have one - it heats more efficiently and keeps food moving"
       ],
     },
     {
