@@ -17,6 +17,7 @@ import GamesHub from "@/components/GamesHub";
 import ComicStories from "@/components/ComicStories";
 import StoryMode from "@/components/StoryMode";
 import { WorldPantry } from "@/components/WorldPantry";
+import { OrganicFoodJournal } from "@/components/OrganicFoodJournal";
 import AnimeCutscenes from "@/components/AnimeCutscenes";
 import SeasonalProduce from "@/components/SeasonalProduce";
 import FoodNutritionTracker from "@/components/FoodNutritionTracker";
@@ -55,6 +56,7 @@ const Index = () => {
   const [showCharacterSelector, setShowCharacterSelector] = useState(false);
   const [showStoryMode, setShowStoryMode] = useState(false);
   const [showWorldPantry, setShowWorldPantry] = useState(false);
+  const [showOrganicFoodJournal, setShowOrganicFoodJournal] = useState(false);
   const [showAnimeCutscenes, setShowAnimeCutscenes] = useState(false);
   const [showSeasonalProduce, setShowSeasonalProduce] = useState(false);
   const [showFoodNutritionTracker, setShowFoodNutritionTracker] = useState(false);
@@ -92,6 +94,8 @@ const Index = () => {
       setShowStoryMode(true);
     } else if (lower.includes("world") || lower.includes("pantry") || lower.includes("countries") || lower.includes("explore")) {
       setShowWorldPantry(true);
+    } else if (lower.includes("organic") || lower.includes("journal") || lower.includes("log food") || lower.includes("food log")) {
+      setShowOrganicFoodJournal(true);
     } else if (lower.includes("cutscene") || lower.includes("animation") || lower.includes("anime")) {
       setShowAnimeCutscenes(true);
     } else if (lower.includes("seasonal") || lower.includes("produce") || lower.includes("vegetables") || lower.includes("fruits")) {
@@ -338,6 +342,14 @@ const Index = () => {
     );
   }
 
+  if (showOrganicFoodJournal) {
+    return (
+      <OrganicFoodJournal
+        onBack={() => setShowOrganicFoodJournal(false)}
+      />
+    );
+  }
+
   if (showAnimeCutscenes) {
     return (
       <AnimeCutscenes
@@ -523,6 +535,17 @@ const Index = () => {
                   <span className="text-2xl mb-1 inline-block">🌍</span>
                   <p className="font-display font-bold text-xs text-primary-foreground">World Pantry</p>
                   <p className="text-xs text-primary-foreground/80">Global staple foods</p>
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowOrganicFoodJournal(true)}
+                  className="bg-gradient-to-br from-lime-400 to-green-500 rounded-2xl p-3 text-left relative overflow-hidden"
+                >
+                  <span className="text-2xl mb-1 inline-block">📓</span>
+                  <p className="font-display font-bold text-xs text-primary-foreground">Organic Journal</p>
+                  <p className="text-xs text-primary-foreground/80">Log your organic foods</p>
                 </motion.button>
 
                 <motion.button
