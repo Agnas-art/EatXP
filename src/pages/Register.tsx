@@ -96,7 +96,7 @@ export const Register = () => {
           <div className="flex items-center justify-center gap-2 mb-2">
             <Sparkles className="w-6 h-6 text-primary" />
             <h1 className="font-display text-3xl font-bold text-foreground">
-              Join YummyLearn
+              Join EatXP
             </h1>
             <Sparkles className="w-6 h-6 text-secondary" />
           </div>
