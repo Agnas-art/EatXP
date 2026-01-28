@@ -2,23 +2,11 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Search, Globe } from "lucide-react";
 import { worldPantryData, getAllCountries } from "@/data/worldPantryData";
+import { WorldMapSVG, countryMapCoordinates } from "./WorldMapSVG";
 
 interface WorldPantryProps {
   onBack: () => void;
 }
-
-// Country positions for interactive map (approximate grid positions)
-const countryMapPositions: Record<string, { x: number; y: number }> = {
-  Japan: { x: 85, y: 35 },
-  India: { x: 50, y: 45 },
-  Mexico: { x: 20, y: 50 },
-  Italy: { x: 50, y: 35 },
-  Thailand: { x: 65, y: 50 },
-  Nigeria: { x: 50, y: 65 },
-  Peru: { x: 25, y: 70 },
-  Greece: { x: 55, y: 40 },
-  "South Korea": { x: 80, y: 32 },
-};
 
 export const WorldPantry = ({ onBack }: WorldPantryProps) => {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
@@ -249,74 +237,114 @@ export const WorldPantry = ({ onBack }: WorldPantryProps) => {
             transition={{ delay: 0.2 }}
             className="mb-8"
           >
-            {/* Interactive World Map */}
+            {/* Interactive World Map with SVG */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="relative w-full bg-gradient-to-b from-blue-200/20 to-blue-100/20 rounded-2xl border-2 border-primary/30 p-8 mb-6 aspect-video"
+              className="relative w-full bg-blue-50 rounded-2xl border-2 border-primary/30 p-6 mb-6 aspect-video"
             >
-              {/* Map Background */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-100/30 via-cyan-50/20 to-teal-100/20" />
+              {/* SVG Map Background */}
+              <div className="w-full h-full absolute inset-0 rounded-2xl overflow-hidden">
+                <WorldMapSVG />
+              </div>
 
-              {/* Country Markers */}
-              <div className="relative w-full h-full">
+              {/* Interactive Country Markers */}
+              <svg
+                viewBox="0 0 1000 600"
+                className="absolute inset-0 w-full h-full z-10 cursor-pointer"
+              >
+                <defs>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+                    <feMerge>
+                      <feMergeNode in="coloredBlur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+
                 {countries.map((country, idx) => {
-                  const position = countryMapPositions[country];
+                  const position = countryMapCoordinates[country];
                   if (!position) return null;
 
                   const cuisine = worldPantryData.find((c) => c.country === country);
 
                   return (
-                    <motion.button
-                      key={country}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: idx * 0.05 }}
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => setSelectedCountry(country)}
-                      style={{
-                        left: `${position.x}%`,
-                        top: `${position.y}%`,
-                        transform: "translate(-50%, -50%)",
-                      }}
-                      className="absolute flex flex-col items-center group cursor-pointer"
-                    >
-                      {/* Glow effect on hover */}
-                      <motion.div
-                        whileHover={{ scale: 1.3 }}
-                        className="absolute w-12 h-12 rounded-full bg-primary/20 -z-10 group-hover:bg-primary/40 transition-colors"
+                    <g key={country}>
+                      {/* Glow Circle Background */}
+                      <circle
+                        cx={position.x}
+                        cy={position.y}
+                        r="40"
+                        fill="rgba(59, 130, 246, 0.15)"
+                        opacity="0.6"
+                        className="hover:opacity-100 transition-opacity"
                       />
 
-                      {/* Country Emoji Button */}
-                      <motion.div
-                        whileHover={{ rotate: 10 }}
-                        className="text-4xl p-2 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 border-2 border-primary/50 group-hover:border-primary transition-all"
+                      {/* Country Marker Group */}
+                      <g
+                        onClick={() => setSelectedCountry(country)}
+                        className="cursor-pointer group"
+                        filter="url(#glow)"
                       >
-                        {cuisine?.emoji}
-                      </motion.div>
+                        {/* Circle Background */}
+                        <circle
+                          cx={position.x}
+                          cy={position.y}
+                          r="28"
+                          fill="white"
+                          stroke="rgba(59, 130, 246, 0.5)"
+                          strokeWidth="2"
+                          className="group-hover:stroke-primary transition-all"
+                        />
 
-                      {/* Tooltip */}
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        whileHover={{ opacity: 1, y: 0 }}
-                        className="absolute -top-12 bg-card border border-primary/50 rounded-lg px-3 py-2 text-xs font-bold text-foreground whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                      >
-                        {country}
-                      </motion.div>
-                    </motion.button>
+                        {/* Country Emoji */}
+                        <text
+                          x={position.x}
+                          y={position.y}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          fontSize="32"
+                          className="group-hover:scale-125 transition-transform origin-center"
+                        >
+                          {cuisine?.emoji}
+                        </text>
+
+                        {/* Country Name on Hover */}
+                        <g opacity="0" className="group-hover:opacity-100 transition-opacity">
+                          <rect
+                            x={position.x - 35}
+                            y={position.y - 50}
+                            width="70"
+                            height="24"
+                            rx="4"
+                            fill="rgba(30, 41, 59, 0.95)"
+                          />
+                          <text
+                            x={position.x}
+                            y={position.y - 35}
+                            textAnchor="middle"
+                            fontSize="11"
+                            fontWeight="bold"
+                            fill="white"
+                          >
+                            {country}
+                          </text>
+                        </g>
+                      </g>
+                    </g>
                   );
                 })}
-              </div>
+              </svg>
 
               {/* Map Instructions */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="absolute bottom-4 left-4 text-xs text-muted-foreground bg-background/50 backdrop-blur px-3 py-2 rounded-lg"
+                className="absolute bottom-4 left-4 text-xs text-muted-foreground bg-white/80 backdrop-blur px-3 py-2 rounded-lg border border-primary/20"
               >
-                👆 Click on country emoji to explore
+                👆 Click on emoji markers to explore countries
               </motion.div>
             </motion.div>
 
