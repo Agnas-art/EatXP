@@ -820,6 +820,26 @@ const Index = () => {
             </motion.div>
           )}
 
+          {activeTab === "world" && (
+            <motion.div
+              key="world"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="space-y-6"
+            >
+              <div>
+                <h3 className="font-display text-xl font-bold text-foreground mb-1">
+                  🌍 World Pantry
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Explore global staple foods and traditional cuisine from around the world!
+                </p>
+              </div>
+              <WorldPantry onBack={() => setActiveTab("home")} />
+            </motion.div>
+          )}
+
           {activeTab === "recipes" && (
             <motion.div
               key="recipes"
