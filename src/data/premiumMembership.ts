@@ -5,7 +5,7 @@ export interface PremiumBenefit {
   icon: string;
   title: string;
   description: string;
-  category: "content" | "progression" | "features" | "exclusive";
+  category: "content" | "progression" | "features" | "exclusive" | "community";
 }
 
 export interface MembershipTier {
@@ -18,6 +18,35 @@ export interface MembershipTier {
   benefits: PremiumBenefit[];
   badge: string;
   color: string;
+  recommendedFor?: string;
+  savings?: string;
+}
+
+export interface PremiumUser {
+  membershipTier: "free" | "premium_monthly" | "premium_yearly" | "vip";
+  membershipStartDate: number;
+  membershipEndDate: number;
+  xpMultiplier: number;
+  unlockSpeedBoost: number;
+  companionDropBoost: number;
+  isPremium: boolean;
+  features: {
+    adFree: boolean;
+    offlineMode: boolean;
+    cloudSync: boolean;
+    prioritySupport: boolean;
+    battlePass: boolean;
+    vipLeaderboard: boolean;
+    seasonalEvents: boolean;
+    merchDiscounts: boolean;
+    collaborations: boolean;
+    earlyAccess: boolean;
+    exclusiveCharacters: boolean;
+    advancedQuests: boolean;
+    customization: boolean;
+    communityFeatures: boolean;
+    dailyStreakBonus: boolean;
+  };
 }
 
 export const PREMIUM_BENEFITS: Record<string, PremiumBenefit> = {
@@ -57,6 +86,13 @@ export const PREMIUM_BENEFITS: Record<string, PremiumBenefit> = {
     description: "Exclusive anime character themes and cosmetics",
     category: "content",
   },
+  seasonal_events: {
+    id: "seasonal_events",
+    icon: "🎉",
+    title: "Seasonal Events",
+    description: "Limited-time anime story arcs and special quests",
+    category: "content",
+  },
 
   // Progression
   double_xp: {
@@ -80,6 +116,20 @@ export const PREMIUM_BENEFITS: Record<string, PremiumBenefit> = {
     description: "Rare companion drop rate increased by 50%",
     category: "progression",
   },
+  daily_streak_bonus: {
+    id: "daily_streak_bonus",
+    icon: "🔥",
+    title: "Daily Streak Rewards",
+    description: "Earn bonus XP for daily login streaks",
+    category: "progression",
+  },
+  streak_protection: {
+    id: "streak_protection",
+    icon: "🛡️",
+    title: "Streak Protector",
+    description: "One free streak skip per week",
+    category: "progression",
+  },
 
   // Features
   ad_free: {
@@ -99,38 +149,98 @@ export const PREMIUM_BENEFITS: Record<string, PremiumBenefit> = {
   cloud_sync: {
     id: "cloud_sync",
     icon: "☁️",
-    title: "Cloud Save Backup",
-    description: "Automatic cloud backup of your progress",
+    title: "Cloud Sync",
+    description: "Sync progress across all devices automatically",
     category: "features",
   },
   priority_support: {
     id: "priority_support",
     icon: "💬",
     title: "Priority Support",
-    description: "Get support responses within 24 hours",
+    description: "Get faster response times from our support team",
     category: "features",
   },
-
-  // Exclusive
   battle_pass: {
     id: "battle_pass",
     icon: "🎖️",
     title: "Seasonal Battle Pass",
     description: "Exclusive seasonal rewards and cosmetics",
+    category: "features",
+  },
+  customization: {
+    id: "customization",
+    icon: "🎨",
+    title: "Avatar Customization",
+    description: "Unlock skins, outfits, and accessories for your character",
     category: "exclusive",
   },
-  cosmetic_pack: {
-    id: "cosmetic_pack",
-    icon: "💎",
-    title: "Monthly Cosmetic Pack",
-    description: "New character skins and theme colors every month",
-    category: "exclusive",
+
+  // Community Features
+  community_journal: {
+    id: "community_journal",
+    icon: "📔",
+    title: "Share Your Journey",
+    description: "Share food journals and nutrition progress with friends",
+    category: "community",
+  },
+  leaderboards: {
+    id: "leaderboards",
+    icon: "🏆",
+    title: "Global Leaderboards",
+    description: "Compete in weekly XP and badge challenges",
+    category: "community",
   },
   vip_leaderboard: {
     id: "vip_leaderboard",
-    icon: "🏆",
-    title: "VIP Leaderboard Rank",
-    description: "Exclusive VIP leaderboard with premium badges",
+    icon: "👑",
+    title: "VIP Leaderboard",
+    description: "Exclusive leaderboard for premium members only",
+    category: "community",
+  },
+
+  // Exclusive Content
+  exclusive_characters: {
+    id: "exclusive_characters",
+    icon: "🤖",
+    title: "Exclusive Anime Characters",
+    description: "Mentor characters like Sushi Samurai & Bento Sensei",
+    category: "exclusive",
+  },
+  advanced_farming: {
+    id: "advanced_farming",
+    icon: "🌾",
+    title: "Advanced Farming Missions",
+    description: "Organic farming challenges and sustainability quests",
+    category: "exclusive",
+  },
+  merch_discounts: {
+    id: "merch_discounts",
+    icon: "🎁",
+    title: "Merch Discounts",
+    description: "Exclusive discounts on anime-style food merchandise",
+    category: "exclusive",
+  },
+  collaborations: {
+    id: "collaborations",
+    icon: "🌟",
+    title: "Anime Collaborations",
+    description: "Special content from anime creators & food influencers",
+    category: "exclusive",
+  },
+  early_access: {
+    id: "early_access",
+    icon: "⏰",
+    title: "Early Access to New Content",
+    description: "Get recipes, quests, and characters first",
+    category: "exclusive",
+  },
+
+  // Badges & Rewards
+  premium_badges: {
+    id: "premium_badges",
+    icon: "🎖️",
+    title: "Premium Achievement Badges",
+    description: "Collect exclusive badges: Organic Hero, Eco Guardian, Sushi Master",
     category: "exclusive",
   },
 };
@@ -140,9 +250,10 @@ export const MEMBERSHIP_TIERS: MembershipTier[] = [
     id: "premium_monthly",
     name: "Premium Monthly",
     emoji: "⭐",
-    price: 4.99,
+    price: 2.99,
     billing: "monthly",
     description: "Perfect for trying premium features",
+    recommendedFor: "Try it out",
     color: "from-blue-400 to-blue-600",
     badge: "Premium",
     benefits: [
@@ -152,15 +263,22 @@ export const MEMBERSHIP_TIERS: MembershipTier[] = [
       PREMIUM_BENEFITS.ad_free,
       PREMIUM_BENEFITS.early_chapters,
       PREMIUM_BENEFITS.premium_quests,
+      PREMIUM_BENEFITS.exclusive_characters,
+      PREMIUM_BENEFITS.customization,
+      PREMIUM_BENEFITS.daily_streak_bonus,
+      PREMIUM_BENEFITS.leaderboards,
+      PREMIUM_BENEFITS.community_journal,
     ],
   },
   {
     id: "premium_yearly",
     name: "Premium Yearly",
     emoji: "💎",
-    price: 39.99,
+    price: 29.99,
     billing: "yearly",
-    description: "Best value - save 33%",
+    description: "Best value - save 50% vs monthly",
+    savings: "Save $6!",
+    recommendedFor: "Best Value",
     color: "from-purple-400 to-pink-600",
     badge: "Premium Plus",
     benefits: [
@@ -177,18 +295,28 @@ export const MEMBERSHIP_TIERS: MembershipTier[] = [
       PREMIUM_BENEFITS.cloud_sync,
       PREMIUM_BENEFITS.priority_support,
       PREMIUM_BENEFITS.battle_pass,
-      PREMIUM_BENEFITS.cosmetic_pack,
-      PREMIUM_BENEFITS.vip_leaderboard,
+      PREMIUM_BENEFITS.exclusive_characters,
+      PREMIUM_BENEFITS.customization,
+      PREMIUM_BENEFITS.seasonal_events,
+      PREMIUM_BENEFITS.merch_discounts,
+      PREMIUM_BENEFITS.collaborations,
+      PREMIUM_BENEFITS.early_access,
+      PREMIUM_BENEFITS.leaderboards,
+      PREMIUM_BENEFITS.community_journal,
+      PREMIUM_BENEFITS.daily_streak_bonus,
+      PREMIUM_BENEFITS.advanced_farming,
+      PREMIUM_BENEFITS.premium_badges,
     ],
   },
   {
     id: "vip",
     name: "VIP Elite",
     emoji: "👑",
-    price: 99.99,
-    billing: "yearly",
-    description: "Ultimate experience - all current and future premium content",
-    color: "from-yellow-400 to-red-500",
+    price: 5.99,
+    billing: "monthly",
+    description: "Ultimate premium with everything + VIP perks",
+    recommendedFor: "Most features",
+    color: "from-amber-400 to-orange-600",
     badge: "VIP Elite",
     benefits: [
       PREMIUM_BENEFITS.double_xp,
@@ -204,8 +332,19 @@ export const MEMBERSHIP_TIERS: MembershipTier[] = [
       PREMIUM_BENEFITS.cloud_sync,
       PREMIUM_BENEFITS.priority_support,
       PREMIUM_BENEFITS.battle_pass,
-      PREMIUM_BENEFITS.cosmetic_pack,
+      PREMIUM_BENEFITS.exclusive_characters,
+      PREMIUM_BENEFITS.customization,
+      PREMIUM_BENEFITS.seasonal_events,
+      PREMIUM_BENEFITS.merch_discounts,
+      PREMIUM_BENEFITS.collaborations,
+      PREMIUM_BENEFITS.early_access,
       PREMIUM_BENEFITS.vip_leaderboard,
+      PREMIUM_BENEFITS.leaderboards,
+      PREMIUM_BENEFITS.community_journal,
+      PREMIUM_BENEFITS.daily_streak_bonus,
+      PREMIUM_BENEFITS.streak_protection,
+      PREMIUM_BENEFITS.advanced_farming,
+      PREMIUM_BENEFITS.premium_badges,
     ],
   },
 ];
@@ -273,6 +412,15 @@ export const DEFAULT_FREE_USER: PremiumUser = {
     prioritySupport: false,
     battlePass: false,
     vipLeaderboard: false,
+    seasonalEvents: false,
+    merchDiscounts: false,
+    collaborations: false,
+    earlyAccess: false,
+    exclusiveCharacters: false,
+    advancedQuests: false,
+    customization: false,
+    communityFeatures: false,
+    dailyStreakBonus: false,
   },
 };
 
@@ -291,6 +439,15 @@ export const PREMIUM_MONTHLY_USER: PremiumUser = {
     prioritySupport: false,
     battlePass: false,
     vipLeaderboard: false,
+    seasonalEvents: true,
+    merchDiscounts: false,
+    collaborations: false,
+    earlyAccess: false,
+    exclusiveCharacters: true,
+    advancedQuests: true,
+    customization: true,
+    communityFeatures: true,
+    dailyStreakBonus: true,
   },
 };
 
@@ -309,6 +466,15 @@ export const PREMIUM_YEARLY_USER: PremiumUser = {
     prioritySupport: true,
     battlePass: true,
     vipLeaderboard: false,
+    seasonalEvents: true,
+    merchDiscounts: true,
+    collaborations: true,
+    earlyAccess: true,
+    exclusiveCharacters: true,
+    advancedQuests: true,
+    customization: true,
+    communityFeatures: true,
+    dailyStreakBonus: true,
   },
 };
 
@@ -323,6 +489,20 @@ export const VIP_ELITE_USER: PremiumUser = {
   features: {
     adFree: true,
     offlineMode: true,
+    cloudSync: true,
+    prioritySupport: true,
+    battlePass: true,
+    vipLeaderboard: true,
+    seasonalEvents: true,
+    merchDiscounts: true,
+    collaborations: true,
+    earlyAccess: true,
+    exclusiveCharacters: true,
+    advancedQuests: true,
+    customization: true,
+    communityFeatures: true,
+    dailyStreakBonus: true,
+  },
     cloudSync: true,
     prioritySupport: true,
     battlePass: true,
