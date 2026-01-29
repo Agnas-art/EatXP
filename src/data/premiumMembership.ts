@@ -503,9 +503,4 @@ export const VIP_ELITE_USER: PremiumUser = {
     communityFeatures: true,
     dailyStreakBonus: true,
   },
-    cloudSync: true,
-    prioritySupport: true,
-    battlePass: true,
-    vipLeaderboard: true,
-  },
 };
