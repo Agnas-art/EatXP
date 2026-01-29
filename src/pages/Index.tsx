@@ -69,7 +69,7 @@ const Index = () => {
   const [selectedFoodHero, setSelectedFoodHero] = useState<string | null>(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const { transcript, isListening } = useVoiceRecognition();
-  const { isPremium } = usePremium();
+  const { isPremium, premiumUser } = usePremium();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -502,6 +502,27 @@ const Index = () => {
               exit={{ opacity: 0, x: 20 }}
               className="space-y-6"
             >
+              {/* Premium Banner - Only show if not premium */}
+              {!isPremium && (
+                <motion.button
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowPremiumModal(true)}
+                  className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 rounded-2xl p-4 text-white relative overflow-hidden group"
+                >
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                  <div className="relative flex items-center justify-between">
+                    <div className="text-left">
+                      <p className="font-bold text-lg">✨ Unlock Premium</p>
+                      <p className="text-sm opacity-90">2x XP, Exclusive Content & More!</p>
+                    </div>
+                    <ArrowRight className="w-6 h-6" />
+                  </div>
+                </motion.button>
+              )}
+
               {/* Weather-based Food Suggestions */}
               <WeatherFoodSuggestion />
 
@@ -989,6 +1010,25 @@ const Index = () => {
                       Dietary Preferences
                     </h3>
                     <p className="text-sm text-muted-foreground mt-1">Set allergies & dietary choices</p>
+                  </div>
+                  <span className="text-2xl">→</span>
+                </div>
+              </motion.button>
+
+              {/* Premium Membership Button */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowPremiumModal(true)}
+                className={`w-full bg-gradient-to-r ${isPremium ? 'from-purple-500/20 to-pink-500/20 border-purple-500' : 'from-purple-500/30 to-pink-500/30 border-purple-600'} border-2 rounded-2xl p-6 shadow-card hover:shadow-float transition-all`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="text-left">
+                    <h3 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
+                      <span className="text-2xl">✨</span>
+                      {isPremium ? "Your Premium Membership" : "Get Premium"}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">{isPremium ? `Active until ${premiumUser?.expiryDate ? new Date(premiumUser.expiryDate).toLocaleDateString() : 'Forever'}` : "Unlock 2x XP, exclusive content & more!"}</p>
                   </div>
                   <span className="text-2xl">→</span>
                 </div>
