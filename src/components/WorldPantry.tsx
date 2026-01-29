@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Search, Globe } from "lucide-react";
 import { worldPantryData, getAllCountries } from "@/data/worldPantryData";
-import { WorldMapSVG, countryMapCoordinates } from "./WorldMapSVG";
+import WorldMap from "./WorldMap";
 
 interface WorldPantryProps {
   onBack: () => void;
@@ -237,118 +237,17 @@ export const WorldPantry = ({ onBack }: WorldPantryProps) => {
             transition={{ delay: 0.2 }}
             className="mb-8"
           >
-            {/* Interactive World Map with SVG */}
+            {/* OpenStreetMap Interactive World Map */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="relative w-full bg-blue-50 rounded-2xl border-2 border-primary/30 p-6 mb-6 aspect-video"
+              className="w-full rounded-2xl border-2 border-primary/30 mb-6 overflow-hidden"
+              style={{ minHeight: "500px" }}
             >
-              {/* SVG Map Background */}
-              <div className="w-full h-full absolute inset-0 rounded-2xl overflow-hidden">
-                <WorldMapSVG />
-              </div>
-
-              {/* Interactive Country Markers */}
-              <svg
-                viewBox="0 0 1200 800"
-                className="absolute inset-0 w-full h-full z-10 cursor-pointer"
-              >
-                <defs>
-                  <filter id="glow">
-                    <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-                    <feMerge>
-                      <feMergeNode in="coloredBlur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-                </defs>
-
-                {countries.map((country, idx) => {
-                  const position = countryMapCoordinates[country];
-                  if (!position) return null;
-
-                  const cuisine = worldPantryData.find((c) => c.country === country);
-
-                  return (
-                    <g key={country}>
-                      {/* Glow Circle Background */}
-                      <circle
-                        cx={position.x}
-                        cy={position.y}
-                        r="40"
-                        fill="rgba(59, 130, 246, 0.15)"
-                        opacity="0.6"
-                        className="hover:opacity-100 transition-opacity"
-                      />
-
-                      {/* Country Marker Group */}
-                      <g
-                        onClick={() => setSelectedCountry(country)}
-                        className="cursor-pointer group"
-                        filter="url(#glow)"
-                      >
-                        {/* Circle Background */}
-                        <circle
-                          cx={position.x}
-                          cy={position.y}
-                          r="28"
-                          fill="white"
-                          stroke="rgba(59, 130, 246, 0.5)"
-                          strokeWidth="2"
-                          className="group-hover:stroke-primary transition-all"
-                        />
-
-                        {/* Country Emoji */}
-                        <text
-                          x={position.x}
-                          y={position.y}
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                          fontSize="32"
-                          className="group-hover:scale-125 transition-transform origin-center"
-                        >
-                          {cuisine?.emoji}
-                        </text>
-
-                        {/* Country Name on Hover */}
-                        <g opacity="0" className="group-hover:opacity-100 transition-opacity">
-                          <rect
-                            x={position.x - 35}
-                            y={position.y - 50}
-                            width="70"
-                            height="24"
-                            rx="4"
-                            fill="rgba(30, 41, 59, 0.95)"
-                          />
-                          <text
-                            x={position.x}
-                            y={position.y - 35}
-                            textAnchor="middle"
-                            fontSize="11"
-                            fontWeight="bold"
-                            fill="white"
-                          >
-                            {country}
-                          </text>
-                        </g>
-                      </g>
-                    </g>
-                  );
-                })}
-              </svg>
-
-              {/* Map Instructions */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="absolute bottom-4 left-4 text-xs text-muted-foreground bg-white/80 backdrop-blur px-3 py-2 rounded-lg border border-primary/20"
-              >
-                👆 Click on emoji markers to explore countries
-              </motion.div>
+              <WorldMap onCountryClick={setSelectedCountry} />
             </motion.div>
 
-            {/* Search for Map View */}
+            {/* Search for Countries */}
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
               <input
